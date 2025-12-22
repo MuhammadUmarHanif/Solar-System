@@ -1,0 +1,50 @@
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.aurora-hero__panel {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes starDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(10px, -14px, 0);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.55;
+  }
+}
+
+.aurora-hero__bg canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.aurora-hero__bgFallback {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 20% 30%, rgba(19, 255, 170, 0.12), transparent 55%),
+    radial-gradient(circle at 80% 28%, rgba(30, 103, 198, 0.14), transparent 55%);
+  background-size: 180px 180px, 95px 95px, cover, cover;
+  background-position: 0 0, 34px 52px, center, center;
+  animation: starDrift 10s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-actions a{
+  color: white;
+}
