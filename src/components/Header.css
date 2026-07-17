@@ -2,10 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(10, 20, 24, 0.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .site-header__inner {
@@ -23,32 +23,121 @@
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
 .brand__mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.15));
-  box-shadow: 0 10px 30px rgba(19, 255, 170, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: none;
+}
+
+/* Premium 3D Animated Solar System Logo */
+.solar-system-logo {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 800px;
+  margin-right: 8px;
+  transform-style: preserve-3d;
+  transform: rotateX(70deg); /* Tilt the whole system */
+}
+
+.sun {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #ffcc00, #ff6600);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 15px 4px rgba(255, 165, 0, 0.6),
+    0 0 30px 8px rgba(255, 69, 0, 0.4);
+  transform: rotateX(-70deg); /* Counter-rotate sun to face camera */
+  z-index: 10;
+}
+
+.orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transform-style: preserve-3d;
+  animation: orbit-rotate linear infinite;
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
+}
+
+.planet {
+  position: absolute;
+  border-radius: 50%;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(-70deg); /* Counter-rotate planet */
+  box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.6), 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.orbit-mercury { width: 22px; height: 22px; animation-duration: 3s; }
+.mercury { width: 4px; height: 4px; background: radial-gradient(circle at 30% 30%, #d5d5d5, #8c8c8c); }
+
+.orbit-venus { width: 34px; height: 34px; animation-duration: 5s; }
+.venus { width: 6px; height: 6px; background: radial-gradient(circle at 30% 30%, #ffebba, #c4994f); }
+
+.orbit-earth { width: 48px; height: 48px; animation-duration: 8s; }
+.earth { 
+  width: 8px; 
+  height: 8px; 
+  background: radial-gradient(circle at 30% 30%, #6b93d6, #2b5c9e); 
+  transform-style: preserve-3d;
+}
+
+.moon-orbit {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dotted rgba(255, 255, 255, 0.3);
+  animation: orbit-rotate 2s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.moon {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 2px #fff;
+}
+
+@keyframes orbit-rotate {
+  0% { transform: translateZ(0) rotateZ(0deg); }
+  100% { transform: translateZ(0) rotateZ(360deg); }
 }
 
 .brand__text {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 0%, #00d2ff 50%, #3a7bd5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 
 .nav-toggle {
   display: none;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--glass-border);
   background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
   width: 42px;
   height: 42px;
   border-radius: 14px;
@@ -61,7 +150,7 @@
 .nav-toggle:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.26);
+  border-color: var(--glass-border-highlight);
 }
 
 .nav-toggle:active {
@@ -95,7 +184,7 @@
   padding: 0 12px;
   border-radius: 12px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--text-secondary);
   font-weight: 600;
   letter-spacing: -0.01em;
   transition: background 160ms ease, color 160ms ease;
@@ -103,7 +192,7 @@
 
 .site-nav__link:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.98);
+  color: var(--text-primary);
 }
 
 .site-nav__cta {
@@ -111,35 +200,29 @@
   align-items: center;
   justify-content: center;
   height: 40px;
-  padding: 0 14px;
+  padding: 0 16px;
   border-radius: 999px;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.95);
   font-weight: 800;
   letter-spacing: -0.01em;
   
-  /* Subtle glass effect */
-  background: linear-gradient(
-    135deg,
-    rgba(19, 255, 170, 0.2),
-    rgba(30, 103, 198, 0.2)
-  );
-  
+  /* Glass effect for primary button */
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(58, 123, 213, 0.2));
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background-color: rgba(255, 255, 255, 0.08);
-  
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.05),
-    0 14px 30px rgba(19, 255, 170, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 210, 255, 0.1);
   
   transition: all 160ms ease;
+  cursor: pointer;
 }
 
 .site-nav__cta:hover {
   transform: translateY(-1px);
-  filter: brightness(1.05);
+  filter: brightness(1.1);
+  border-color: rgba(0, 210, 255, 0.6);
 }
 
 .site-nav__cta:active {
@@ -160,19 +243,19 @@
   padding: 0 14px;
   border-radius: 999px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.92);
-  font-weight: 850;
+  color: var(--text-primary);
+  font-weight: 700;
   letter-spacing: -0.01em;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
   transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
 .site-nav__authSecondary:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--glass-border-highlight);
 }
 
 .site-nav__user {
@@ -181,10 +264,10 @@
   height: 40px;
   padding: 0 12px;
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(2, 6, 23, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  font-weight: 850;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
@@ -195,10 +278,10 @@
   height: 40px;
   padding: 0 14px;
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
   background: rgba(127, 29, 29, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  font-weight: 850;
+  font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
   transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
@@ -225,17 +308,19 @@
 
   .site-nav.is-open {
     display: flex;
-    position: fixed;
+    position: absolute;
     left: 12px;
     right: 12px;
     top: 70px;
     flex-direction: column;
     align-items: stretch;
-    padding: 12px;
-    border-radius: 18px;
-    background: rgba(10, 20, 24, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(15, 20, 30, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
   }
 
   .site-nav__list {
@@ -250,7 +335,7 @@
 
   .site-nav__cta {
     width: 100%;
-    margin-top: 6px;
+    margin-top: 12px;
   }
 
   .site-nav__actions {
@@ -265,3 +350,6 @@
     width: 100%;
   }
 }
+
+
+

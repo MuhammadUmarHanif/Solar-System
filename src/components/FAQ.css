@@ -3,7 +3,7 @@
   margin: 0;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 14px;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 90px rgba(255, 255, 255, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
   position: relative;
   overflow: hidden;
@@ -43,8 +43,8 @@
 .faq-item {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(2, 6, 23, 0.2);
-  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(2, 6, 23, 0.22);
+  box-shadow: 0 18px 70px rgba(255, 255, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   overflow: hidden;
 }
 
@@ -113,4 +113,7 @@
     font-size: 1.9rem;
   }
 }
+
+
+
 

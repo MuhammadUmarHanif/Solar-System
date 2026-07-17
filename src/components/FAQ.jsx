@@ -42,7 +42,7 @@ const FAQ = () => {
   };
 
   return (
-    <section id="faq" className="faq-section">
+    <section id="faq" className="faq-section glass-panel">
       <h2>Frequently Asked Questions</h2>
       <p className="section-subtitle">Common questions about sizing, costs, and setup.</p>
 

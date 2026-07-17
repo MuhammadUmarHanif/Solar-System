@@ -1,4 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import { TiltContainer } from './TiltContainer';
 import './AuthModal.css';
 
 const USERS_KEY = 'mySolarUsers';
@@ -23,6 +26,71 @@ const writeCurrentUser = (user) => {
 };
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+// Mini 3D Solar Hologram Scene for the logo
+const MiniGlobeScene = () => {
+  const sunRef = useRef();
+  const planetRef = useRef();
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (sunRef.current) {
+      sunRef.current.rotation.y += 0.015;
+      sunRef.current.rotation.x += 0.005;
+    }
+    if (planetRef.current) {
+      planetRef.current.position.x = Math.cos(t * 1.5) * 0.95;
+      planetRef.current.position.z = Math.sin(t * 1.5) * 0.95;
+      planetRef.current.rotation.y += 0.02;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" />
+      
+      {/* Sun */}
+      <mesh ref={sunRef}>
+        <sphereGeometry args={[0.36, 32, 32]} />
+        <meshStandardMaterial 
+          color="#ff9f0a" 
+          emissive="#ff3b30"
+          emissiveIntensity={1.8}
+          roughness={0.1}
+          metalness={0.8}
+        />
+      </mesh>
+      
+      {/* Orbit Trail */}
+      <mesh rotation={[Math.PI / 2.2, 0, 0]}>
+        <ringGeometry args={[0.93, 0.97, 64]} />
+        <meshBasicMaterial color="#13ffaa" opacity={0.25} transparent side={THREE.DoubleSide} />
+      </mesh>
+      
+      {/* Orbiting Planet */}
+      <mesh ref={planetRef}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial 
+          color="#13ffaa" 
+          emissive="#005533" 
+          roughness={0.2}
+          metalness={0.5}
+        />
+      </mesh>
+    </>
+  );
+};
+
+const MiniSolarGlobe = () => {
+  return (
+    <div className="auth-modal__3d-logo">
+      <Canvas camera={{ position: [0, 0, 2.0], fov: 45 }}>
+        <MiniGlobeScene />
+      </Canvas>
+    </div>
+  );
+};
 
 const AuthModal = ({ isOpen, initialMode = 'login', onClose, onAuthSuccess }) => {
   const [mode, setMode] = useState(initialMode);
@@ -61,10 +129,6 @@ const AuthModal = ({ isOpen, initialMode = 'login', onClose, onAuthSuccess }) =>
       document.body.style.overflow = previous;
     };
   }, [isOpen]);
-
-  const headerText = useMemo(() => {
-    return mode === 'login' ? 'Login' : 'Create account';
-  }, [mode]);
 
   const submitLogin = (event) => {
     event.preventDefault();
@@ -119,154 +183,206 @@ const AuthModal = ({ isOpen, initialMode = 'login', onClose, onAuthSuccess }) =>
     <div className="auth-modal" role="dialog" aria-modal="true" aria-label="Authentication">
       <div className="auth-modal__backdrop" onMouseDown={onClose} />
 
-      <div className="auth-modal__panel" role="document">
-        <div className="auth-modal__top" />
-
-        <button type="button" className="auth-modal__close" onClick={onClose} aria-label="Close">
-          ✕
-        </button>
-
-        <div className="auth-modal__header">
-          <div className="auth-modal__heading">
-            <span className="auth-modal__mark" aria-hidden="true">
-              ☀
-            </span>
-            <h3 className="auth-modal__title">{headerText}</h3>
-            <p className="auth-modal__subtitle">
-              {mode === 'login' ? 'Welcome back. Continue your planning.' : 'Sign up to save your session locally.'}
-            </p>
-          </div>
-        </div>
-
-        <div className="auth-modal__tabs" role="tablist" aria-label="Login and signup">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'login'}
-            className={`auth-modal__tab ${mode === 'login' ? 'is-active' : ''}`}
-            onClick={() => switchMode('login')}
-          >
-            Login
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'signup'}
-            className={`auth-modal__tab ${mode === 'signup' ? 'is-active' : ''}`}
-            onClick={() => switchMode('signup')}
-          >
-            Sign up
-          </button>
-        </div>
-
-        {error ? <div className="auth-modal__error">{error}</div> : null}
-
-        {mode === 'login' ? (
-          <form className="auth-modal__form" onSubmit={submitLogin}>
-            <label className="auth-field">
-              <span className="auth-field__label">Email</span>
-              <input
-                type="email"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                className="auth-field__input"
-                placeholder="you@example.com"
-                autoComplete="email"
-                required
-              />
-            </label>
-
-            <label className="auth-field">
-              <span className="auth-field__label">Password</span>
-              <input
-                type="password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                className="auth-field__input"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                required
-              />
-            </label>
-
-            <button type="submit" className="auth-modal__submit">
-              Login
+      {/* Tilt Container wrapper for 3D card tilt interaction */}
+      <TiltContainer className="auth-modal__tilt" intensity={8} style={{ transformStyle: 'preserve-3d' }}>
+        <div className={`auth-modal__card ${mode === 'signup' ? 'is-flipped' : ''}`} style={{ transformStyle: 'preserve-3d' }}>
+          
+          {/* ==================== FRONT SIDE: LOGIN ==================== */}
+          <div className="auth-modal__side auth-modal__front" role="document" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="auth-modal__top-gradient" />
+            
+            <button type="button" className="auth-modal__close" onClick={onClose} aria-label="Close">
+              ✕
             </button>
 
-            <p className="auth-modal__hint">
-              Don’t have an account?{' '}
-              <button type="button" className="auth-modal__link" onClick={() => switchMode('signup')}>
-                Sign up
-              </button>
-            </p>
-          </form>
-        ) : (
-          <form className="auth-modal__form" onSubmit={submitSignup}>
-            <label className="auth-field">
-              <span className="auth-field__label">Name</span>
-              <input
-                type="text"
-                value={signupName}
-                onChange={(e) => setSignupName(e.target.value)}
-                className="auth-field__input"
-                placeholder="Your name"
-                autoComplete="name"
-                required
-              />
-            </label>
+            <div className="auth-modal__header" style={{ transform: 'translateZ(30px)' }}>
+              <div className="auth-modal__heading">
+                <MiniSolarGlobe />
+                <h3 className="auth-modal__title">Login</h3>
+                <p className="auth-modal__subtitle">
+                  Welcome back. Continue your planning.
+                </p>
+              </div>
+            </div>
 
-            <label className="auth-field">
-              <span className="auth-field__label">Email</span>
-              <input
-                type="email"
-                value={signupEmail}
-                onChange={(e) => setSignupEmail(e.target.value)}
-                className="auth-field__input"
-                placeholder="you@example.com"
-                autoComplete="email"
-                required
-              />
-            </label>
-
-            <label className="auth-field">
-              <span className="auth-field__label">Password</span>
-              <input
-                type="password"
-                value={signupPassword}
-                onChange={(e) => setSignupPassword(e.target.value)}
-                className="auth-field__input"
-                placeholder="At least 6 characters"
-                autoComplete="new-password"
-                required
-              />
-            </label>
-
-            <label className="auth-field">
-              <span className="auth-field__label">Confirm password</span>
-              <input
-                type="password"
-                value={signupConfirm}
-                onChange={(e) => setSignupConfirm(e.target.value)}
-                className="auth-field__input"
-                placeholder="Repeat password"
-                autoComplete="new-password"
-                required
-              />
-            </label>
-
-            <button type="submit" className="auth-modal__submit">
-              Create account
-            </button>
-
-            <p className="auth-modal__hint">
-              Already have an account?{' '}
-              <button type="button" className="auth-modal__link" onClick={() => switchMode('login')}>
+            <div className="auth-modal__tabs" role="tablist" aria-label="Login and signup" style={{ transform: 'translateZ(20px)' }}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={true}
+                className="auth-modal__tab is-active"
+                onClick={() => switchMode('login')}
+              >
                 Login
               </button>
-            </p>
-          </form>
-        )}
-      </div>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={false}
+                className="auth-modal__tab"
+                onClick={() => switchMode('signup')}
+              >
+                Sign up
+              </button>
+            </div>
+
+            {error && mode === 'login' ? (
+              <div className="auth-modal__error" style={{ transform: 'translateZ(25px)' }}>{error}</div>
+            ) : null}
+
+            <form className="auth-modal__form" onSubmit={submitLogin} style={{ transform: 'translateZ(15px)' }}>
+              <label className="auth-field">
+                <span className="auth-field__label">Email</span>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="auth-field__input"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                />
+              </label>
+
+              <label className="auth-field">
+                <span className="auth-field__label">Password</span>
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="auth-field__input"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                />
+              </label>
+
+              <button type="submit" className="auth-modal__submit">
+                Login
+              </button>
+
+              <p className="auth-modal__hint">
+                Don’t have an account?{' '}
+                <button type="button" className="auth-modal__link" onClick={() => switchMode('signup')}>
+                  Sign up
+                </button>
+              </p>
+            </form>
+          </div>
+
+          {/* ==================== BACK SIDE: SIGN UP ==================== */}
+          <div className="auth-modal__side auth-modal__back" role="document" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="auth-modal__top-gradient" />
+
+            <button type="button" className="auth-modal__close" onClick={onClose} aria-label="Close">
+              ✕
+            </button>
+
+            <div className="auth-modal__header" style={{ transform: 'translateZ(30px)' }}>
+              <div className="auth-modal__heading">
+                <MiniSolarGlobe />
+                <h3 className="auth-modal__title">Create account</h3>
+                <p className="auth-modal__subtitle">
+                  Sign up to save your session locally.
+                </p>
+              </div>
+            </div>
+
+            <div className="auth-modal__tabs" role="tablist" aria-label="Login and signup" style={{ transform: 'translateZ(20px)' }}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={false}
+                className="auth-modal__tab"
+                onClick={() => switchMode('login')}
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={true}
+                className="auth-modal__tab is-active"
+                onClick={() => switchMode('signup')}
+              >
+                Sign up
+              </button>
+            </div>
+
+            {error && mode === 'signup' ? (
+              <div className="auth-modal__error" style={{ transform: 'translateZ(25px)' }}>{error}</div>
+            ) : null}
+
+            <form className="auth-modal__form" onSubmit={submitSignup} style={{ transform: 'translateZ(15px)' }}>
+              <div className="auth-modal__scrollable-fields">
+                <label className="auth-field">
+                  <span className="auth-field__label">Name</span>
+                  <input
+                    type="text"
+                    value={signupName}
+                    onChange={(e) => setSignupName(e.target.value)}
+                    className="auth-field__input"
+                    placeholder="Your name"
+                    autoComplete="name"
+                    required
+                  />
+                </label>
+
+                <label className="auth-field">
+                  <span className="auth-field__label">Email</span>
+                  <input
+                    type="email"
+                    value={signupEmail}
+                    onChange={(e) => setSignupEmail(e.target.value)}
+                    className="auth-field__input"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    required
+                  />
+                </label>
+
+                <label className="auth-field">
+                  <span className="auth-field__label">Password</span>
+                  <input
+                    type="password"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    className="auth-field__input"
+                    placeholder="At least 6 characters"
+                    autoComplete="new-password"
+                    required
+                  />
+                </label>
+
+                <label className="auth-field">
+                  <span className="auth-field__label">Confirm password</span>
+                  <input
+                    type="password"
+                    value={signupConfirm}
+                    onChange={(e) => setSignupConfirm(e.target.value)}
+                    className="auth-field__input"
+                    placeholder="Repeat password"
+                    autoComplete="new-password"
+                    required
+                  />
+                </label>
+              </div>
+
+              <button type="submit" className="auth-modal__submit">
+                Create account
+              </button>
+
+              <p className="auth-modal__hint">
+                Already have an account?{' '}
+                <button type="button" className="auth-modal__link" onClick={() => switchMode('login')}>
+                  Login
+                </button>
+              </p>
+            </form>
+          </div>
+
+        </div>
+      </TiltContainer>
     </div>
   );
 };

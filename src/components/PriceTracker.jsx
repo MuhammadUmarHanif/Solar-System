@@ -120,10 +120,10 @@ const PriceTracker = () => {
   }, []);
 
   return (
-    <section id="tracker" className="tracker-section">
-      <h2>Live Price Tracker</h2>
+    <section id="tracker" className="tracker-section glass-panel">
+      <h2>🛰️ Live Interstellar Price Tracker</h2>
       <div className="tracker-header">
-        <p>Real-time prices from Pakistani vendors in PKR</p>
+        <p>Real-time solar module prices from Earth vendors in PKR</p>
         {lastUpdated && (
           <div className="update-time">
             <span className="update-icon">🔄</span>

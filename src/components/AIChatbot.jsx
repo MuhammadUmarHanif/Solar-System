@@ -324,9 +324,9 @@ What specific question do you have?`;
   }, [messages, isTyping]);
 
   return (
-    <section id="chatbot" className="chatbot-section">
-      <h2>🤖 Universal AI Assistant</h2>
-      <p className="chatbot-tagline">Ask me anything - From solar energy to general knowledge!</p>
+    <section id="chatbot" className="chatbot-section glass-panel">
+      <h2>🧑‍🚀 Deep Space AI Assistant</h2>
+      <p className="chatbot-tagline">Ask me anything - From solar systems and space exploration to solar energy setups!</p>
       
      
 
@@ -339,32 +339,32 @@ What specific question do you have?`;
       </div>
 
       {/* Topic Selection */}
-      <div className="topic-selection">
+      <div className="topic-selection glass-panel">
         <p className="topic-title">Quick topics you can ask about:</p>
         <div className="topic-buttons">
           <button className="topic-btn solar" onClick={() => handleTopicSelection('solar')}>
-            ☀️ Solar Energy
+            🪐 Solar Energy
           </button>
           <button className="topic-btn tech" onClick={() => handleTopicSelection('tech')}>
-            💻 Technology
+            🛰️ Technology
           </button>
           <button className="topic-btn science" onClick={() => handleTopicSelection('science')}>
-            🔬 Science
+            🌌 Science
           </button>
           <button className="topic-btn health" onClick={() => handleTopicSelection('health')}>
-            🏥 Health
+            👨‍🚀 Astronaut Health
           </button>
           <button className="topic-btn finance" onClick={() => handleTopicSelection('finance')}>
-            💰 Finance
+            🚀 Finance
           </button>
           <button className="topic-btn education" onClick={() => handleTopicSelection('education')}>
-            📚 Education
+            🔭 Education
           </button>
           <button className="topic-btn general" onClick={() => handleTopicSelection('general')}>
-            🌍 General
+            🌍 Earth
           </button>
           <button className="topic-btn creative" onClick={() => handleTopicSelection('creative')}>
-            🎨 Creative
+            ✨ Deep Space
           </button>
         </div>
       </div>

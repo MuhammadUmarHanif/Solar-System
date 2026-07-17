@@ -166,9 +166,9 @@ const SolarCalculator = () => {
   };
 
   return (
-    <section id="calculator" className="calculator-section">
-      <h2> PK Solar Plate Calculator for Pakistan</h2>
-      <p className="section-subtitle">Add your appliances to know exactly how many solar plates you need</p>
+    <section id="calculator" className="calculator-section glass-panel">
+      <h2>🧑‍🚀 Space Grade Solar Plate Calculator for Pakistan</h2>
+      <p className="section-subtitle">Calculate the exact energy and solar plates needed for your deep space (or Earth) base</p>
       
       {/* Quick Presets */}
       <div className="presets-section">

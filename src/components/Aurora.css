@@ -48,3 +48,90 @@
 .hero-actions a{
   color: white;
 }
+
+/* Massive Hero Solar System */
+.hero-solar-system {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  transform: rotateX(60deg);
+  margin: 0 auto 30px auto;
+}
+
+.hero-sun {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle at 30% 30%, #fff, #ffcc00, #ff6600);
+  border-radius: 50%;
+  box-shadow: 0 0 40px 10px rgba(255, 165, 0, 0.6), 0 0 80px 20px rgba(255, 69, 0, 0.4);
+  transform: rotateX(-60deg);
+  z-index: 10;
+}
+
+.hero-orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transform-style: preserve-3d;
+  animation: hero-orbit-rotate linear infinite;
+}
+
+.hero-planet {
+  position: absolute;
+  border-radius: 50%;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(-60deg);
+  box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.6), 0 0 6px rgba(255, 255, 255, 0.2);
+}
+
+.hero-orbit-mercury { width: 100px; height: 100px; animation-duration: 4s; }
+.hero-mercury { width: 10px; height: 10px; background: radial-gradient(circle at 30% 30%, #d5d5d5, #8c8c8c); }
+
+.hero-orbit-venus { width: 150px; height: 150px; animation-duration: 7s; }
+.hero-venus { width: 16px; height: 16px; background: radial-gradient(circle at 30% 30%, #ffebba, #c4994f); }
+
+.hero-orbit-earth { width: 220px; height: 220px; animation-duration: 11s; }
+.hero-earth { width: 20px; height: 20px; background: radial-gradient(circle at 30% 30%, #6b93d6, #2b5c9e); }
+
+.hero-moon-orbit {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dotted rgba(255, 255, 255, 0.4);
+  animation: hero-orbit-rotate 3s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.hero-moon {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #fff;
+  border-radius: 50%;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px #fff;
+}
+
+.hero-orbit-mars { width: 290px; height: 290px; animation-duration: 16s; }
+.hero-mars { width: 14px; height: 14px; background: radial-gradient(circle at 30% 30%, #ff7b54, #b23a1e); }
+
+@keyframes hero-orbit-rotate {
+  0% { transform: translateZ(0) rotateZ(0deg); }
+  100% { transform: translateZ(0) rotateZ(360deg); }
+}
+
+
+

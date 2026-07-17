@@ -3,7 +3,7 @@
   margin: 0;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 14px;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 90px rgba(255, 255, 255, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
   position: relative;
   overflow: hidden;
@@ -62,7 +62,7 @@
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(2, 6, 23, 0.22);
-  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 70px rgba(255, 255, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .loading {
@@ -103,7 +103,7 @@
 }
 
 .price-table th {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.88));
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.22));
   color: white;
   padding: 14px 12px;
   text-align: left;
@@ -175,7 +175,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 18px 60px rgba(255, 255, 255, 0.28);
 }
 
 .summary-card h4 {
@@ -242,5 +242,8 @@
 .price-list::-webkit-scrollbar-thumb {
   background: linear-gradient(90deg, rgba(19, 255, 170, 0.45), rgba(30, 103, 198, 0.55));
   border-radius: 999px;
-  border: 2px solid rgba(2, 6, 23, 0.55);
+  border: 2px solid rgba(2, 6, 23, 0.22);
 }
+
+
+

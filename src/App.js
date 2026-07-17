@@ -20,7 +20,7 @@ function App() {
           <FAQ />
         </div>
       </main>
-      <footer className="Footer">
+      <footer className="Footer glass-panel" style={{ borderRadius: 0, borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}>
         <div className="Footer__inner">
           <span>Solar Guidance System</span>
           <span className="Footer__dot" aria-hidden="true">•</span>
@@ -32,3 +32,4 @@ function App() {
 }
 
 export default App;
+

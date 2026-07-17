@@ -51,8 +51,17 @@ const Header = () => {
     <header className="site-header">
       <div className="site-header__inner">
         <a className="brand" href="#top" aria-label="Solar Guidance System">
-          <span className="brand__mark" aria-hidden="true">☀</span>
-          <span className="brand__text">Solar Guidance</span>
+          <div className="solar-system-logo">
+            <div className="sun"></div>
+            <div className="orbit orbit-mercury"><div className="planet mercury"></div></div>
+            <div className="orbit orbit-venus"><div className="planet venus"></div></div>
+            <div className="orbit orbit-earth">
+              <div className="planet earth">
+                <div className="moon-orbit"><div className="moon"></div></div>
+              </div>
+            </div>
+          </div>
+          <span className="brand__text">Solar System Guide</span>
         </a>
 
         <button

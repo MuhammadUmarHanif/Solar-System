@@ -1,5 +1,4 @@
-import { Stars } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { ThreeSolarSystem } from './ThreeSolarSystem';
 import './Aurora.css';
 import React, { useEffect, useState } from "react";
 import { FiArrowRight } from "react-icons/fi";
@@ -9,21 +8,9 @@ import {
   motion,
   animate,
 } from "framer-motion";
+import { TiltContainer } from './TiltContainer';
 
-const COLORS_TOP = ["#13FFAA", "#1E67C6", "#CE84CF", "#DD335C"];
-
-const isWebGLAvailable = () => {
-  try {
-    const canvas = document.createElement("canvas");
-    const gl =
-      canvas.getContext("webgl2", { failIfMajorPerformanceCaveat: true }) ||
-      canvas.getContext("webgl", { failIfMajorPerformanceCaveat: true }) ||
-      canvas.getContext("experimental-webgl", { failIfMajorPerformanceCaveat: true });
-    return !!gl;
-  } catch {
-    return false;
-  }
-};
+const COLORS_TOP = ["#00d2ff", "#3a7bd5", "#8a2be2", "#4b0082"];
 
 class WebGLErrorBoundary extends React.Component {
   constructor(props) {
@@ -61,13 +48,9 @@ export const AuroraHero = () => {
     return () => controls.stop();
   }, [color]);
 
-  useEffect(() => {
-    setCanUseWebGL(isWebGLAvailable());
-  }, []);
-
-  const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, #020617 50%, ${color})`;
-  const border = useMotionTemplate`1px solid rgba(255, 255, 255, 0.18)`;
-  const boxShadow = useMotionTemplate`0px 1px 1px rgba(0, 0, 0, 0.02), 0px 4px 15px ${color}`;
+  const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, #030712 50%, ${color})`;
+  const border = useMotionTemplate`1px solid rgba(255, 255, 255, 0.25)`;
+  const boxShadow = useMotionTemplate`0px 1px 1px rgba(0, 0, 0, 0.05), 0px 4px 20px ${color}`;
 
   return (
     <motion.section
@@ -79,15 +62,13 @@ export const AuroraHero = () => {
     >
       <div className="aurora-hero__overlay" />
 
-      <div className="aurora-hero__bg" aria-hidden="true">
+      <div className="aurora-hero__bg" aria-hidden="true" style={{ pointerEvents: 'auto' }}>
         {canUseWebGL ? (
           <WebGLErrorBoundary
             fallback={<div className="aurora-hero__bgFallback" />}
             onError={() => setCanUseWebGL(false)}
           >
-            <Canvas style={{ pointerEvents: "none" }}>
-              <Stars radius={50} count={2600} factor={4} fade speed={1.8} />
-            </Canvas>
+            <ThreeSolarSystem />
           </WebGLErrorBoundary>
         ) : (
           <div className="aurora-hero__bgFallback" />
@@ -96,7 +77,9 @@ export const AuroraHero = () => {
 
       <div className="aurora-hero__inner">
         <div>
-          <span className="aurora-hero__badge">Solar planning for Pakistan</span>
+          <span className="aurora-hero__badge glass-panel">
+            <span style={{color: '#00d2ff'}}>✨</span> Premium Solar Guidance
+          </span>
           <h1 className="aurora-hero__title">Build a smarter solar setup, faster.</h1>
           <p className="aurora-hero__subtitle">
             Estimate panels, inverter size, cost, and ROI from your appliances, then compare vendor pricing and ask the AI assistant for guidance.
@@ -105,35 +88,42 @@ export const AuroraHero = () => {
           <div className="hero-actions">
             <motion.a
               href="#calculator"
-              className="btn btn--secondary"
-              style={{ border}}
-              whileHover={{ scale: 1.15 }}
+              className="btn btn--primary"
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.985 }}
+              style={{ boxShadow }}
             >
               Get Estimate <FiArrowRight />
             </motion.a>
-            <a className="btn btn--secondary" href="#tracker">
+            <motion.a 
+              className="btn btn--secondary glass-panel" 
+              href="#tracker"
+              style={{ border }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.985 }}
+            >
               Track live prices
-            </a>
+            </motion.a>
           </div>
         </div>
 
-        <div className="aurora-hero__panel">
-          <div className="aurora-hero__cards" >
-            <div className="aurora-hero__card">
-              <p className="aurora-hero__cardTitle">Solar Calculator</p>
+        {/* 3D Parallax Tilt container for Right Cards */}
+        <TiltContainer className="aurora-hero__panel glass-panel" intensity={10} style={{ transformStyle: 'preserve-3d' }}>
+          <div className="aurora-hero__cards" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="aurora-hero__card glass-panel" style={{ transform: 'translateZ(30px)', transformStyle: 'preserve-3d' }}>
+              <p className="aurora-hero__cardTitle">🪐 Solar Calculator</p>
               <p className="aurora-hero__cardText">Pick appliances and instantly see recommended panels with buffer.</p>
             </div>
-            <div className="aurora-hero__card">
-              <p className="aurora-hero__cardTitle">Price Tracker</p>
+            <div className="aurora-hero__card glass-panel" style={{ transform: 'translateZ(55px)', transformStyle: 'preserve-3d' }}>
+              <p className="aurora-hero__cardTitle">🛰️ Price Tracker</p>
               <p className="aurora-hero__cardText">Compare example vendor pricing across cities, wattage, and efficiency.</p>
             </div>
-            <div className="aurora-hero__card">
-              <p className="aurora-hero__cardTitle">AI Assistant</p>
+            <div className="aurora-hero__card glass-panel" style={{ transform: 'translateZ(80px)', transformStyle: 'preserve-3d' }}>
+              <p className="aurora-hero__cardTitle">👨‍🚀 AI Assistant</p>
               <p className="aurora-hero__cardText">Ask about sizing, net metering, ROI, and practical next steps.</p>
             </div>
           </div>
-        </div>
+        </TiltContainer>
       </div>
     </motion.section>
   );
