@@ -162,6 +162,8 @@ const SolarCalculator = () => {
         setSelectedPanel(panelTypes[5]); // 550W panel
         setDailyUsageHours(10);
         break;
+      default:
+        break;
     }
   };
 
