@@ -15,7 +15,6 @@ const AIChatbot = () => {
 
   // DeepSeek API Configuration (read from environment variable, never hardcoded in git)
   const DEEPSEEK_API_KEY = process.env.REACT_APP_DEEPSEEK_API_KEY || "";
-  const PROXY_URL = "https://api.allorigins.win/raw?url=";
   const API_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
 
   // System Prompt

@@ -1,4 +1,4 @@
-:root {
+.orbit-root {
   --u: max( min(calc(100vw / 1563), calc(100vh / 460)), 0.80px );
   --ink: #ffffff;
   --ink-mark: rgba(255,255,255,.98);
@@ -13,13 +13,13 @@
 }
 
 @supports (height: 100dvh) {
-  :root {
+  .orbit-root {
     --u: max( min(calc(100vw / 1563), calc(100dvh / 460)), 0.80px );
   }
 }
 
 @supports not (width: max(1px, 1vw)) {
-  :root {
+  .orbit-root {
     --u: calc(100vw / 1563);
   }
 }
