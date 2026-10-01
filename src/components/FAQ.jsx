@@ -6,34 +6,34 @@ const FAQ = () => {
 
   const items = [
     {
-      question: 'How do I know how many solar panels I need?',
+      question: 'How do I determine the number of solar panels needed?',
       answer:
-        'Start with your total connected load (watts) and daily usage (hours). This app’s calculator estimates recommended panel count with a buffer for losses.',
+        'Start by calculating your total connected appliance wattage and daily running hours. Our Sizing Engine calculates your total daily kWh consumption and divides it by regional peak sun hours, automatically adding a 20% safety buffer for weather and conversion losses.',
     },
     {
-      question: 'What panel wattage should I choose in Pakistan?',
+      question: 'What module wattage is recommended for residential roofs in Pakistan?',
       answer:
-        'Higher-watt panels reduce the number of panels needed, but availability and pricing vary. Compare 400W–600W options and consider roof space, budget, and brand warranty.',
+        'Modern Tier-1 550W to 600W Monocrystalline or Bifacial modules are currently the standard benchmark in Pakistan. They maximize energy density per square meter, requiring fewer roof brackets and cabling while delivering superior low-light performance.',
     },
     {
-      question: 'Do I need batteries for my solar system?',
+      question: 'Do on-grid solar systems require battery backup?',
       answer:
-        'Not always. On-grid systems with net metering can work without batteries. Batteries add backup during load-shedding but increase cost and require maintenance.',
+        'No. Standard on-grid systems with net metering feed directly into your home and export surplus power to the DISCO grid without batteries. If you experience frequent load-shedding during night hours, a hybrid inverter paired with Lithium (LiFePO4) storage is recommended.',
     },
     {
-      question: 'What inverter size is recommended?',
+      question: 'How does Net Metering work with local DISCOs (LESCO, KE, IESCO)?',
       answer:
-        'A common approach is sizing the inverter about 20–30% above your peak load to handle surges. The calculator provides an estimate based on your appliances.',
+        'Net metering utilizes a bidirectional 3-phase green meter. When your solar generates more electricity than your premises consume, units are exported to the national grid. These units are credited against your nighttime or off-peak consumption on your monthly bill.',
     },
     {
-      question: 'How does net metering work in Pakistan?',
+      question: 'What is the average payback period (ROI) for a home system?',
       answer:
-        'Net metering lets you export excess solar to the grid and receive credits against your bill. Requirements depend on your DISCO and system design, so confirm current rules and paperwork.',
+        'Given current grid electricity unit tariffs in Pakistan, a typical 5kW to 10kW residential solar system achieves complete payback within 2.5 to 3.5 years, followed by 20+ years of essentially free daytime power.',
     },
     {
-      question: 'How long does it take to recover the cost (ROI)?',
+      question: 'What inverter sizing should I pair with my panel array?',
       answer:
-        'ROI depends on your consumption, unit rate, system cost, and how much energy you export. Use the calculator results and current panel pricing to estimate payback in months.',
+        'As a rule of thumb, select an inverter capacity rated 20% to 25% higher than your simultaneous peak running wattage to comfortably absorb initial appliance surge currents (like compressor startup).',
     },
   ];
 
@@ -43,39 +43,55 @@ const FAQ = () => {
 
   return (
     <section id="faq" className="faq-section glass-panel">
-      <h2>Frequently Asked Questions</h2>
-      <p className="section-subtitle">Common questions about sizing, costs, and setup.</p>
+      {/* Section Header */}
+      <div className="section-header">
+        <span className="section-pill">Support & Knowledge</span>
+        <h2>Frequently Asked Questions</h2>
+        <p className="section-subtitle">
+          Essential answers regarding system sizing, inverter compatibility, and net metering.
+        </p>
+      </div>
 
       <div className="faq-list">
         {items.map((item, index) => {
           const isOpen = openIndex === index;
-          const buttonId = `faq-button-${index}`;
+          const buttonId = `faq-btn-${index}`;
           const panelId = `faq-panel-${index}`;
 
           return (
-            <div key={item.question} className={`faq-item ${isOpen ? 'is-open' : ''}`}>
+            <div key={item.question} className={`faq-card ${isOpen ? 'is-open' : ''}`}>
               <button
                 type="button"
                 id={buttonId}
-                className="faq-question"
+                className="faq-trigger"
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => toggle(index)}
               >
-                <span className="faq-question__text">{item.question}</span>
-                <span className="faq-question__icon" aria-hidden="true">
-                  {isOpen ? '−' : '+'}
+                <span className="faq-q-text">{item.question}</span>
+                <span className="faq-icon" aria-hidden="true">
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="chevron-svg"
+                  >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
                 </span>
               </button>
 
               <div
                 id={panelId}
-                className="faq-answer"
+                className="faq-content"
                 role="region"
                 aria-labelledby={buttonId}
                 hidden={!isOpen}
               >
-                <p>{item.answer}</p>
+                <p className="faq-a-text">{item.answer}</p>
               </div>
             </div>
           );
@@ -86,4 +102,3 @@ const FAQ = () => {
 };
 
 export default FAQ;
-

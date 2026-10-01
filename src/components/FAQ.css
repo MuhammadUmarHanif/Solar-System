@@ -1,119 +1,112 @@
+/* FAQ: Minimal Space-Tech Design Matching Orbit Hero */
+
 .faq-section {
-  padding: 30px;
+  padding: 48px;
   margin: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  box-shadow: 0 30px 90px rgba(255, 255, 255, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 13, 20, 0.72);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: #ffffff;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.faq-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #13ffaa, #1e67c6, #ce84cf);
-}
-
-.faq-section h2 {
-  margin: 0 0 12px;
-  text-align: center;
-  font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(220, 240, 255, 0.66));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .faq-list {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 18px;
 }
 
-.faq-item {
+.faq-card {
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(2, 6, 23, 0.22);
-  box-shadow: 0 18px 70px rgba(255, 255, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.faq-question {
+.faq-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.faq-card.is-open {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 210, 255, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.faq-trigger {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 16px 18px;
+  gap: 16px;
+  padding: 20px 24px;
   background: transparent;
   border: 0;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 850;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
   text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.faq-q-text {
+  flex: 1;
   letter-spacing: -0.01em;
 }
 
-.faq-question:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(19, 255, 170, 0.22);
+.faq-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.25s ease, color 0.2s ease;
 }
 
-.faq-question__text {
-  font-size: 1.02rem;
-  line-height: 1.35;
+.chevron-svg {
+  width: 18px;
+  height: 18px;
 }
 
-.faq-question__icon {
-  flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.25rem;
-  font-weight: 900;
+.faq-card.is-open .faq-icon {
+  transform: rotate(180deg);
+  color: #00d2ff;
 }
 
-.faq-answer {
-  padding: 0 18px 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.76);
-  line-height: 1.7;
+.faq-content {
+  padding: 0 24px 20px 24px;
 }
 
-.faq-answer p {
-  margin: 12px 0 0;
+.faq-a-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.faq-item.is-open .faq-question__icon {
-  background: linear-gradient(135deg, rgba(19, 255, 170, 0.22), rgba(30, 103, 198, 0.22));
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-@media (max-width: 600px) {
+/* Responsive */
+@media (max-width: 640px) {
   .faq-section {
-    padding: 22px;
+    padding: 24px 18px;
+    border-radius: 18px;
   }
-
-  .faq-section h2 {
-    font-size: 1.9rem;
+  .faq-trigger {
+    padding: 16px 18px;
+    font-size: 14px;
+  }
+  .faq-content {
+    padding: 0 18px 16px 18px;
   }
 }
-
-
-
-

@@ -1,18 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import Header from './components/Header';
+import OrbitHero from './components/OrbitHero';
 import SolarCalculator from './components/SolarCalculator';
 import PriceTracker from './components/PriceTracker';
 import AIChatbot from './components/AIChatbot';
-import { AuroraHero } from './components/AuroraHero';
 import FAQ from './components/FAQ';
+import AuthModal from './components/AuthModal';
+
+const CURRENT_USER_KEY = 'mySolarCurrentUser';
 
 function App() {
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CURRENT_USER_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && typeof parsed === 'object') setCurrentUser(parsed);
+    } catch {
+      setCurrentUser(null);
+    }
+  }, []);
+
+  const openAuth = (mode = 'login') => {
+    setAuthMode(mode);
+    setIsAuthOpen(true);
+  };
+
+  const closeAuth = () => setIsAuthOpen(false);
+
+  const logout = () => {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    setCurrentUser(null);
+  };
+
   return (
     <div className="App">
-      <Header />
+      {/* 1. Orbit Hero Section (SS1 artwork + SS2 typography) */}
+      <OrbitHero
+        currentUser={currentUser}
+        onOpenAuth={openAuth}
+        onLogout={logout}
+      />
+
+      {/* 2. Core Solar Features Section (Seamless scroll down) */}
       <main className="Main">
-        <AuroraHero />
         <div className="Content">
           <SolarCalculator />
           <PriceTracker />
@@ -20,21 +54,27 @@ function App() {
           <FAQ />
         </div>
       </main>
-      <footer className="Footer glass-panel" style={{ borderRadius: 0, borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}>
+
+      {/* 3. Deep Space Themed Footer */}
+      <footer className="Footer glass-panel">
         <div className="Footer__inner">
-          <span>Solar Guidance System</span>
+          <span>Orbit Solar Guidance System</span>
+          <span className="Footer__dot" aria-hidden="true">•</span>
+          <span>Deep Space Energy Solutions</span>
           <span className="Footer__dot" aria-hidden="true">•</span>
           <span>Pakistan</span>
         </div>
-        <div style={{ display: 'none' }}>
-          <p>
-            <a href="https://www.consulics.com" target="_blank" rel="noopener noreferrer">Consulics</a> is an IRS Authorized Form 2290 and Form 8849 e-File provider for truck owners, fleets, and tax professionals. File HVUT online and get your stamped Schedule 1 in minutes.
-          </p>
-        </div>
       </footer>
+
+      {/* 4. Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        initialMode={authMode}
+        onClose={closeAuth}
+        onAuthSuccess={(user) => setCurrentUser(user)}
+      />
     </div>
   );
 }
 
 export default App;
-

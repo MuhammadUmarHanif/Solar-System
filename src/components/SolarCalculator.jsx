@@ -1,443 +1,650 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './SolarCalculator.css';
 
 const SolarCalculator = () => {
-  // Appliances Database
-  const appliancesList = [
-    { id: 1, name: "Ceiling Fan", watts: 75, quantity: 0 },
-    { id: 2, name: "LED Lights", watts: 10, quantity: 0 },
-    { id: 3, name: "Refrigerator", watts: 150, quantity: 0 },
-    { id: 4, name: "Television", watts: 100, quantity: 0 },
-    { id: 5, name: "AC (1 Ton)", watts: 1200, quantity: 0 },
-    { id: 6, name: "AC (1.5 Ton)", watts: 1800, quantity: 0 },
-    { id: 7, name: "Washing Machine", watts: 500, quantity: 0 },
-    { id: 8, name: "Water Pump", watts: 750, quantity: 0 },
-    { id: 9, name: "Electric Iron", watts: 1000, quantity: 0 },
-    { id: 10, name: "Computer", watts: 100, quantity: 0 },
-    { id: 11, name: "Chargers", watts: 10, quantity: 0 },
-    { id: 12, name: "Geyser", watts: 3000, quantity: 0 },
-    { id: 13, name: "Room Heater", watts: 1500, quantity: 0 },
-    { id: 14, name: "Microwave", watts: 1000, quantity: 0 },
-    { id: 15, name: "Air Cooler", watts: 200, quantity: 0 },
-    { id: 16, name: "Wifi Devices", watts: 6, quantity: 0 }
+  // Input Mode: 'bill_rs' (Bill in Rupees), 'bill_units' (Bill in Units), or 'appliances' (List of fans/ACs)
+  const [inputMode, setInputMode] = useState('bill_rs');
+  
+  // Primary Inputs
+  const [monthlyBillRs, setMonthlyBillRs] = useState(32000); // PKR 32,000 / month
+  const [monthlyUnits, setMonthlyUnits] = useState(650); // 650 kWh
+  
+  // Average NEPRA tariff in Pakistan (including taxes, fuel price adjustment - FPA, surcharges)
+  const avgTariff = 48; // PKR per unit
+
+  // Major Pakistani Cities / Regions (with actual peak sun irradiance hours)
+  const cities = [
+    { id: 'lahore', name: "Lahore & Central Punjab (LESCO / GEPCO)", sunHours: 4.8 },
+    { id: 'islamabad', name: "Islamabad & Rawalpindi (IESCO)", sunHours: 5.0 },
+    { id: 'karachi', name: "Karachi & Sindh (K-Electric / HESCO)", sunHours: 5.5 },
+    { id: 'multan', name: "Multan & South Punjab (MEPCO)", sunHours: 5.4 },
+    { id: 'faisalabad', name: "Faisalabad (FESCO)", sunHours: 4.9 },
+    { id: 'peshawar', name: "Peshawar & KPK (PESCO)", sunHours: 4.8 },
+    { id: 'quetta', name: "Quetta & Balochistan (QESCO)", sunHours: 6.2 },
   ];
+  const [selectedCity, setSelectedCity] = useState(cities[0]);
 
-  // Solar Panel Types available in Pakistan
-  const panelTypes = [
-    { name: "300W Polycrystalline", watts: 300, efficiency: "17%", price: 18000 },
-    { name: "330W Polycrystalline", watts: 330, efficiency: "18%", price: 20000 },
-    { name: "400W Monocrystalline", watts: 400, efficiency: "20%", price: 25000 },
-    { name: "450W Monocrystalline", watts: 450, efficiency: "21%", price: 28000 },
-    { name: "500W Monocrystalline", watts: 500, efficiency: "21.5%", price: 32000 },
-    { name: "550W Monocrystalline", watts: 550, efficiency: "22%", price: 35000 },
-    { name: "600W Bifacial", watts: 600, efficiency: "23%", price: 42000 }
+  // System Types explained in simple plain English
+  const systemOptions = [
+    {
+      id: 'ongrid',
+      title: "On-Grid (Net Metering)",
+      badge: "Zero Bill System",
+      subNote: "Sell excess solar units back to WAPDA/K-Electric",
+      desc: "Best for eliminating electricity bills. Uses solar directly during the day and exports extra power to the grid. Fastest payback period.",
+      recommended: true
+    },
+    {
+      id: 'hybrid',
+      title: "Hybrid (Battery Backup)",
+      badge: "Loadshedding Protected",
+      subNote: "Runs even during power outages and blackouts",
+      desc: "Includes battery storage. Powers your essential fans, lights, and fridge when the main grid goes down.",
+      recommended: false
+    }
   ];
+  const [selectedSystemType, setSelectedSystemType] = useState('ongrid');
 
-  const [appliances, setAppliances] = useState(appliancesList);
-  const [dailyUsageHours, setDailyUsageHours] = useState(6);
-  const [selectedPanel, setSelectedPanel] = useState(panelTypes[3]); // Default 450W
-  const [sunHours, setSunHours] = useState(5);
-  const [results, setResults] = useState(null);
+  // Solar Panels - Current Verified Tier-1 Pakistan Market
+  const panels = [
+    {
+      id: '550w',
+      name: "550W Tier-1 Mono PERC (Longi / JA Solar)",
+      tag: "Most popular & reliable choice in Pakistan",
+      watts: 550,
+      price: 18500
+    },
+    {
+      id: '585w',
+      name: "585W N-Type TOPCon (Jinko Tiger Neo)",
+      tag: "Latest high efficiency (maximum generation)",
+      watts: 585,
+      price: 20500
+    },
+    {
+      id: '600w',
+      name: "600W Bifacial Dual-Glass (Canadian / Trina)",
+      tag: "Dual-sided generation for higher output",
+      watts: 600,
+      price: 22500
+    }
+  ];
+  const [selectedPanel, setSelectedPanel] = useState(panels[1]); // Default 585W TOPCon
 
-  // Update appliance quantity
-  const updateApplianceQuantity = (id, quantity) => {
-    setAppliances(prev => prev.map(appliance => 
-      appliance.id === id ? { ...appliance, quantity: parseInt(quantity) || 0 } : appliance
+  // Everyday Appliances with realistic running hours
+  const initialAppliances = [
+    { id: 1, name: "1.5 Ton Inverter AC", subtext: "Master Bedroom AC", watts: 1400, hours: 8, quantity: 1, icon: "❄️" },
+    { id: 2, name: "1.0 Ton Inverter AC", subtext: "Small Room AC", watts: 1000, hours: 8, quantity: 0, icon: "❄️" },
+    { id: 3, name: "Ceiling Fans", subtext: "Standard / Inverter Fans", watts: 65, hours: 14, quantity: 4, icon: "🌀" },
+    { id: 4, name: "Refrigerator / Fridge", subtext: "Inverter Compressor", watts: 160, hours: 12, quantity: 1, icon: "🧊" },
+    { id: 5, name: "Water Pump (Motor)", subtext: "1.0 HP Water Motor", watts: 750, hours: 1.5, quantity: 1, icon: "💧" },
+    { id: 6, name: "Washing Machine", subtext: "Automatic / Spinner", watts: 450, hours: 1, quantity: 1, icon: "🧺" },
+    { id: 7, name: "LED Lights / Bulbs", subtext: "Home Lighting", watts: 12, hours: 6, quantity: 12, icon: "💡" },
+    { id: 8, name: "Electric Iron", subtext: "Dry & Steam Iron", watts: 1000, hours: 0.5, quantity: 1, icon: "👔" },
+    { id: 9, name: "LED TV & Smart Box", subtext: "Television", watts: 85, hours: 6, quantity: 1, icon: "📺" },
+    { id: 10, name: "WiFi Router & CCTV", subtext: "Internet & Security", watts: 30, hours: 24, quantity: 1, icon: "📡" },
+    { id: 11, name: "Deep Freezer", subtext: "Deep Freezer Unit", watts: 240, hours: 8, quantity: 0, icon: "❄️" },
+    { id: 12, name: "Computer / Laptop", subtext: "PC Workstation", watts: 120, hours: 6, quantity: 1, icon: "💻" },
+  ];
+  const [appliances, setAppliances] = useState(initialAppliances);
+
+  // Update appliance count
+  const updateQuantity = (id, delta) => {
+    setAppliances(prev => prev.map(item => 
+      item.id === id ? { ...item, quantity: Math.max(0, item.quantity + delta) } : item
     ));
   };
 
-  // Calculate total consumption
-  const calculateConsumption = () => {
-    let totalWatts = 0;
-    appliances.forEach(appliance => {
-      totalWatts += appliance.watts * appliance.quantity;
-    });
-    return totalWatts;
-  };
-
-  // Calculate number of solar plates needed
-  const calculateSolarPlates = () => {
-    const totalWatts = calculateConsumption();
-    const totalDailyConsumption = totalWatts * dailyUsageHours; // Watt-hours
-    
-    // Required solar panel wattage = Daily consumption / Sun hours
-    const requiredSolarWattage = totalDailyConsumption / sunHours;
-    
-    // Number of panels = Required wattage / Panel wattage
-    const numberOfPanels = Math.ceil(requiredSolarWattage / selectedPanel.watts);
-    
-    // Add 20% buffer for system losses
-    const panelsWithBuffer = Math.ceil(numberOfPanels * 1.2);
-    
-    // Calculate total cost
-    const totalCost = panelsWithBuffer * selectedPanel.price;
-    
-    // Calculate inverter size (should be 25% more than total load)
-    const inverterSize = Math.ceil(totalWatts * 1.25 / 1000); // in kW
-    
-    // Calculate battery requirements (optional)
-    const batteryAH = Math.ceil((totalDailyConsumption * 1) / (12 * 0.5)); // For 1 day backup
-    
-    // Calculate monthly savings
-    const monthlyConsumptionKWH = (totalDailyConsumption * 30) / 1000;
-    const monthlySavingsPKR = monthlyConsumptionKWH * 35; // PKR 35 per unit
-    
-    setResults({
-      totalWatts,
-      totalDailyConsumption: totalDailyConsumption / 1000, // in kWh
-      requiredSolarWattage,
-      numberOfPanels: panelsWithBuffer,
-      panelType: selectedPanel.name,
-      panelWattage: selectedPanel.watts,
-      inverterSize: `${inverterSize} kW`,
-      batteryAH: batteryAH > 0 ? `${batteryAH} AH` : 'Not Required',
-      totalCost: totalCost.toLocaleString(),
-      monthlySavings: monthlySavingsPKR.toLocaleString(),
-      roiMonths: Math.ceil(totalCost / monthlySavingsPKR)
-    });
-  };
-
-  // Reset all appliances
-  const resetAll = () => {
-    setAppliances(appliancesList.map(appliance => ({ ...appliance, quantity: 0 })));
-    setResults(null);
-  };
-
-  // Quick setup presets
-  const applyPreset = (presetName) => {
-    switch(presetName) {
-      case 'smallHome':
-        const smallHomePreset = appliances.map(appliance => {
-          const quantities = {
-            "Ceiling Fan": 3,
-            "LED Lights": 10,
-            "Refrigerator": 1,
-            "Television": 1,
-            "Computer": 1,
-            "Chargers": 5
-          };
-          return { ...appliance, quantity: quantities[appliance.name] || 0 };
-        });
-        setAppliances(smallHomePreset);
-        setSelectedPanel(panelTypes[2]); // 400W panel
-        setDailyUsageHours(6);
-        break;
-        
-      case 'mediumHome':
-        const mediumHomePreset = appliances.map(appliance => {
-          const quantities = {
-            "Ceiling Fan": 4,
-            "LED Lights": 15,
-            "Refrigerator": 1,
-            "Television": 2,
-            "AC (1 Ton)": 1,
-            "Washing Machine": 1,
-            "Computer": 2,
-            "Chargers": 8
-          };
-          return { ...appliance, quantity: quantities[appliance.name] || 0 };
-        });
-        setAppliances(mediumHomePreset);
-        setSelectedPanel(panelTypes[4]); // 500W panel
-        setDailyUsageHours(8);
-        break;
-        
-      case 'largeHome':
-        const largeHomePreset = appliances.map(appliance => {
-          const quantities = {
-            "Ceiling Fan": 6,
-            "LED Lights": 20,
-            "Refrigerator": 1,
-            "Television": 3,
-            "AC (1.5 Ton)": 2,
-            "Washing Machine": 1,
-            "Water Pump": 1,
-            "Geyser": 1,
-            "Computer": 3,
-            "Chargers": 10
-          };
-          return { ...appliance, quantity: quantities[appliance.name] || 0 };
-        });
-        setAppliances(largeHomePreset);
-        setSelectedPanel(panelTypes[5]); // 550W panel
-        setDailyUsageHours(10);
-        break;
-      default:
-        break;
+  // Quick Preset Handlers (Super easy for anyone)
+  const applyHousePreset = (preset) => {
+    if (preset === '5marla') {
+      setInputMode('bill_rs');
+      setMonthlyBillRs(22000);
+      setMonthlyUnits(450);
+    } else if (preset === '10marla') {
+      setInputMode('bill_rs');
+      setMonthlyBillRs(45000);
+      setMonthlyUnits(850);
+    } else if (preset === '1kanal') {
+      setInputMode('bill_rs');
+      setMonthlyBillRs(95000);
+      setMonthlyUnits(1800);
     }
   };
 
+  // Auto-sync between bill Rs and Units when changed
+  const handleBillRsChange = (val) => {
+    const num = Math.max(0, parseInt(val) || 0);
+    setMonthlyBillRs(num);
+    setMonthlyUnits(Math.round(num / avgTariff));
+  };
+
+  const handleUnitsChange = (val) => {
+    const num = Math.max(0, parseInt(val) || 0);
+    setMonthlyUnits(num);
+    setMonthlyBillRs(num * avgTariff);
+  };
+
+  // Live Auto Calculation (Recalculates instantly when any parameter changes)
+  const calculatedResults = useMemo(() => {
+    let dailyKwhNeeded = 0;
+
+    if (inputMode === 'bill_rs') {
+      const units = monthlyBillRs / avgTariff;
+      dailyKwhNeeded = units / 30;
+    } else if (inputMode === 'bill_units') {
+      dailyKwhNeeded = monthlyUnits / 30;
+    } else {
+      // By appliance inventory
+      let totalDailyWattHours = 0;
+      appliances.forEach(a => {
+        totalDailyWattHours += a.watts * a.quantity * a.hours;
+      });
+      dailyKwhNeeded = totalDailyWattHours / 1000;
+    }
+
+    if (dailyKwhNeeded <= 0) dailyKwhNeeded = 5; // fallback minimum
+
+    // 100% Engineering Derate & Peak Sun Hours
+    const derateFactor = 0.80; // 20% standard losses (temperature, dust, inverter & DC drop)
+    const sunHours = selectedCity.sunHours;
+    
+    // Required DC Solar kW
+    const requiredDcKw = (dailyKwhNeeded / sunHours) / derateFactor;
+
+    // Number of Panels
+    const panelWatts = selectedPanel.watts;
+    const numberOfPanels = Math.max(4, Math.ceil((requiredDcKw * 1000) / panelWatts));
+    const exactSystemKw = (numberOfPanels * panelWatts) / 1000;
+
+    // Inverter Capacity in Pakistan Standards
+    let inverterKw = 3.2;
+    let inverterName = "3.2 kW On-Grid / Hybrid";
+    if (exactSystemKw > 14) {
+      inverterKw = 20;
+      inverterName = "20 kW Three-Phase Inverter";
+    } else if (exactSystemKw > 10.5) {
+      inverterKw = 15;
+      inverterName = "15 kW Three-Phase Inverter";
+    } else if (exactSystemKw > 7.5) {
+      inverterKw = 10;
+      inverterName = "10 kW Three-Phase Inverter";
+    } else if (exactSystemKw > 5.2) {
+      inverterKw = 8;
+      inverterName = "8 kW Three-Phase Inverter";
+    } else if (exactSystemKw > 3.4) {
+      inverterKw = 6;
+      inverterName = "6 kW Three-Phase Inverter";
+    } else {
+      inverterKw = 3.6;
+      inverterName = "3.6 kW Single-Phase Inverter";
+    }
+
+    // Monthly units generated by solar
+    const monthlyGeneratedUnits = Math.round(exactSystemKw * sunHours * 30 * derateFactor);
+
+    // Monthly bill savings (PKR)
+    const monthlySavings = Math.round(monthlyGeneratedUnits * avgTariff);
+    const yearlySavings = monthlySavings * 12;
+
+    // Turnkey Project Cost in Pakistan (Panels + Inverter + Customized Heavy Gauge GI Stand + AC/DC Wires, Breakers, Earthing, Net Metering Green Meter Processing)
+    const pricePerKw = selectedSystemType === 'hybrid' ? 142000 : 120000;
+    const totalEstimatedCostMin = Math.round(exactSystemKw * (pricePerKw - 6000));
+    const totalEstimatedCostMax = Math.round(exactSystemKw * (pricePerKw + 6000));
+
+    // Panels alone cost
+    const panelsOnlyCost = numberOfPanels * selectedPanel.price;
+
+    // Payback period
+    const paybackYears = (totalEstimatedCostMin / yearlySavings).toFixed(1);
+
+    // Roof space required (22-23 sq ft per modern 550W+ module with walking clearance)
+    const roofAreaSqFt = Math.round(numberOfPanels * 23);
+
+    return {
+      systemKw: exactSystemKw.toFixed(1),
+      numberOfPanels,
+      panelModel: selectedPanel.name,
+      inverterName,
+      inverterKw,
+      monthlyGeneratedUnits,
+      monthlySavings,
+      yearlySavings,
+      totalEstimatedCostMin,
+      totalEstimatedCostMax,
+      panelsOnlyCost,
+      paybackYears,
+      roofAreaSqFt
+    };
+  }, [inputMode, monthlyBillRs, monthlyUnits, appliances, selectedCity, selectedSystemType, selectedPanel]);
+
   return (
     <section id="calculator" className="calculator-section glass-panel">
-      <h2>🧑‍🚀 Space Grade Solar Plate Calculator for Pakistan</h2>
-      <p className="section-subtitle">Calculate the exact energy and solar plates needed for your deep space (or Earth) base</p>
-      
-      {/* Quick Presets */}
-      <div className="presets-section">
-        <h3>Quick Setup:</h3>
-        <div className="preset-buttons">
-          <button onClick={() => applyPreset('smallHome')} className="preset-btn small">
-            🏠 Small Home (2-3 Bedroom)
+      {/* Friendly Header in Easy English */}
+      <div className="section-header">
+        <span className="section-pill">⚡ Easy Solar Calculator</span>
+        <h2>Calculate Your Solar System</h2>
+        <p className="section-subtitle">
+          Simple and accurate solar calculator. Enter your monthly electricity bill or select your home appliances to instantly find out how many solar panels you need, total cost, and monthly savings.
+        </p>
+      </div>
+
+      {/* 3 Simple Ways to Input */}
+      <div className="input-mode-tabs-container">
+        <div className="input-mode-tabs">
+          <button
+            type="button"
+            className={`mode-tab-btn ${inputMode === 'bill_rs' ? 'is-active' : ''}`}
+            onClick={() => setInputMode('bill_rs')}
+          >
+            <span className="tab-icon">💳</span>
+            <div className="tab-text">
+              <strong>Monthly Bill (in Rupees)</strong>
+              <span>e.g. Rs. 30,000 / month</span>
+            </div>
           </button>
-          <button onClick={() => applyPreset('mediumHome')} className="preset-btn medium">
-            🏡 Medium Home (3-4 Bedroom)
+
+          <button
+            type="button"
+            className={`mode-tab-btn ${inputMode === 'bill_units' ? 'is-active' : ''}`}
+            onClick={() => setInputMode('bill_units')}
+          >
+            <span className="tab-icon">⚡</span>
+            <div className="tab-text">
+              <strong>Electricity Units (kWh)</strong>
+              <span>e.g. 500 or 700 Units</span>
+            </div>
           </button>
-          <button onClick={() => applyPreset('largeHome')} className="preset-btn large">
-            🏘️ Large Home (5+ Bedroom)
+
+          <button
+            type="button"
+            className={`mode-tab-btn ${inputMode === 'appliances' ? 'is-active' : ''}`}
+            onClick={() => setInputMode('appliances')}
+          >
+            <span className="tab-icon">🏠</span>
+            <div className="tab-text">
+              <strong>By Home Appliances</strong>
+              <span>Select Fans, ACs, Fridge, etc.</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Quick House Size Presets */}
+        <div className="house-presets-bar">
+          <span className="presets-label">Quick house size shortcuts:</span>
+          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('5marla')}>
+            🏠 5 Marla (Small Home ~3 kW)
+          </button>
+          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('10marla')}>
+            🏡 10 Marla (Medium Home ~6 kW)
+          </button>
+          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('1kanal')}>
+            🏰 1 Kanal (Large Home ~10 kW)
           </button>
         </div>
       </div>
-      
-      <div className="calculator-container">
-        {/* Left Column - Appliances */}
-        <div className="appliances-column">
-          <h3>⚡ Your Appliances</h3>
-          <div className="appliances-grid">
-            {appliances.map(appliance => (
-              <div key={appliance.id} className="appliance-item">
-                <div className="appliance-header">
-                  <span className="appliance-name">{appliance.name}</span>
-                  <span className="appliance-watts">{appliance.watts}W</span>
-                </div>
-                <div className="quantity-controls">
-                  <button 
-                    onClick={() => updateApplianceQuantity(appliance.id, Math.max(0, appliance.quantity - 1))}
-                    className="qty-btn minus"
-                  >
-                    -
-                  </button>
-                  <span className="quantity-display">{appliance.quantity}</span>
-                  <button 
-                    onClick={() => updateApplianceQuantity(appliance.id, appliance.quantity + 1)}
-                    className="qty-btn plus"
-                  >
-                    +
-                  </button>
-                </div>
+
+      {/* Two Column Grid */}
+      <div className="calculator-grid">
+        {/* Left Column: Easy Inputs */}
+        <div className="column-card input-column">
+          {inputMode === 'bill_rs' && (
+            <div className="input-block-card">
+              <div className="card-top-title">
+                <h3>What is your average monthly electricity bill?</h3>
+                <span className="helper-badge">WAPDA / K-Electric Bill</span>
               </div>
-            ))}
-          </div>
-          
-          <button onClick={resetAll} className="reset-btn">
-            🔄 Reset All
-          </button>
-        </div>
-        
-        {/* Right Column - Configuration and Results */}
-        <div className="config-column">
-          <div className="config-card">
-            <h3>🔧 Configuration</h3>
-            
-            <div className="config-item">
-              <label>Daily Usage Hours:</label>
-              <div className="hours-slider">
+              <p className="simple-guide-text">
+                Enter your average summer bill to size a system that makes your bill zero:
+              </p>
+
+              <div className="big-value-display-box">
+                <span className="currency-label">PKR</span>
                 <input
-                  type="range"
-                  min="2"
-                  max="16"
-                  step="1"
-                  value={dailyUsageHours}
-                  onChange={(e) => setDailyUsageHours(parseInt(e.target.value))}
+                  type="number"
+                  step="1000"
+                  min="5000"
+                  max="500000"
+                  className="big-number-input"
+                  value={monthlyBillRs}
+                  onChange={(e) => handleBillRsChange(e.target.value)}
                 />
-                <span className="hours-value">{dailyUsageHours} hours/day</span>
+                <span className="time-badge">/ Month</span>
               </div>
-            </div>
-            
-            <div className="config-item">
-              <label>Sunlight Hours (Pakistan):</label>
-              <div className="sun-hours">
-                <select 
-                  value={sunHours}
-                  onChange={(e) => setSunHours(parseFloat(e.target.value))}
-                  className="sun-select"
-                >
-                  <option value="4">Karachi: 5.5 hours</option>
-                  <option value="4.5">Lahore: 4.5 hours</option>
-                  <option value="5">Islamabad: 5 hours</option>
-                  <option value="6">Quetta: 6 hours</option>
-                  <option value="4">Multan: 4 hours</option>
-                </select>
+
+              {/* Slider */}
+              <input
+                type="range"
+                min="8000"
+                max="150000"
+                step="2000"
+                className="clean-slider"
+                value={monthlyBillRs}
+                onChange={(e) => handleBillRsChange(e.target.value)}
+              />
+
+              <div className="slider-hints-row">
+                <span>Rs. 10,000 (Small)</span>
+                <span>Rs. 40,000 (5kW)</span>
+                <span>Rs. 80,000 (10kW)</span>
+                <span>Rs. 150,000+</span>
               </div>
-            </div>
-            
-            <div className="config-item">
-              <label>Select Solar Plate Type:</label>
-              <div className="panel-options">
-                {panelTypes.map(panel => (
-                  <div 
-                    key={panel.name}
-                    className={`panel-option ${selectedPanel.name === panel.name ? 'selected' : ''}`}
-                    onClick={() => setSelectedPanel(panel)}
+
+              {/* Quick Select Buttons */}
+              <div className="quick-amount-pills">
+                {[15000, 25000, 35000, 50000, 75000, 100000].map(amt => (
+                  <button
+                    key={amt}
+                    type="button"
+                    className={`amt-pill ${monthlyBillRs === amt ? 'is-selected' : ''}`}
+                    onClick={() => handleBillRsChange(amt)}
                   >
-                    <div className="panel-name">{panel.name}</div>
-                    <div className="panel-details">
-                      <span>⚡ {panel.watts}W</span>
-                      <span>📊 {panel.efficiency}</span>
-                      <span>💰 PKR {panel.price.toLocaleString()}</span>
+                    Rs. {(amt / 1000).toFixed(0)}k
+                  </button>
+                ))}
+              </div>
+
+              <div className="calculated-unit-hint">
+                💡 This bill equals approximately <strong>{monthlyUnits} Units (kWh)</strong> per month.
+              </div>
+            </div>
+          )}
+
+          {inputMode === 'bill_units' && (
+            <div className="input-block-card">
+              <div className="card-top-title">
+                <h3>How many electricity units do you use monthly?</h3>
+                <span className="helper-badge">Units From Bill (kWh)</span>
+              </div>
+              <p className="simple-guide-text">
+                Check the "Units Consumed" on your recent electricity bill:
+              </p>
+
+              <div className="big-value-display-box">
+                <input
+                  type="number"
+                  step="25"
+                  min="50"
+                  max="5000"
+                  className="big-number-input"
+                  value={monthlyUnits}
+                  onChange={(e) => handleUnitsChange(e.target.value)}
+                />
+                <span className="currency-label" style={{ fontSize: '1.2rem', marginLeft: '8px' }}>
+                  Units / Month
+                </span>
+              </div>
+
+              {/* Slider */}
+              <input
+                type="range"
+                min="150"
+                max="3000"
+                step="25"
+                className="clean-slider"
+                value={monthlyUnits}
+                onChange={(e) => handleUnitsChange(e.target.value)}
+              />
+
+              <div className="slider-hints-row">
+                <span>200 Units</span>
+                <span>600 Units (5kW)</span>
+                <span>1200 Units (10kW)</span>
+                <span>3000+ Units</span>
+              </div>
+
+              {/* Quick Select Buttons */}
+              <div className="quick-amount-pills">
+                {[300, 500, 700, 1000, 1500, 2000].map(u => (
+                  <button
+                    key={u}
+                    type="button"
+                    className={`amt-pill ${monthlyUnits === u ? 'is-selected' : ''}`}
+                    onClick={() => handleUnitsChange(u)}
+                  >
+                    {u} Units
+                  </button>
+                ))}
+              </div>
+
+              <div className="calculated-unit-hint">
+                💡 This equals approximately <strong>PKR {monthlyBillRs.toLocaleString()}</strong> in bill charges.
+              </div>
+            </div>
+          )}
+
+          {inputMode === 'appliances' && (
+            <div className="input-block-card">
+              <div className="card-top-title">
+                <h3>What appliances do you want to run on solar?</h3>
+                <button
+                  type="button"
+                  className="simple-reset-btn"
+                  onClick={() => setAppliances(prev => prev.map(a => ({ ...a, quantity: 0 })))}
+                >
+                  Reset all to 0
+                </button>
+              </div>
+              <p className="simple-guide-text">
+                Adjust the quantity (+ / −) for each appliance below:
+              </p>
+
+              <div className="appliances-simple-list">
+                {appliances.map(appliance => (
+                  <div
+                    key={appliance.id}
+                    className={`appliance-simple-item ${appliance.quantity > 0 ? 'is-active' : ''}`}
+                  >
+                    <div className="appliance-left">
+                      <span className="app-emoji">{appliance.icon}</span>
+                      <div className="app-names">
+                        <span className="app-english-name">{appliance.name}</span>
+                        <span className="app-urdu-name">{appliance.subtext} • {appliance.watts}W</span>
+                      </div>
+                    </div>
+
+                    <div className="appliance-counter-controls">
+                      <button
+                        type="button"
+                        className="counter-action-btn"
+                        onClick={() => updateQuantity(appliance.id, -1)}
+                        aria-label="Decrease"
+                      >
+                        −
+                      </button>
+                      <span className="counter-number-val">{appliance.quantity}</span>
+                      <button
+                        type="button"
+                        className="counter-action-btn"
+                        onClick={() => updateQuantity(appliance.id, 1)}
+                        aria-label="Increase"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Simple Preferences */}
+        <div className="column-card config-column">
+          <div className="card-top-title">
+            <h3>System Preferences</h3>
+            <span className="helper-badge">Easy Settings</span>
+          </div>
+
+          <div className="config-fields-simple">
+            {/* City Selection */}
+            <div className="simple-field-group">
+              <label className="field-label-bold">
+                📍 1. Select Your City / Location:
+              </label>
+              <select
+                className="friendly-select"
+                value={selectedCity.id}
+                onChange={(e) => {
+                  const found = cities.find(c => c.id === e.target.value);
+                  if (found) setSelectedCity(found);
+                }}
+              >
+                {cities.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <span className="field-micro-note">
+                Calculates exact panel generation based on regional sunlight hours.
+              </span>
+            </div>
+
+            {/* System Type (On-Grid vs Hybrid) */}
+            <div className="simple-field-group">
+              <label className="field-label-bold">
+                ⚡ 2. System Type (On-Grid or Battery Backup?):
+              </label>
+              <div className="system-choice-cards">
+                {systemOptions.map(sys => (
+                  <div
+                    key={sys.id}
+                    className={`sys-choice-card ${selectedSystemType === sys.id ? 'is-selected' : ''}`}
+                    onClick={() => setSelectedSystemType(sys.id)}
+                  >
+                    <div className="sys-choice-header">
+                      <strong>{sys.title}</strong>
+                      <span className="green-pill">{sys.badge}</span>
+                    </div>
+                    <div className="sys-choice-urdu">{sys.subNote}</div>
+                    <div className="sys-choice-desc">{sys.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Solar Plate Type */}
+            <div className="simple-field-group">
+              <label className="field-label-bold">
+                🔲 3. Choose Solar Panel Brand:
+              </label>
+              <div className="panel-choices-list">
+                {panels.map(p => (
+                  <div
+                    key={p.id}
+                    className={`panel-choice-item ${selectedPanel.id === p.id ? 'is-selected' : ''}`}
+                    onClick={() => setSelectedPanel(p)}
+                  >
+                    <div className="panel-text-block">
+                      <span className="panel-name-txt">{p.name}</span>
+                      <span className="panel-tag-txt">{p.tag}</span>
+                    </div>
+                    <div className="panel-rate-block">
+                      <span className="panel-price-tag">Rs. {p.price.toLocaleString()}</span>
+                      <span className="per-plate-sub">per panel</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-          
-          {/* Current Load Summary */}
-          <div className="load-summary">
-            <h3>📊 Current Load Summary</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Total Appliances:</span>
-                <span className="value">{appliances.filter(a => a.quantity > 0).length}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Total Load:</span>
-                <span className="value highlight">{calculateConsumption().toLocaleString()} Watts</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Daily Usage:</span>
-                <span className="value">{(calculateConsumption() * dailyUsageHours / 1000).toFixed(1)} kWh</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Monthly Bill:</span>
-                <span className="value">
-                  PKR {((calculateConsumption() * dailyUsageHours * 30 * 35) / 1000).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Calculate Button */}
-          <button 
-            onClick={calculateSolarPlates} 
-            className="calculate-main-btn"
-            disabled={calculateConsumption() === 0}
-          >
-            🚀 Calculate Solar Plates Needed
-          </button>
         </div>
       </div>
-      
-      {/* Results Section */}
-      {results && (
-        <div className="results-section">
-          <h3>📊 Result: Solar System Requirements</h3>
-          
-          <div className="results-grid">
-            <div className="result-card main-result">
-              <div className="result-icon">🔋</div>
-              <div className="result-content">
-                <h4>Total Solar Plates Needed:</h4>
-                <div className="result-value">
-                  <span className="big-number">{results.numberOfPanels}</span>
-                  <span className="unit">plates</span>
-                </div>
-                <p className="result-detail">
-                  {results.panelType} ({results.panelWattage}W each)
-                </p>
-              </div>
-            </div>
-            
-            <div className="result-card">
-              <div className="result-icon">💰</div>
-              <div className="result-content">
-                <h4>Total Cost:</h4>
-                <div className="result-value">PKR {results.totalCost}</div>
-                <p className="result-detail">(Plates only, installation extra)</p>
-              </div>
-            </div>
-            
-            <div className="result-card">
-              <div className="result-icon">⚡</div>
-              <div className="result-content">
-                <h4>Inverter Required:</h4>
-                <div className="result-value">{results.inverterSize}</div>
-                <p className="result-detail">Pure Sine Wave recommended</p>
-              </div>
-            </div>
-            
-            <div className="result-card">
-              <div className="result-icon">💡</div>
-              <div className="result-content">
-                <h4>Monthly Savings:</h4>
-                <div className="result-value">PKR {results.monthlySavings}</div>
-                <p className="result-detail">ROI: {results.roiMonths} months</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Detailed Breakdown */}
-          <div className="detailed-breakdown">
-            <h4>📈 Detailed Calculation:</h4>
-            <div className="breakdown-steps">
-              <div className="step">
-                <span className="step-number">1</span>
-                <div className="step-content">
-                  <strong>Your Daily Consumption:</strong> {results.totalDailyConsumption.toFixed(1)} kWh
-                </div>
-              </div>
-              <div className="step">
-                <span className="step-number">2</span>
-                <div className="step-content">
-                  <strong>Required Solar Power:</strong> {results.requiredSolarWattage.toFixed(0)} Watts
-                </div>
-              </div>
-              <div className="step">
-                <span className="step-number">3</span>
-                <div className="step-content">
-                  <strong>Panel Calculation:</strong> {results.requiredSolarWattage.toFixed(0)}W ÷ {results.panelWattage}W = {Math.ceil(results.requiredSolarWattage / results.panelWattage)} panels
-                </div>
-              </div>
-              <div className="step">
-                <span className="step-number">4</span>
-                <div className="step-content">
-                  <strong>With 20% Buffer:</strong> {Math.ceil(results.requiredSolarWattage / results.panelWattage)} + 20% = <strong>{results.numberOfPanels} panels</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Panel Layout Visualization */}
-          <div className="panel-visualization">
-            <h4>🏠 How They Fit on Your Roof:</h4>
-            <div className="roof-grid">
-              {Array.from({ length: results.numberOfPanels }).map((_, index) => (
-                <div key={index} className="panel-slot">
-                  <div className="panel-visual">
-                    ⬛
-                  </div>
-                  <div className="panel-label">{results.panelWattage}W</div>
-                </div>
-              ))}
-            </div>
-            <p className="roof-note">
-              ⚠️ Each panel needs ~1.6m × 1m space. Total roof space needed: {(results.numberOfPanels * 1.6).toFixed(1)} square meters
+
+      {/* Crystal Clear Live Results Section (Always Visible & Live Updating) */}
+      <div className="live-results-panel">
+        <div className="results-banner-header">
+          <div>
+            <h3>Your Complete Solar System Recommendation</h3>
+            <p className="results-subtitle-txt">
+              Live calculated results based on verified Pakistani market rates and solar irradiance:
             </p>
           </div>
-          
-          {/* Next Steps */}
-          <div className="next-steps">
-            <h4>📞 Next Steps:</h4>
-            <div className="steps-grid">
-              <div className="step-item">
-                <div className="step-icon">1️⃣</div>
-                <div className="step-text">Contact solar company with these specifications</div>
-              </div>
-              <div className="step-item">
-                <div className="step-icon">2️⃣</div>
-                <div className="step-text">Get site survey for exact placement</div>
-              </div>
-              <div className="step-item">
-                <div className="step-icon">3️⃣</div>
-                <div className="step-text">Apply for net metering</div>
-              </div>
-              <div className="step-item">
-                <div className="step-icon">4️⃣</div>
-                <div className="step-text">Install and start saving!</div>
-              </div>
+          <div className="live-active-indicator">
+            <span className="pulsing-green-dot"></span>
+            <span>Live Calculation</span>
+          </div>
+        </div>
+
+        {/* 4 Big Main Result Cards (What matters to every homeowner) */}
+        <div className="main-answers-grid">
+          {/* Card 1: System Size */}
+          <div className="answer-card glow-card">
+            <span className="card-top-icon">⚡</span>
+            <span className="answer-card-label">Recommended System Size</span>
+            <div className="big-highlight-number">
+              {calculatedResults.systemKw} <span className="unit-small">kW</span>
+            </div>
+            <p className="answer-sub-explainer">
+              Matching Inverter: <strong>{calculatedResults.inverterName}</strong>
+            </p>
+          </div>
+
+          {/* Card 2: Number of Panels */}
+          <div className="answer-card">
+            <span className="card-top-icon">🔲</span>
+            <span className="answer-card-label">Total Solar Panels Needed</span>
+            <div className="big-highlight-number">
+              {calculatedResults.numberOfPanels} <span className="unit-small">Panels</span>
+            </div>
+            <p className="answer-sub-explainer">
+              {selectedPanel.watts}W Tier-1 Modules
+            </p>
+          </div>
+
+          {/* Card 3: Total Estimated Cost */}
+          <div className="answer-card">
+            <span className="card-top-icon">💰</span>
+            <span className="answer-card-label">Total Estimated Cost</span>
+            <div className="big-highlight-number" style={{ fontSize: '1.65rem' }}>
+              PKR {(calculatedResults.totalEstimatedCostMin / 100000).toFixed(2)} - {(calculatedResults.totalEstimatedCostMax / 100000).toFixed(2)} Lakh
+            </div>
+            <p className="answer-sub-explainer">
+              (Complete Turnkey Setup: Panels, Inverter, Stand, Wiring & Net Metering)
+            </p>
+          </div>
+
+          {/* Card 4: Monthly Bill Savings */}
+          <div className="answer-card green-highlight-card">
+            <span className="card-top-icon">💵</span>
+            <span className="answer-card-label">Estimated Monthly Savings</span>
+            <div className="big-highlight-number text-mint">
+              PKR {calculatedResults.monthlySavings.toLocaleString()} <span className="unit-small">/ mo</span>
+            </div>
+            <p className="answer-sub-explainer">
+              Annual Savings: <strong>PKR {calculatedResults.yearlySavings.toLocaleString()}</strong>
+            </p>
+          </div>
+        </div>
+
+        {/* 3 Detail Info Cards */}
+        <div className="simple-summary-strip">
+          <div className="strip-item">
+            <span className="strip-icon">⏳</span>
+            <div>
+              <strong>Payback Period (Return on Investment):</strong>
+              <p>Your solar system pays for itself in approximately <strong>{calculatedResults.paybackYears} years</strong> through bill savings. After that, enjoy 20+ years of free electricity!</p>
+            </div>
+          </div>
+
+          <div className="strip-item">
+            <span className="strip-icon">🏠</span>
+            <div>
+              <strong>Roof Space Needed:</strong>
+              <p>Requires approximately <strong>{calculatedResults.roofAreaSqFt} sq. ft</strong> of unshaded roof space with good sunlight access.</p>
+            </div>
+          </div>
+
+          <div className="strip-item">
+            <span className="strip-icon">🔌</span>
+            <div>
+              <strong>Monthly Solar Electricity Generation:</strong>
+              <p>This system produces approximately <strong>{calculatedResults.monthlyGeneratedUnits} Units (kWh)</strong> of clean electricity every month.</p>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </section>
   );
 };
