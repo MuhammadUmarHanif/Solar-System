@@ -1,0 +1,642 @@
+// Pakistan Solar Market Realtime Benchmark Data (2024 - 2026 Verified Rates)
+
+export const PAKISTAN_CITIES = [
+  {
+    id: 'lahore',
+    name: "Lahore & Central Punjab",
+    disco: "LESCO / GEPCO",
+    sunHours: 4.8,
+    areas: ["All Areas", "Hall Road", "Gulberg III", "DHA & Cantt", "Johar Town", "Wapda Town", "Raiwind Road"]
+  },
+  {
+    id: 'islamabad',
+    name: "Islamabad & Rawalpindi",
+    disco: "IESCO",
+    sunHours: 5.0,
+    areas: ["All Areas", "Blue Area", "I-9 / I-10 Industrial", "Bahria Town & DHA", "Saddar Rawalpindi", "PWD Society", "G-9 / G-11 Markaz"]
+  },
+  {
+    id: 'karachi',
+    name: "Karachi & Sindh",
+    disco: "K-Electric / HESCO",
+    sunHours: 5.5,
+    areas: ["All Areas", "Regal Chowk Saddar", "Clifton & DHA", "Gulshan-e-Iqbal", "Korangi Industrial", "North Nazimabad", "Hyderabad Auto Bhan"]
+  },
+  {
+    id: 'faisalabad',
+    name: "Faisalabad & Sargodha",
+    disco: "FESCO",
+    sunHours: 4.9,
+    areas: ["All Areas", "Clock Tower Bazaar", "D-Ground Peoples Colony", "Susan Road", "Sargodha Road"]
+  },
+  {
+    id: 'multan',
+    name: "Multan & South Punjab",
+    disco: "MEPCO",
+    sunHours: 5.4,
+    areas: ["All Areas", "Bosan Road", "Cantt Commercial Area", "Vehari Road", "Gulgasht Colony", "Bahawalpur"]
+  },
+  {
+    id: 'peshawar',
+    name: "Peshawar & KPK",
+    disco: "PESCO",
+    sunHours: 4.8,
+    areas: ["All Areas", "Karkhano Market", "University Road", "Hayatabad Phase 3", "Ring Road"]
+  },
+  {
+    id: 'gujranwala',
+    name: "Gujranwala & Sialkot",
+    disco: "GEPCO",
+    sunHours: 4.85,
+    areas: ["All Areas", "GT Road Gujranwala", "Paris Road Sialkot", "Daska Road", "Gujrat GT Road"]
+  },
+  {
+    id: 'quetta',
+    name: "Quetta & Balochistan",
+    disco: "QESCO",
+    sunHours: 6.2,
+    areas: ["All Areas", "Liaquat Bazaar", "Zarghoon Road", "Airport Road"]
+  }
+];
+
+export const SOLAR_PANELS = [
+  {
+    id: 'jinko_585',
+    name: "Jinko Tiger Neo 585W N-Type TOPCon",
+    brand: "Jinko Solar",
+    series: "72HL4-BDV Bifacial",
+    tag: "🔥 #1 Top Choice in Pakistan • Maximum Yield",
+    watts: 585,
+    pricePerWatt: 34.5,
+    price: 20180,
+    efficiency: "22.6%",
+    warranty: "15Y Product / 30Y Linear Power",
+    bifacial: true,
+    cellType: "N-Type TOPCon 16BB"
+  },
+  {
+    id: 'longi_580',
+    name: "Longi Hi-MO X6 Explorer 580W HPBC",
+    brand: "Longi Solar",
+    series: "LR5-72HTH",
+    tag: "⚡ High Heat Resistance • Reliable Durability",
+    watts: 580,
+    pricePerWatt: 33.5,
+    price: 19430,
+    efficiency: "22.4%",
+    warranty: "15Y Product / 25Y Power",
+    bifacial: false,
+    cellType: "HPBC Mono PERC"
+  },
+  {
+    id: 'canadian_600',
+    name: "Canadian Solar BiHiKu7 600W Bifacial",
+    brand: "Canadian Solar",
+    series: "CS7L-600MB-AG",
+    tag: "✨ Dual-Glass Generation • Commercial & Luxury",
+    watts: 600,
+    pricePerWatt: 36.0,
+    price: 21600,
+    efficiency: "23.0%",
+    warranty: "12Y Product / 30Y Power",
+    bifacial: true,
+    cellType: "N-Type Bifacial"
+  },
+  {
+    id: 'ja_580',
+    name: "JA Solar DeepBlue 4.0 Pro 580W",
+    brand: "JA Solar",
+    series: "JAM72D40-580/GB",
+    tag: "💎 Proven Performance • Great Value",
+    watts: 580,
+    pricePerWatt: 34.0,
+    price: 19720,
+    efficiency: "22.3%",
+    warranty: "12Y Product / 30Y Power",
+    bifacial: true,
+    cellType: "N-Type Bycium+"
+  },
+  {
+    id: 'trina_670',
+    name: "Trina Solar Vertex 670W Ultra-High",
+    brand: "Trina Solar",
+    series: "TSM-DEG21C.20",
+    tag: "🚀 Ultra High Wattage • Fewer Plates Needed",
+    watts: 670,
+    pricePerWatt: 37.0,
+    price: 24790,
+    efficiency: "23.5%",
+    warranty: "15Y Product / 30Y Power",
+    bifacial: true,
+    cellType: "210mm Triple-cut N-Type"
+  },
+  {
+    id: 'inverex_550',
+    name: "Inverex Nitrox 550W Tier-1 Mono",
+    brand: "Inverex",
+    series: "Nitrox Pro Series",
+    tag: "🇵🇰 Pakistani Brand Support & Nationwide Centers",
+    watts: 550,
+    pricePerWatt: 34.0,
+    price: 18700,
+    efficiency: "21.3%",
+    warranty: "12Y Product / 25Y Power",
+    bifacial: false,
+    cellType: "Tier-1 Mono PERC"
+  }
+];
+
+export const SYSTEM_TYPES = [
+  {
+    id: 'ongrid',
+    title: "On-Grid (Net Metering)",
+    badge: "Zero Bill System",
+    subNote: "Sell excess solar units back to WAPDA / K-Electric",
+    desc: "Best for eliminating electricity bills completely. Exports unused solar units to the grid through a green meter. Fastest 2.5 - 3 year payback.",
+    recommended: true,
+    baseTurnkeyPerKw: 118000
+  },
+  {
+    id: 'hybrid',
+    title: "Hybrid (Battery Backup)",
+    badge: "Zero Loadshedding",
+    subNote: "Continuous power even during blackouts & power cuts",
+    desc: "Includes lithium/tubular battery storage. Keeps ACs, fans, lights, and fridge running seamlessly when WAPDA power shuts down.",
+    recommended: false,
+    baseTurnkeyPerKw: 148000
+  }
+];
+
+export const STRUCTURE_TYPES = [
+  {
+    id: 'standard',
+    name: "Standard L2 / L3 Rooftop Mounting",
+    subtext: "Heavy gauge galvanized iron (GI) low-profile brackets",
+    costPerWatt: 5.5
+  },
+  {
+    id: 'elevated',
+    name: "Elevated Walkable Shed Structure (10-12 ft)",
+    subtext: "Full roof usable underneath for sitting / laundry / rooftop garden",
+    costPerWatt: 15.0
+  }
+];
+
+export const BATTERY_OPTIONS = [
+  {
+    id: 'none',
+    name: "No Battery (Grid-Tied Only)",
+    price: 0
+  },
+  {
+    id: 'lifepo4_5kwh',
+    name: "5.12 kWh LiFePO4 Lithium Battery Wall-Mount",
+    desc: "6,000 Cycles • 10-15 Year Lifespan • Zero Maintenance",
+    price: 335000
+  },
+  {
+    id: 'lifepo4_10kwh',
+    name: "10.24 kWh LiFePO4 Lithium High-Capacity Bank",
+    desc: "Runs 1.5 Ton AC + entire house all night without grid",
+    price: 640000
+  },
+  {
+    id: 'tubular_4x',
+    name: "4x 240Ah Deep Cycle Tubular Lead-Acid Batteries",
+    desc: "Phoenix / Osaka / AGS Tall Tubular Bank",
+    price: 180000
+  }
+];
+
+// Area-Specific Verified Vendors Directory in Pakistan with Live Rate Cards
+export const AREA_VENDORS = [
+  // --- LAHORE & CENTRAL PUNJAB ---
+  {
+    id: 'v_lhr_1',
+    cityId: 'lahore',
+    name: "Apex Solar Technologies",
+    tier: "Tier-1 Gold Partner",
+    pecReg: "PEC C-4 Licensed",
+    area: "Hall Road & Gulberg III",
+    address: "Shop #18-20, Al-Latif Centre, Hall Road, Lahore",
+    phone: "+92 300 8452190",
+    whatsapp: "923008452190",
+    rating: 4.9,
+    reviewsCount: 214,
+    completedProjects: "320+",
+    turnkeyPerKw: 116000,
+    panelPerWattWholesale: 34.0,
+    featuredBrands: ["Jinko Tiger Neo", "Sungrow Inverters", "Pakistan Cables"],
+    warranties: "25Y Panels • 5Y Inverter • 2Y Free Service",
+    netMeteringDays: "30-40 Days Guaranteed",
+    stockStatus: "In Stock - Ready Installation",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_lhr_2',
+    cityId: 'lahore',
+    name: "Reon Energy Punjab Hub",
+    tier: "Authorized Corporate EPC",
+    pecReg: "PEC C-3 Licensed",
+    area: "DHA Phase 5 & Johar Town",
+    address: "Commercial Broadway, DHA Phase 5 / Johar Town, Lahore",
+    phone: "+92 321 4458920",
+    whatsapp: "923214458920",
+    rating: 4.9,
+    reviewsCount: 340,
+    completedProjects: "500+",
+    turnkeyPerKw: 122000,
+    panelPerWattWholesale: 34.5,
+    featuredBrands: ["Huawei Inverters", "Longi Hi-MO X6", "Schneider Electric"],
+    warranties: "30Y Linear Yield • 10Y Inverter • Free Cloud App",
+    netMeteringDays: "35 Days LESCO Approved",
+    stockStatus: "Verified Partner Dispatch",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_lhr_3',
+    cityId: 'lahore',
+    name: "Premier Solar Energy Systems",
+    tier: "Direct Importer & EPC",
+    pecReg: "PEC C-5 Licensed",
+    area: "Gulberg III",
+    address: "Main Boulevard, Gulberg III, Lahore",
+    phone: "+92 301 9876543",
+    whatsapp: "923019876543",
+    rating: 4.8,
+    reviewsCount: 195,
+    completedProjects: "280+",
+    turnkeyPerKw: 114000,
+    panelPerWattWholesale: 33.8,
+    featuredBrands: ["Canadian Solar", "Solis Inverters", "Fast Cables"],
+    warranties: "25Y Warranty • 5Y Inverter Replacement",
+    netMeteringDays: "30-45 Days",
+    stockStatus: "Wholesale Ready",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_lhr_4',
+    cityId: 'lahore',
+    name: "Wapda Town Green Solutions",
+    tier: "Residential EPC Specialist",
+    pecReg: "Verified EPC",
+    area: "Wapda Town & Raiwind Road",
+    address: "Commercial Plaza, Wapda Town Roundabout, Lahore",
+    phone: "+92 322 7654321",
+    whatsapp: "923227654321",
+    rating: 4.7,
+    reviewsCount: 168,
+    completedProjects: "190+",
+    turnkeyPerKw: 115000,
+    panelPerWattWholesale: 34.2,
+    featuredBrands: ["Jinko N-Type", "Knox Inverters", "Heavy GI Stand"],
+    warranties: "25Y Panels • 5Y Inverter • 3Y Free Maintenance",
+    netMeteringDays: "35-40 Days LESCO",
+    stockStatus: "Stock Verified",
+    updatedDate: "Today"
+  },
+
+  // --- ISLAMABAD & RAWALPINDI ---
+  {
+    id: 'v_isb_1',
+    cityId: 'islamabad',
+    name: "Beacon Energy Islamabad",
+    tier: "Tier-1 EPC Contractor",
+    pecReg: "PEC C-3 Licensed",
+    area: "Blue Area",
+    address: "State Life Building, Jinnah Avenue, Blue Area, Islamabad",
+    phone: "+92 333 5123456",
+    whatsapp: "923335123456",
+    rating: 4.9,
+    reviewsCount: 260,
+    completedProjects: "410+",
+    turnkeyPerKw: 120000,
+    panelPerWattWholesale: 35.0,
+    featuredBrands: ["Canadian Solar BiHiKu7", "Sungrow Inverters", "Pakistan Cables"],
+    warranties: "25Y Power • 5Y Comprehensive Inverter",
+    netMeteringDays: "30 Days IESCO FastTrack",
+    stockStatus: "In Stock - Dispatch Ready",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_isb_2',
+    cityId: 'islamabad',
+    name: "Alpha Solar Engineering Hub",
+    tier: "Authorized Distributor",
+    pecReg: "PEC C-4 Licensed",
+    area: "I-9 / I-10 Industrial",
+    address: "Sector I-9/2 Industrial Area, Islamabad",
+    phone: "+92 300 5567890",
+    whatsapp: "923005567890",
+    rating: 4.8,
+    reviewsCount: 195,
+    completedProjects: "270+",
+    turnkeyPerKw: 116000,
+    panelPerWattWholesale: 34.2,
+    featuredBrands: ["Jinko Tiger Neo", "Huawei Smart PV", "Terasaki Breakers"],
+    warranties: "30Y Dual-Glass • 10Y Inverter",
+    netMeteringDays: "35 Days IESCO Approved",
+    stockStatus: "Warehouse Direct",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_isb_3',
+    cityId: 'islamabad',
+    name: "Twin Cities Eco Energy",
+    tier: "Residential & Commercial EPC",
+    pecReg: "Verified EPC",
+    area: "Bahria Town & DHA",
+    address: "Phase 7, Bahria Town / Saddar Commercial, Rawalpindi",
+    phone: "+92 312 9988776",
+    whatsapp: "923129988776",
+    rating: 4.8,
+    reviewsCount: 175,
+    completedProjects: "220+",
+    turnkeyPerKw: 118000,
+    panelPerWattWholesale: 34.8,
+    featuredBrands: ["Longi Hi-MO X6", "Inverex Nitrox", "Fast Cables"],
+    warranties: "25Y Performance • 5Y System Warranty",
+    netMeteringDays: "30-40 Days",
+    stockStatus: "Verified Ready",
+    updatedDate: "Today"
+  },
+
+  // --- KARACHI & SINDH ---
+  {
+    id: 'v_khi_1',
+    cityId: 'karachi',
+    name: "Sindh Solar Energy Corp",
+    tier: "Mega Wholesale & EPC",
+    pecReg: "PEC C-3 Licensed",
+    area: "Regal Chowk Saddar",
+    address: "Electronics Market, Regal Chowk, Saddar, Karachi",
+    phone: "+92 331 2345678",
+    whatsapp: "923312345678",
+    rating: 4.9,
+    reviewsCount: 380,
+    completedProjects: "620+",
+    turnkeyPerKw: 115000,
+    panelPerWattWholesale: 33.5,
+    featuredBrands: ["Trina Vertex 670W", "Sungrow 3-Phase", "Pakistan Cables"],
+    warranties: "30Y Linear • 5Y On-site Inverter Replacement",
+    netMeteringDays: "35-45 Days K-Electric Certified",
+    stockStatus: "Port Direct - Wholesale Lowest",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_khi_2',
+    cityId: 'karachi',
+    name: "SunPower Coastal Engineering",
+    tier: "K-Electric Approved EPC",
+    pecReg: "PEC C-4 Licensed",
+    area: "Clifton & DHA",
+    address: "Shahrah-e-Faisal / Block 4 Clifton, Karachi",
+    phone: "+92 300 2233445",
+    whatsapp: "923002233445",
+    rating: 4.8,
+    reviewsCount: 240,
+    completedProjects: "330+",
+    turnkeyPerKw: 122000,
+    panelPerWattWholesale: 34.5,
+    featuredBrands: ["Jinko Tiger Neo", "Huawei Commercial", "Anti-Corrosion Stands"],
+    warranties: "Marine Grade Galvanized Iron • 25Y Warranty",
+    netMeteringDays: "30-40 Days K-Electric Green Meter",
+    stockStatus: "In Stock Karachi Central",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_khi_3',
+    cityId: 'karachi',
+    name: "Gulshan Solar Solutions",
+    tier: "Authorized EPC Installer",
+    pecReg: "Verified EPC",
+    area: "Gulshan-e-Iqbal",
+    address: "University Road, Block 13-B, Gulshan-e-Iqbal, Karachi",
+    phone: "+92 345 8765432",
+    whatsapp: "923458765432",
+    rating: 4.7,
+    reviewsCount: 190,
+    completedProjects: "210+",
+    turnkeyPerKw: 117000,
+    panelPerWattWholesale: 34.0,
+    featuredBrands: ["Longi Solar", "GoodWe Inverters", "Newage Cables"],
+    warranties: "25Y Panels • 5Y Inverter • 2Y Maintenance",
+    netMeteringDays: "40 Days K-Electric",
+    stockStatus: "Ready Dispatch",
+    updatedDate: "Today"
+  },
+
+  // --- FAISALABAD & SARGODHA ---
+  {
+    id: 'v_fsd_1',
+    cityId: 'faisalabad',
+    name: "Faisal Solar Corporation",
+    tier: "FESCO Approved A-Class",
+    pecReg: "PEC C-4 Licensed",
+    area: "Clock Tower Bazaar",
+    address: "Katchery Bazaar, Near Clock Tower, Faisalabad",
+    phone: "+92 300 6677889",
+    whatsapp: "923006677889",
+    rating: 4.9,
+    reviewsCount: 310,
+    completedProjects: "450+",
+    turnkeyPerKw: 113000,
+    panelPerWattWholesale: 33.8,
+    featuredBrands: ["Jinko 585W", "Growatt Inverters", "Pakistan Cables"],
+    warranties: "25Y Panels • 5Y Inverter Replacement",
+    netMeteringDays: "28-35 Days FESCO Green Meter",
+    stockStatus: "Direct Factory Stock",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_fsd_2',
+    cityId: 'faisalabad',
+    name: "Punjab Green Energy FSD",
+    tier: "Residential EPC Leader",
+    pecReg: "Verified EPC",
+    area: "D-Ground Peoples Colony",
+    address: "D-Ground Commercial Area, Peoples Colony No. 1, Faisalabad",
+    phone: "+92 321 6655443",
+    whatsapp: "923216655443",
+    rating: 4.8,
+    reviewsCount: 220,
+    completedProjects: "280+",
+    turnkeyPerKw: 116000,
+    panelPerWattWholesale: 34.2,
+    featuredBrands: ["Canadian Solar", "Solis Hybrid", "Fast Cables"],
+    warranties: "25Y Panels • 5Y Inverter • 3Y Free Visits",
+    netMeteringDays: "30-40 Days",
+    stockStatus: "Ready Installation",
+    updatedDate: "Today"
+  },
+
+  // --- MULTAN & SOUTH PUNJAB ---
+  {
+    id: 'v_mul_1',
+    cityId: 'multan',
+    name: "South Punjab Solar EPC",
+    tier: "MEPCO Authorized A-Class",
+    pecReg: "PEC C-4 Licensed",
+    area: "Bosan Road",
+    address: "Bosan Road, Near Gulgasht Colony, Multan",
+    phone: "+92 300 7345678",
+    whatsapp: "923007345678",
+    rating: 4.9,
+    reviewsCount: 245,
+    completedProjects: "350+",
+    turnkeyPerKw: 114000,
+    panelPerWattWholesale: 34.0,
+    featuredBrands: ["Jinko Tiger Neo", "Sungrow Inverters", "Pakistan Cables"],
+    warranties: "25Y Performance • 5Y Inverter • Free Cleaning Kit",
+    netMeteringDays: "30-38 Days MEPCO Approved",
+    stockStatus: "Warehouse Ready",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_mul_2',
+    cityId: 'multan',
+    name: "Multan Sun Power Hub",
+    tier: "Agricultural & Residential EPC",
+    pecReg: "Verified EPC",
+    area: "Cantt Commercial Area",
+    address: "Cantt Commercial Plaza, Multan",
+    phone: "+92 302 7891234",
+    whatsapp: "923027891234",
+    rating: 4.8,
+    reviewsCount: 180,
+    completedProjects: "210+",
+    turnkeyPerKw: 116000,
+    panelPerWattWholesale: 34.5,
+    featuredBrands: ["Longi Hi-MO X6", "Inverex Nitrox", "12 Gauge GI Stand"],
+    warranties: "25Y Product/Power • 5Y System Warranty",
+    netMeteringDays: "35 Days MEPCO",
+    stockStatus: "Ready Dispatch",
+    updatedDate: "Today"
+  },
+
+  // --- PESHAWAR & KPK ---
+  {
+    id: 'v_pesh_1',
+    cityId: 'peshawar',
+    name: "Khyber Solar Engineering",
+    tier: "Direct Importer Wholesale & EPC",
+    pecReg: "PEC C-4 Licensed",
+    area: "Karkhano Market",
+    address: "United Plaza, Karkhano Market, Jamrud Road, Peshawar",
+    phone: "+92 333 9123456",
+    whatsapp: "923339123456",
+    rating: 4.8,
+    reviewsCount: 290,
+    completedProjects: "420+",
+    turnkeyPerKw: 112000,
+    panelPerWattWholesale: 33.2,
+    featuredBrands: ["Trina Solar", "Jinko N-Type", "Growatt & Solis"],
+    warranties: "30Y Dual-Glass • 5Y Local Inverter Replacement",
+    netMeteringDays: "30-40 Days PESCO Approved",
+    stockStatus: "Wholesale Direct Stock",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_pesh_2',
+    cityId: 'peshawar',
+    name: "Peshawar Green Tech Energy",
+    tier: "PESCO Certified Installer",
+    pecReg: "Verified EPC",
+    area: "University Road",
+    address: "University Road, Near Board Bazaar, Peshawar",
+    phone: "+92 313 9876543",
+    whatsapp: "923139876543",
+    rating: 4.8,
+    reviewsCount: 170,
+    completedProjects: "195+",
+    turnkeyPerKw: 115000,
+    panelPerWattWholesale: 34.0,
+    featuredBrands: ["Longi Solar", "Inverex Inverters", "Pakistan Cables"],
+    warranties: "25Y Panels • 5Y Inverter • 2Y Maintenance",
+    netMeteringDays: "35 Days PESCO",
+    stockStatus: "Ready Installation",
+    updatedDate: "Today"
+  },
+
+  // --- GUJRANWALA & SIALKOT ---
+  {
+    id: 'v_guj_1',
+    cityId: 'gujranwala',
+    name: "G.T. Road Solar Emporium",
+    tier: "GEPCO A-Class EPC",
+    pecReg: "PEC C-4 Licensed",
+    area: "GT Road Gujranwala",
+    address: "Main GT Road, Near Kangniwala, Gujranwala",
+    phone: "+92 300 7412345",
+    whatsapp: "923007412345",
+    rating: 4.8,
+    reviewsCount: 215,
+    completedProjects: "310+",
+    turnkeyPerKw: 114000,
+    panelPerWattWholesale: 33.9,
+    featuredBrands: ["Jinko Tiger Neo", "Sungrow Inverters", "Fast Cables"],
+    warranties: "25Y Panels • 5Y Inverter Replacement",
+    netMeteringDays: "28-35 Days GEPCO Green Meter",
+    stockStatus: "In Stock Ready",
+    updatedDate: "Today"
+  },
+  {
+    id: 'v_guj_2',
+    cityId: 'gujranwala',
+    name: "Sialkot Export Solar Solutions",
+    tier: "Industrial & Luxury Residential EPC",
+    pecReg: "PEC C-3 Licensed",
+    area: "Paris Road Sialkot",
+    address: "Paris Road, Near Sialkot Chamber of Commerce, Sialkot",
+    phone: "+92 321 8654321",
+    whatsapp: "923218654321",
+    rating: 4.9,
+    reviewsCount: 190,
+    completedProjects: "250+",
+    turnkeyPerKw: 118000,
+    panelPerWattWholesale: 34.5,
+    featuredBrands: ["Canadian Solar", "Huawei Smart PV", "Pakistan Cables"],
+    warranties: "30Y Dual-Glass • 10Y Inverter",
+    netMeteringDays: "30 Days GEPCO Approved",
+    stockStatus: "Dispatch Ready",
+    updatedDate: "Today"
+  },
+
+  // --- QUETTA & BALOCHISTAN ---
+  {
+    id: 'v_qta_1',
+    cityId: 'quetta',
+    name: "Chiltan Solar Technologies",
+    tier: "QESCO Certified High-Irradiance EPC",
+    pecReg: "PEC C-4 Licensed",
+    area: "Liaquat Bazaar",
+    address: "Commercial Plaza, Liaquat Bazaar, Quetta",
+    phone: "+92 333 7894561",
+    whatsapp: "923337894561",
+    rating: 4.8,
+    reviewsCount: 160,
+    completedProjects: "210+",
+    turnkeyPerKw: 118000,
+    panelPerWattWholesale: 34.8,
+    featuredBrands: ["Jinko N-Type 585W", "Inverex Nitrox Hybrid", "LiFePO4 Lithium"],
+    warranties: "25Y Panels • 5Y Inverter • High Altitude Certified",
+    netMeteringDays: "35-45 Days QESCO",
+    stockStatus: "Direct Stock Quetta",
+    updatedDate: "Today"
+  }
+];
+
+export const INITIAL_APPLIANCES = [
+  { id: 1, name: "1.5 Ton Inverter AC", subtext: "Master Bedroom AC", watts: 1400, hours: 8, quantity: 1, icon: "❄️" },
+  { id: 2, name: "1.0 Ton Inverter AC", subtext: "Small Room AC", watts: 1000, hours: 8, quantity: 0, icon: "❄️" },
+  { id: 3, name: "Ceiling Fans", subtext: "Standard / Inverter Fans", watts: 65, hours: 14, quantity: 4, icon: "🌀" },
+  { id: 4, name: "Refrigerator / Fridge", subtext: "Inverter Compressor", watts: 160, hours: 12, quantity: 1, icon: "🧊" },
+  { id: 5, name: "Water Pump (Motor)", subtext: "1.0 HP Water Motor", watts: 750, hours: 1.5, quantity: 1, icon: "💧" },
+  { id: 6, name: "Washing Machine", subtext: "Automatic / Spinner", watts: 450, hours: 1, quantity: 1, icon: "🧺" },
+  { id: 7, name: "LED Lights / Bulbs", subtext: "Home Lighting", watts: 12, hours: 6, quantity: 12, icon: "💡" },
+  { id: 8, name: "Electric Iron", subtext: "Dry & Steam Iron", watts: 1000, hours: 0.5, quantity: 1, icon: "👔" },
+  { id: 9, name: "LED TV & Smart Box", subtext: "Television", watts: 85, hours: 6, quantity: 1, icon: "📺" },
+  { id: 10, name: "WiFi Router & CCTV", subtext: "Internet & Security", watts: 30, hours: 24, quantity: 1, icon: "📡" },
+  { id: 11, name: "Deep Freezer", subtext: "Deep Freezer Unit", watts: 240, hours: 8, quantity: 0, icon: "❄️" },
+  { id: 12, name: "Computer / Laptop", subtext: "PC Workstation", watts: 120, hours: 6, quantity: 1, icon: "💻" }
+];

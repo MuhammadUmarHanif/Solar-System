@@ -15,7 +15,7 @@ const AIChatbot = () => {
 
   // DeepSeek API Configuration (read from environment variable, never hardcoded in git)
   const DEEPSEEK_API_KEY = process.env.REACT_APP_DEEPSEEK_API_KEY || "";
-  const API_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
+  const API_ENDPOINT = "https://api.gemini.com/v1/chat/completions";
 
   // System Prompt
   const SYSTEM_PROMPT = `You are an expert AI solar consultant for Pakistan. Provide concise, helpful, and technically accurate advice on solar sizing, net metering, DISCO regulations (LESCO, K-Electric, IESCO, etc.), inverter pairing, and Pakistani solar pricing in PKR. Keep responses structured and easy to read.`;

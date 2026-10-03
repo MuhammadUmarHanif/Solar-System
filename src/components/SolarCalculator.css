@@ -65,7 +65,7 @@
 
 .input-mode-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   width: 100%;
 }
@@ -784,12 +784,307 @@
   color: #00d2ff;
 }
 
+/* Step Progress Tracker */
+.calc-steps-tracker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.calc-step-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.calc-step-item.active {
+  background: rgba(0, 210, 255, 0.1);
+  border-color: rgba(0, 210, 255, 0.35);
+  color: #00d2ff;
+}
+
+.calc-step-item .step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00d2ff;
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-arrow {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+}
+
+/* Area Hero Bar (Step 1) */
+.area-selection-hero-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.08) 0%, rgba(20, 26, 40, 0.85) 100%);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-bottom: 28px;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.area-select-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.area-pin-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.area-select-label-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.area-micro-tag {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #00d2ff;
+  font-weight: 600;
+}
+
+.area-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.area-select-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.city-hero-dropdown {
+  background: rgba(14, 18, 28, 0.95);
+  border: 1px solid rgba(0, 210, 255, 0.4);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  min-width: 320px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.city-hero-dropdown:focus {
+  border-color: #00d2ff;
+  box-shadow: 0 0 16px rgba(0, 210, 255, 0.3);
+}
+
+.city-hero-dropdown option {
+  background: #0f1523;
+  color: #ffffff;
+}
+
+.city-sunshine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Panel choices tags */
+.panel-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bifacial-tag {
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  color: #c084fc;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.panel-spec-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 2px;
+}
+
+/* Battery options */
+.battery-options-list, .structure-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.battery-option-card, .structure-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.battery-option-card:hover, .structure-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.battery-option-card.is-selected, .structure-card.is-selected {
+  background: rgba(0, 210, 255, 0.08);
+  border-color: rgba(0, 210, 255, 0.35);
+}
+
+.battery-desc-txt, .structure-desc-txt {
+  margin: 2px 0 0;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.battery-price-tag {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #00d2ff;
+  white-space: nowrap;
+}
+
+.structure-tag {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Step 3 Pill in Results Header */
+.results-step-pill {
+  display: inline-block;
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  color: #00d2ff;
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+/* Bill of Materials (BOM) Table */
+.bom-breakdown-card {
+  margin: 28px 0;
+  background: rgba(14, 18, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 22px;
+  overflow: hidden;
+}
+
+.bom-header {
+  margin-bottom: 16px;
+}
+
+.bom-header h4 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bom-sub {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.bom-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.bom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.86rem;
+}
+
+.bom-table th {
+  padding: 10px 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bom-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.bom-total-row td {
+  padding: 16px 14px;
+  border-top: 2px solid rgba(0, 210, 255, 0.3);
+  border-bottom: none;
+  font-size: 0.98rem;
+  background: rgba(0, 210, 255, 0.04);
+}
+
+.bom-total-cost {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #10b981;
+}
+
 /* Responsive adjustments */
+@media (max-width: 1100px) {
+  .input-mode-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 1024px) {
   .calculator-grid {
-    grid-template-columns: 1fr;
-  }
-  .input-mode-tabs {
     grid-template-columns: 1fr;
   }
   .main-answers-grid {
@@ -798,11 +1093,22 @@
   .simple-summary-strip {
     grid-template-columns: 1fr;
   }
+  .area-selection-hero-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .city-hero-dropdown {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 @media (max-width: 640px) {
   .calculator-section {
     padding: 24px 16px;
+  }
+  .input-mode-tabs {
+    grid-template-columns: 1fr;
   }
   .main-answers-grid {
     grid-template-columns: 1fr;
@@ -810,5 +1116,13 @@
   .big-number-input {
     font-size: 2rem;
     width: 160px;
+  }
+  .area-select-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .city-hero-dropdown {
+    width: 100%;
   }
 }
