@@ -774,13 +774,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.18s ease;
-  gap: 12px;
+  gap: 10px;
 }
 
 .panel-choice-item:hover {
@@ -793,22 +793,52 @@
   border-color: rgba(0, 210, 255, 0.4);
 }
 
+.panel-radio-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.panel-choice-item.is-selected .panel-radio-indicator {
+  border-color: #00d2ff;
+}
+
+.radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.radio-dot.is-active {
+  background: #00d2ff;
+  box-shadow: 0 0 8px #00d2ff;
+}
+
 .panel-text-block {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   flex: 1;
+  min-width: 0;
 }
 
 .panel-name-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .panel-name-txt {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
 }
@@ -817,20 +847,34 @@
   background: rgba(147, 51, 234, 0.15);
   border: 1px solid rgba(147, 51, 234, 0.4);
   color: #c084fc;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
 }
 
-.panel-tag-txt {
-  font-size: 11.5px;
-  color: rgba(0, 210, 255, 0.85);
+.panel-compact-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.panel-spec-sub {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.45);
+.panel-tag-compact {
+  color: #00d2ff;
+  font-weight: 500;
+}
+
+.panel-eff-badge {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.panel-warranty-compact {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .panel-rate-block {
@@ -842,13 +886,13 @@
 }
 
 .panel-price-tag {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #10b981;
 }
 
 .per-plate-sub {
-  font-size: 11px;
+  font-size: 10.5px;
   color: rgba(255, 255, 255, 0.5);
 }
 
@@ -1227,6 +1271,30 @@
 @media (max-width: 1024px) {
   .calculator-section {
     padding: 30px 20px;
+    text-align: center;
+  }
+  .calc-header-wrap {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 16px;
+    width: 100%;
+    margin: 0 auto 20px;
+  }
+  .calc-title-group {
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .location-toolbar {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   .calculator-grid {
     grid-template-columns: 1fr;
@@ -1242,7 +1310,8 @@
   }
   .area-selection-hero-bar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
   }
   .city-hero-dropdown {
     width: 100%;
@@ -1252,47 +1321,72 @@
 
 @media (max-width: 768px) {
   .calculator-section {
-    padding: 20px 12px;
-    border-radius: 18px;
+    padding: 16px 10px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-align: center;
   }
 
-  /* Clean Header & Location for Mobile */
+  /* Clean Centered Header & Location for Mobile */
   .calc-header-wrap {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+    text-align: center;
     gap: 14px;
     margin-bottom: 18px;
+    width: 100%;
   }
 
   .calc-title-group {
     min-width: 0;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .clean-kicker-pill {
+    margin: 0 auto 8px;
   }
 
   .calc-main-title {
     font-size: 1.45rem;
-    line-height: 1.2;
+    line-height: 1.25;
+    text-align: center;
+    margin: 0 auto 6px;
   }
 
   .calc-subtitle {
     font-size: 0.82rem;
     line-height: 1.45;
+    text-align: center;
+    margin: 0 auto;
+    max-width: 100%;
   }
 
   .location-toolbar {
     width: 100%;
-    align-items: stretch;
+    align-items: center;
+    text-align: center;
     gap: 8px;
+    display: flex;
+    flex-direction: column;
   }
 
   .location-select-capsule {
     width: 100%;
+    max-width: 320px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     box-sizing: border-box;
     padding: 6px 12px;
     border-radius: 999px;
+    margin: 0 auto;
   }
 
   .city-select-input {
@@ -1302,6 +1396,7 @@
     overflow: hidden;
     white-space: nowrap;
     font-size: 0.82rem;
+    text-align: center;
   }
 
   .sun-badge {
@@ -1317,15 +1412,25 @@
     flex-wrap: wrap;
     gap: 4px 8px;
     font-size: 0.68rem;
-    justify-content: flex-start;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
   }
 
-  /* 2x2 Clean Mobile Tabs - Fixes clipped 3rd/4th tabs */
+  /* 2x2 Clean Mobile Tabs - Centered */
+  .mode-segmented-wrap {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
   .mode-segmented-control {
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
     padding: 5px;
     border-radius: 12px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .segmented-tab {
@@ -1336,242 +1441,546 @@
     line-height: 1.25;
   }
 
-  /* Presets wrap neatly on mobile */
+  /* Presets wrap neatly on mobile - Centered */
   .presets-chips-row {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
     gap: 6px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .preset-chip-title {
     width: 100%;
+    text-align: center;
     margin-bottom: 2px;
+    font-size: 0.74rem;
   }
 
   .preset-chip {
     flex: 1 1 calc(50% - 6px);
+    max-width: calc(50% - 6px);
     text-align: center;
-    padding: 5px 8px;
-    font-size: 0.74rem;
+    padding: 6px 8px;
+    font-size: 0.72rem;
+    box-sizing: border-box;
+  }
+
+  .calculator-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .column-card {
+    padding: 16px 12px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
   .card-top-title {
+    width: 100%;
+    max-width: 100%;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 6px;
   }
 
   .card-top-title h3 {
     font-size: 1.05rem;
+    line-height: 1.3;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    text-align: center;
   }
 
+  .simple-guide-text {
+    text-align: center;
+    margin: 0 auto 14px;
+  }
+
+  /* Big Value Adjuster Box */
   .big-value-display-box {
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 8px 10px;
+    gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .kw-adjust-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 10px;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .kw-value-center {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .big-number-input {
+    background: transparent;
+    border: none;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    width: auto;
+    max-width: 85px;
+    min-width: 0;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .big-number-input.bill-number-input {
+    max-width: 100px;
+    font-size: 1.6rem;
+  }
+
+  .big-number-input.units-number-input {
+    max-width: 75px;
+    font-size: 1.6rem;
+  }
+
+  .currency-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #00d2ff;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .time-badge,
+  .unit-label-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.55);
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 2px;
   }
 
   .clean-slider {
     width: 100%;
     box-sizing: border-box;
-    margin: 16px 0 8px;
+    margin: 14px 0 8px;
   }
 
   .slider-hints-row {
     font-size: 0.68rem;
-  }
-
-  .calculator-section h2 {
-    font-size: 1.7rem;
-  }
-
-  .section-subtitle {
-    font-size: 0.9rem;
-  }
-
-  /* Compact 4-Step Tracker on Phones */
-  .calc-steps-tracker {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-
-  .step-arrow {
-    display: none;
-  }
-
-  .calc-step-item {
-    padding: 5px 6px;
-    justify-content: center;
-    font-size: 0.68rem;
-    gap: 4px;
-  }
-
-  .calc-step-item .step-num {
-    width: 16px;
-    height: 16px;
-    font-size: 0.62rem;
-  }
-
-  /* Area Hero Bar on Phone */
-  .area-selection-hero-bar {
-    padding: 14px 12px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-  }
-
-  .area-select-left {
-    gap: 10px;
-  }
-
-  .area-heading {
-    font-size: 1rem;
-  }
-
-  .area-select-controls {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .city-hero-dropdown {
-    width: 100%;
-    font-size: 0.85rem;
-    padding: 9px 12px;
-  }
-
-  .city-sunshine-badge {
-    width: 100%;
-    justify-content: center;
-    font-size: 0.8rem;
-    padding: 6px 12px;
-  }
-
-  /* Compact 2x2 Tabs */
-  .input-mode-tabs {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .mode-tab-btn {
-    padding: 10px 10px;
-    gap: 8px;
-    border-radius: 10px;
-  }
-
-  .tab-icon {
-    font-size: 18px;
-  }
-
-  .tab-text strong {
-    font-size: 12px;
-  }
-
-  .tab-text span {
-    font-size: 10px;
-  }
-
-  /* Horizontal swipeable house presets */
-  .house-presets-bar {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    justify-content: flex-start;
-    padding: 6px 10px;
-    border-radius: 12px;
-  }
-
-  .column-card {
-    padding: 16px 12px;
-    border-radius: 14px;
-  }
-
-  .big-number-input {
-    font-size: 2.1rem;
-    width: 140px;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 2px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.45);
   }
 
   .quick-amount-pills {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .amt-pill {
-    padding: 6px 4px;
-    font-size: 11px;
+    padding: 7px 4px;
+    font-size: 11.5px;
     min-width: 0;
+    text-align: center;
+    box-sizing: border-box;
   }
 
-  /* Panel cards stack neatly */
+  /* Ultra-Compact Panel Cards for Mobile (Fixing SS2 card height & clipping) */
+  .panel-choices-list {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    gap: 6px;
+  }
+
   .panel-choice-item {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 10px 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 10px;
     gap: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-radio-indicator {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .panel-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .panel-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .panel-name-txt {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .bifacial-tag {
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .panel-compact-meta {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .panel-rate-block {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .panel-price-tag {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #10b981;
+    white-space: nowrap;
+  }
+
+  .per-plate-sub {
+    font-size: 9.5px;
+    color: rgba(255, 255, 255, 0.45);
+    white-space: nowrap;
+  }
+
+  .config-fields-simple {
     width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding-top: 6px;
-    margin-top: 2px;
+    gap: 16px;
+  }
+
+  .simple-field-group {
+    width: 100%;
+    gap: 8px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .field-label-bold {
+    text-align: center;
+    font-size: 0.88rem;
+    display: block;
+    width: 100%;
+    margin-bottom: 2px;
   }
 
   .system-choice-cards {
     grid-template-columns: 1fr;
-  }
-
-  /* 2x2 Results Grid for Mobile Phones */
-  .main-answers-grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  .answer-card {
-    padding: 12px 10px;
+  .sys-choice-card {
+    padding: 12px 14px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .sys-choice-header {
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .sys-choice-urdu {
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .sys-choice-desc {
+    text-align: center;
+    font-size: 11px;
+  }
+
+  /* Battery & Structure Options on Mobile */
+  .battery-options-list,
+  .structure-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .battery-option-card,
+  .structure-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 14px;
+    gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
     border-radius: 12px;
   }
 
-  .card-top-icon {
-    font-size: 18px;
-    margin-bottom: 4px;
+  .battery-option-card > div:first-child,
+  .structure-card > div:first-child {
+    text-align: center;
+    width: 100%;
   }
 
-  .answer-card-label {
-    font-size: 0.68rem;
-    margin-bottom: 2px;
+  .battery-desc-txt,
+  .structure-desc-txt {
+    text-align: center;
+    font-size: 0.72rem;
+    margin-top: 2px;
   }
 
-  .big-highlight-number {
-    font-size: 1.25rem;
-    margin-bottom: 2px;
+  .battery-price-tag {
+    text-align: center;
+    font-size: 0.84rem;
+    margin-top: 2px;
   }
 
-  .unit-small {
-    font-size: 0.78rem;
+  .structure-tag {
+    text-align: center;
+    font-size: 0.74rem;
+    margin-top: 2px;
   }
 
-  .answer-sub-explainer {
-    font-size: 0.65rem;
-    line-height: 1.3;
+  .system-live-insights-card {
+    width: 100%;
+    margin: 16px auto 0;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .insights-card-header {
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .insights-title-row {
+    justify-content: center;
+  }
+
+  .load-capability-section {
+    text-align: center;
+  }
+
+  .load-section-header {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .load-appliances-pills {
+    justify-content: center;
+  }
+
+  .insights-footer-strip {
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .live-results-panel {
     padding: 16px 12px;
     border-radius: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .results-banner-header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 16px;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .results-step-pill {
+    margin: 0 auto 6px;
+  }
+
+  .results-banner-header h3 {
+    text-align: center;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    margin: 0 auto 4px;
+  }
+
+  .results-subtitle-txt {
+    text-align: center;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    margin: 0 auto;
+  }
+
+  .live-active-indicator {
+    margin: 4px auto 0;
+    justify-content: center;
+  }
+
+  /* Responsive Headline Result Cards: 2x2 with span 2 for long numbers */
+  .main-answers-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .answer-card {
+    padding: 12px 8px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .answer-card:nth-child(3),
+  .answer-card:nth-child(4) {
+    grid-column: span 2;
+    padding: 14px 12px;
+  }
+
+  .answer-card-label {
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .big-highlight-number {
+    font-size: 1.45rem;
+    text-align: center;
+    justify-content: center;
+    word-break: break-word;
+    margin-bottom: 4px;
+  }
+
+  .turnkey-cost-number {
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
+    white-space: normal;
+    text-align: center;
+  }
+
+  .answer-sub-explainer {
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.35;
   }
 
   .bom-breakdown-card {
     padding: 14px 10px;
     border-radius: 14px;
-    margin: 16px 0;
+    margin: 14px auto;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .bom-header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 12px;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .bom-header h4 {
+    text-align: center;
+    font-size: 0.98rem;
+    margin: 0 auto 3px;
+  }
+
+  .bom-sub {
+    text-align: center;
+    font-size: 0.76rem;
+    margin: 0 auto;
+    display: block;
   }
 
   .bom-swipe-hint {
@@ -1580,6 +1989,8 @@
 
   .bom-table-wrap {
     overflow-x: visible;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .bom-table {
@@ -1612,7 +2023,7 @@
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 12px;
     padding: 10px 12px;
-    transition: background 0.15s ease;
+    box-sizing: border-box;
   }
 
   .bom-table td {
@@ -1622,28 +2033,28 @@
 
   .bom-table tr td:nth-child(1) {
     grid-area: name;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: #ffffff;
   }
 
   .bom-table tr td:nth-child(2) {
     grid-area: spec;
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.65);
     line-height: 1.35;
   }
 
   .bom-table tr td:nth-child(3) {
     grid-area: qty;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: #00d2ff;
     margin-top: 2px;
   }
 
   .bom-table tr td:nth-child(4) {
     grid-area: cost;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 700 !important;
     color: #10b981;
     text-align: right !important;
@@ -1651,68 +2062,79 @@
   }
 
   .bom-table tr.bom-total-row {
-    grid-template-areas:
-      "name cost";
-    grid-template-columns: 1fr auto;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
     background: rgba(0, 210, 255, 0.08);
     border: 1px solid rgba(0, 210, 255, 0.35);
-    padding: 12px 14px;
-    margin-top: 4px;
+    padding: 12px 10px;
+    margin-top: 6px;
     border-radius: 12px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .bom-table tr.bom-total-row td {
+    text-align: center !important;
+    width: 100%;
   }
 
   .bom-table tr.bom-total-row td:nth-child(1) {
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     font-weight: 700;
     color: #ffffff;
+    text-align: center !important;
   }
 
   .bom-table tr.bom-total-row td:nth-child(2) {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #10b981;
-    text-align: right !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .calculator-section {
-    padding: 18px 10px;
+    text-align: center !important;
   }
 
-  .calculator-section h2 {
-    font-size: 1.45rem;
+  /* Metric Summary Strip on Mobile */
+  .simple-summary-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 14px;
+    padding-top: 14px;
   }
 
-  .calc-steps-tracker {
-    gap: 4px;
+  .strip-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding: 12px 10px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  .calc-step-item .step-text {
-    font-size: 0.62rem;
+  .strip-icon {
+    font-size: 22px;
+    margin-bottom: 2px;
   }
 
-  .quick-amount-pills {
-    grid-template-columns: repeat(3, 1fr);
+  .strip-item > div {
+    text-align: center;
+    width: 100%;
   }
 
-  .big-number-input {
-    font-size: 1.85rem;
-    width: 75px;
+  .strip-item strong {
+    text-align: center;
+    font-size: 0.85rem;
   }
 
-  .big-number-input.bill-number-input {
-    width: 140px;
-    font-size: 1.65rem;
-  }
-
-  .big-number-input.units-number-input {
-    width: 95px;
-    font-size: 1.7rem;
-  }
-
-  .currency-label {
-    font-size: 1.05rem;
+  .strip-item p {
+    text-align: center;
+    font-size: 0.76rem;
+    line-height: 1.45;
   }
 }

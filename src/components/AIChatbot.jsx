@@ -335,7 +335,7 @@ export default function AIChatbot() {
             <input
               type="text"
               className="chat-text-input"
-              placeholder="Ask anything (e.g. 5kW cost, AC plates, green meter, batteries)..."
+              placeholder="Ask Orbit AI anything (5kW, AC plates, green meter)..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => {

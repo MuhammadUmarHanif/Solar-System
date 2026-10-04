@@ -543,42 +543,75 @@
    ============================================================== */
 
 @media (max-width: 900px) {
+  .area-vendors-container {
+    padding: 22px 14px;
+    border-radius: 18px;
+    margin-top: 24px;
+    text-align: center;
+  }
+
   .vendors-header-clean {
     flex-direction: column;
-    align-items: stretch;
-  }
-  .market-benchmark-pill {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 16px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
     width: 100%;
+  }
+
+  .vendors-header-text {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 10px 14px;
-    box-sizing: border-box;
-    background: rgba(0, 210, 255, 0.04);
-    border: 1px solid rgba(0, 210, 255, 0.2);
-    border-radius: 12px;
-    text-align: left;
+    align-items: center;
+    justify-content: center;
   }
-  .vendors-trust-strip {
-    grid-template-columns: 1fr;
-  }
-}
 
-@media (max-width: 768px) {
-  .area-vendors-container {
-    padding: 18px 12px;
-    border-radius: 16px;
-    margin-top: 24px;
+  .vendors-kicker-row {
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 8px;
   }
 
   .vendors-heading {
-    font-size: 1.25rem;
+    text-align: center;
+    font-size: 1.35rem;
     line-height: 1.25;
+    margin: 0 auto 6px;
   }
 
   .vendors-subheading {
-    font-size: 0.82rem;
+    text-align: center;
+    font-size: 0.84rem;
     line-height: 1.45;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  .market-benchmark-pill {
+    width: 100%;
+    max-width: 320px;
+    margin: 6px auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 14px;
+    box-sizing: border-box;
+    background: rgba(0, 210, 255, 0.05);
+    border: 1px solid rgba(0, 210, 255, 0.25);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .benchmark-label {
+    text-align: center;
+    margin-bottom: 2px;
   }
 
   .benchmark-price {
@@ -586,7 +619,9 @@
     white-space: nowrap;
     display: inline-flex;
     align-items: baseline;
+    justify-content: center;
     gap: 4px;
+    text-align: center;
   }
 
   .benchmark-unit {
@@ -597,21 +632,40 @@
   .benchmark-turnkey-hint {
     font-size: 0.74rem;
     color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+  }
+
+  .vendors-filter-bar {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    width: 100%;
   }
 
   .sub-area-pills-wrap {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 8px;
     width: 100%;
+  }
+
+  .filter-label {
+    text-align: center;
+    width: 100%;
+    font-size: 0.8rem;
   }
 
   .sub-area-pills {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 6px;
     width: 100%;
-    padding-bottom: 0;
   }
 
   .area-pill-btn {
@@ -622,54 +676,117 @@
 
   .sort-controls {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
     margin-top: 4px;
   }
 
+  .sort-label {
+    text-align: center;
+  }
+
   .sort-select {
-    flex: 1;
     font-size: 0.78rem;
-    padding: 7px 10px;
+    padding: 7px 12px;
+    text-align: center;
   }
 
   .vendor-card-clean {
-    padding: 14px 12px;
+    padding: 16px 14px;
     border-radius: 14px;
+    text-align: center;
   }
 
   .vendor-card-header {
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 10px;
     margin-bottom: 10px;
   }
 
+  .vendor-info-side {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vendor-title-row {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+
+  .vendor-title {
+    font-size: 1.15rem;
+    text-align: center;
+  }
+
+  .vendor-meta-strip {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+
+  .vendor-address-sub {
+    text-align: center;
+  }
+
   .vendor-price-side {
     width: 100%;
-    text-align: left;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 10px;
     padding: 8px 12px;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
     gap: 3px;
+  }
+
+  .price-side-label {
+    text-align: center;
   }
 
   .price-side-val {
     font-size: 1.35rem;
+    text-align: center;
   }
 
   .price-side-rates {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     padding-top: 4px;
     font-size: 0.72rem;
+    text-align: center;
+    width: 100%;
+  }
+
+  .vendor-specs-strip {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    margin-bottom: 12px;
   }
 
   .vendor-card-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+    width: 100%;
+    justify-content: center;
   }
 
   .actions-main-group {
@@ -680,11 +797,13 @@
     grid-column: span 2;
     padding: 9px;
     font-size: 0.86rem;
+    justify-content: center;
   }
 
   .survey-action-btn {
     padding: 7px 6px;
     font-size: 0.74rem;
+    justify-content: center;
   }
 
   .vendor-tel-btn {
@@ -694,5 +813,20 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     text-align: center;
+    justify-content: center;
+  }
+
+  .vendors-trust-strip {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .trust-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    gap: 4px;
   }
 }

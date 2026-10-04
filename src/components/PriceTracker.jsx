@@ -163,37 +163,78 @@ const PriceTracker = () => {
         ) : error ? (
           <div className="error-state">{error}</div>
         ) : (
-          <table className="clean-table">
-            <thead>
-              <tr>
-                <th>Solar Module & Technology</th>
-                <th>Trade Hub / City</th>
-                <th>Rate / Watt</th>
-                <th>Price / Module (PKR)</th>
-                <th>Warranty</th>
-                <th>Distributor Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPrices.map((item, index) => (
-                <tr key={index}>
-                  <td className="col-vendor">
-                    <span className="brand-name-bold">{item.brand}</span>
-                    <span className="vendor-sub">
-                      {item.vendor} • <span className="tech-tag">{item.panelType}</span> • <strong>{item.capacity}</strong> ({item.efficiency})
-                    </span>
-                  </td>
-                  <td className="col-city">📍 {item.market}</td>
-                  <td className="col-per-watt">{item.perWatt}</td>
-                  <td className="col-price">{item.price}</td>
-                  <td className="col-muted">{item.warranty}</td>
-                  <td className="col-rating">
-                    <span className="rating-star">★</span> {item.rating} / 5.0
-                  </td>
+          <>
+            {/* Desktop Full-Width Clean Table */}
+            <table className="clean-table desktop-only-table">
+              <thead>
+                <tr>
+                  <th>Solar Module & Technology</th>
+                  <th>Trade Hub / City</th>
+                  <th>Rate / Watt</th>
+                  <th>Price / Module (PKR)</th>
+                  <th>Warranty</th>
+                  <th>Distributor Score</th>
                 </tr>
+              </thead>
+              <tbody>
+                {filteredPrices.map((item, index) => (
+                  <tr key={index}>
+                    <td className="col-vendor">
+                      <span className="brand-name-bold">{item.brand}</span>
+                      <span className="vendor-sub">
+                        {item.vendor} • <span className="tech-tag">{item.panelType}</span> • <strong>{item.capacity}</strong> ({item.efficiency})
+                      </span>
+                    </td>
+                    <td className="col-city">📍 {item.market}</td>
+                    <td className="col-per-watt">{item.perWatt}</td>
+                    <td className="col-price">{item.price}</td>
+                    <td className="col-muted">{item.warranty}</td>
+                    <td className="col-rating">
+                      <span className="rating-star">★</span> {item.rating} / 5.0
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile-Optimized Compact Price Cards (Significantly Reduced Height) */}
+            <div className="mobile-tracker-cards">
+              {filteredPrices.map((item, index) => (
+                <div key={index} className="compact-price-card">
+                  <div className="card-top-row">
+                    <div className="brand-badge-group">
+                      <span className="compact-brand-title">{item.brand}</span>
+                      <span className="tech-tag compact-tag">{item.panelType}</span>
+                    </div>
+                    <div className="compact-score-pill">
+                      <span className="rating-star">★</span> {item.rating}
+                    </div>
+                  </div>
+
+                  <div className="card-spec-row">
+                    <span className="compact-vendor-name">{item.vendor}</span>
+                    <span className="dot-sep">•</span>
+                    <span className="compact-capacity-val"><strong>{item.capacity}</strong> ({item.efficiency})</span>
+                    <span className="dot-sep">•</span>
+                    <span className="compact-loc">📍 {item.market.split('/')[0]}</span>
+                  </div>
+
+                  <div className="card-bottom-rate-bar">
+                    <div className="rate-unit-badge">
+                      <span className="unit-label">Rate:</span>
+                      <span className="per-watt-val">{item.perWatt}</span>
+                    </div>
+                    <div className="compact-warranty-txt">
+                      {item.warranty.replace('Product / ', 'P / ')}
+                    </div>
+                    <div className="compact-total-price">
+                      {item.price}
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
 

@@ -95,73 +95,77 @@
 /* Header */
 .orbit-hero-frame header.bar {
   position: absolute;
-  left: calc(50% - 495.5 * var(--u));
-  top: calc(7.5 * var(--u));
-  width: calc(983.5 * var(--u));
-  height: calc(36.2 * var(--u));
-  z-index: 10;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 18px;
+  width: min(1560px, calc(100% - 64px));
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 20;
+  box-sizing: border-box;
 }
 
 .orbit-hero-frame a.brand {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
   display: flex;
   align-items: center;
-  gap: calc(11.4 * var(--u));
+  gap: 10px;
   color: var(--ink-mark);
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .orbit-hero-frame .brand-logo {
-  width: calc(26.9 * var(--u));
-  height: calc(16.6 * var(--u));
+  width: 28px;
+  height: 18px;
   overflow: visible;
   fill: none;
   display: block;
 }
 
 .orbit-hero-frame .brand-text {
-  font-size: calc(17.5 * var(--u));
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   font-variation-settings: 'opsz' 22;
   letter-spacing: -0.01em;
   line-height: 1;
 }
 
 .orbit-hero-frame nav.links {
-  position: absolute;
-  left: calc(340 * var(--u));
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
   display: flex;
   align-items: center;
-  gap: calc(24 * var(--u));
+  justify-content: center;
+  gap: 32px;
+  margin: 0 auto;
 }
 
 .orbit-hero-frame nav.links a {
-  font-size: calc(12 * var(--u));
+  font-size: 13.5px;
   font-weight: 500;
   font-variation-settings: 'opsz' 15;
-  letter-spacing: calc(-0.25 * var(--u));
-  color: var(--ink-nav);
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.78);
   white-space: nowrap;
   text-decoration: none;
   transition: color .2s ease;
+  padding: 6px 10px;
+  border-radius: 999px;
 }
 
 .orbit-hero-frame nav.links a:hover {
   color: #00d2ff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .orbit-hero-frame div.actions {
-  position: absolute;
-  right: 0;
-  top: 0;
+  position: relative;
   display: flex;
   align-items: center;
-  gap: calc(8 * var(--u));
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .orbit-hero-frame .user-badge {
@@ -217,18 +221,28 @@
 
 /* Header buttons */
 .orbit-hero-frame .bar .btn {
-  height: calc(36.2 * var(--u));
-  line-height: calc(36.2 * var(--u));
-  font-size: calc(12 * var(--u));
-  padding: 0 calc(14 * var(--u));
+  height: 38px;
+  line-height: 38px;
+  font-size: 13px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 600;
 }
 
 .orbit-hero-frame .bar .header-auth-btn {
-  min-width: calc(72 * var(--u));
+  min-width: 76px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.orbit-hero-frame .bar .header-auth-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .orbit-hero-frame .bar .header-cta-btn {
-  min-width: calc(96 * var(--u));
+  min-width: 104px;
   background: linear-gradient(135deg, #00d2ff, #27e8a7);
   color: #030712;
   box-shadow: 0 2px 14px rgba(0, 210, 255, 0.35);
@@ -520,8 +534,10 @@
     --u: calc(100vw / 900);
   }
   .orbit-hero-frame .bar {
-    left: 4.2vw;
-    width: 91.6vw;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    top: 14px;
   }
   .orbit-hero-frame .bar .links,
   .orbit-hero-frame .bar .actions > .header-cta-btn {
@@ -540,9 +556,10 @@
   }
 
   .orbit-hero-frame .bar {
-    left: 14px;
-    width: calc(100vw - 28px);
-    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    top: 12px;
   }
 
   /* Fluid Mobile Screen Container - Elevate content to top half */
@@ -551,7 +568,8 @@
     top: 0;
     left: 0;
     transform: none;
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 100%;
     display: flex;
     align-items: flex-start;
@@ -711,7 +729,7 @@
   }
 
   .orbit-hero-wrapper.intro-play .brand {
-    animation: orbit-rise-cy .62s var(--e-nav) 0s both;
+    animation: orbit-rise .62s var(--e-nav) 0s both;
   }
 
   .orbit-hero-wrapper.intro-play .links a:nth-child(1) { animation: orbit-rise .55s var(--e-nav) .070s both; }
