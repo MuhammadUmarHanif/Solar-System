@@ -331,7 +331,7 @@ export default function SolarCalculator() {
                     value={targetKw}
                     onChange={(e) => setTargetKw(Math.max(1, parseFloat(e.target.value) || 1))}
                   />
-                  <span className="currency-label">kW System</span>
+                  <span className="currency-label">kW</span>
                 </div>
                 <button
                   type="button"
@@ -413,7 +413,7 @@ export default function SolarCalculator() {
                     value={monthlyBillRs}
                     onChange={(e) => handleBillRsChange(e.target.value)}
                   />
-                  <span className="time-badge">/ Month</span>
+                  <span className="time-badge">/mo</span>
                 </div>
                 <button
                   type="button"
@@ -436,10 +436,10 @@ export default function SolarCalculator() {
               />
 
               <div className="slider-hints-row">
-                <span>Rs. 10,000 (~3kW)</span>
-                <span>Rs. 40,000 (~6kW)</span>
-                <span>Rs. 80,000 (~10kW)</span>
-                <span>Rs. 150,000+</span>
+                <span>10k (~3kW)</span>
+                <span>40k (~6kW)</span>
+                <span>80k (~10kW)</span>
+                <span>150k+</span>
               </div>
 
               <div className="quick-amount-pills">
@@ -491,8 +491,8 @@ export default function SolarCalculator() {
                     value={monthlyUnits}
                     onChange={(e) => handleUnitsChange(e.target.value)}
                   />
-                  <span className="currency-label" style={{ fontSize: '1.2rem', marginLeft: '6px' }}>
-                    Units / Month
+                  <span className="unit-label-badge">
+                    Units/mo
                   </span>
                 </div>
                 <button
@@ -516,10 +516,10 @@ export default function SolarCalculator() {
               />
 
               <div className="slider-hints-row">
-                <span>200 Units</span>
-                <span>600 Units (~5kW)</span>
-                <span>1200 Units (~10kW)</span>
-                <span>3000+ Units</span>
+                <span>200 U</span>
+                <span>600 U (~5kW)</span>
+                <span>1200 U (~10kW)</span>
+                <span>3000+ U</span>
               </div>
 
               <div className="quick-amount-pills">
@@ -729,15 +729,21 @@ export default function SolarCalculator() {
                     className={`panel-choice-item ${selectedPanel.id === p.id ? 'is-selected' : ''}`}
                     onClick={() => setSelectedPanel(p)}
                   >
+                    <div className="panel-radio-indicator">
+                      <div className={`radio-dot ${selectedPanel.id === p.id ? 'is-active' : ''}`} />
+                    </div>
                     <div className="panel-text-block">
                       <div className="panel-name-row">
                         <span className="panel-name-txt">{p.name}</span>
-                        {p.bifacial && <span className="bifacial-tag">Bifacial Dual-Glass</span>}
+                        {p.bifacial && <span className="bifacial-tag">Bifacial</span>}
                       </div>
-                      <span className="panel-tag-txt">{p.tag}</span>
-                      <span className="panel-spec-sub">
-                        Efficiency: {p.efficiency} • {p.cellType} • {p.warranty.split('•')[0]}
-                      </span>
+                      <div className="panel-compact-meta">
+                        <span className="panel-tag-compact">{p.tag.split('•')[0].trim()}</span>
+                        <span className="dot-sep">•</span>
+                        <span className="panel-eff-badge">{p.efficiency}</span>
+                        <span className="dot-sep">•</span>
+                        <span className="panel-warranty-compact">{p.warranty.split('/')[0].trim()}</span>
+                      </div>
                     </div>
                     <div className="panel-rate-block">
                       <span className="panel-price-tag">Rs. {p.price.toLocaleString()}</span>
@@ -870,7 +876,7 @@ export default function SolarCalculator() {
           <div className="answer-card">
             <span className="card-top-icon">💰</span>
             <span className="answer-card-label">Total Turnkey Cost</span>
-            <div className="big-highlight-number" style={{ fontSize: '1.65rem' }}>
+            <div className="big-highlight-number turnkey-cost-number">
               PKR {(calculatedResults.totalEstimatedCostMin / 100000).toFixed(2)} - {(calculatedResults.totalEstimatedCostMax / 100000).toFixed(2)} Lakh
             </div>
             <p className="answer-sub-explainer">

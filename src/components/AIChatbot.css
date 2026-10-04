@@ -400,33 +400,122 @@
 /* Responsive */
 @media (max-width: 768px) {
   .chatbot-section {
-    padding: 22px 14px;
+    padding: 20px 12px;
     border-radius: 18px;
+    text-align: center;
+  }
+
+  .chatbot-header-wrap {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    width: 100%;
+  }
+
+  .chatbot-badge {
+    margin: 0 auto 8px;
   }
 
   .chatbot-title {
     font-size: 1.35rem;
+    text-align: center;
+    margin: 0 auto 6px;
+  }
+
+  .chatbot-subtitle {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .chatbot-window-card {
+    padding: 14px 10px;
+    border-radius: 14px;
   }
 
   .bubble-wrapper {
     max-width: 92%;
-    padding: 12px 14px;
-    font-size: 0.84rem;
+    padding: 11px 13px;
+    font-size: 0.82rem;
   }
 
   .chat-messages-container {
-    height: 320px;
+    height: 310px;
+    padding-right: 4px;
+    gap: 12px;
   }
 
   .suggested-queries-bar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    width: 100%;
+  }
+
+  .queries-label {
+    font-size: 0.74rem;
+    text-align: center;
+    width: 100%;
   }
 
   .queries-chips-wrap {
     overflow-x: auto;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    justify-content: center;
     width: 100%;
     padding-bottom: 4px;
+    padding-right: 0;
+    gap: 6px;
+  }
+
+  .query-chip {
+    padding: 5px 11px;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  .input-field-wrap {
+    padding: 4px 4px 4px 12px;
+    border-radius: 10px;
+  }
+
+  .chat-text-input {
+    font-size: 0.82rem;
+    min-width: 0;
+  }
+
+  .chat-submit-btn {
+    padding: 7px 14px;
+    font-size: 0.78rem;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .chat-bottom-info-bar {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .disclaimer-txt {
+    font-size: 0.68rem;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .btn-clear-chat {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
   }
 }
