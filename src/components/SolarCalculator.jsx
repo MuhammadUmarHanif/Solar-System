@@ -199,144 +199,100 @@ export default function SolarCalculator() {
 
   return (
     <section id="calculator" className="calculator-section glass-panel">
-      {/* Friendly Header with Urdu & English Context */}
-      <div className="section-header">
-        <span className="section-pill">⚡ Pakistan Solar Calculator & Area Vendors</span>
-        <h2>Calculate Your Solar System & Instant Vendor Rates</h2>
-        <p className="section-subtitle">
-          Select your <strong>City & Area</strong>, choose your <strong>Required KW & Solar Plates</strong>, get an accurate instant estimate, and compare verified local vendor rate lists with live real-time market data.
-        </p>
-      </div>
+      {/* Clean Minimalist Header & Location Bar */}
+      <div className="calc-header-wrap">
+        <div className="calc-title-group">
+          <span className="clean-kicker-pill">⚡ Pakistan Solar Engine</span>
+          <h2 className="calc-main-title">Solar Sizing & Live Turnkey Rates</h2>
+          <p className="calc-subtitle">
+            Accurate turnkey cost estimate, equipment breakdown, and verified local installer rates in <strong>{selectedCity.name.split(' ')[0]}</strong>.
+          </p>
+        </div>
 
-      {/* 4-Step Interactive Visual Progression Bar */}
-      <div className="calc-steps-tracker">
-        <div className="calc-step-item active">
-          <span className="step-num">1</span>
-          <span className="step-text">Select Area & City</span>
-        </div>
-        <div className="step-arrow">→</div>
-        <div className="calc-step-item active">
-          <span className="step-num">2</span>
-          <span className="step-text">Choose Plates & KW</span>
-        </div>
-        <div className="step-arrow">→</div>
-        <div className="calc-step-item active">
-          <span className="step-num">3</span>
-          <span className="step-text">Get Live Estimate</span>
-        </div>
-        <div className="step-arrow">→</div>
-        <div className="calc-step-item active">
-          <span className="step-num">4</span>
-          <span className="step-text">Area Vendor Rate List</span>
-        </div>
-      </div>
-
-      {/* STEP 1: Top Prominent Area / City Selector */}
-      <div className="area-selection-hero-bar">
-        <div className="area-select-left">
-          <span className="area-pin-icon">📍</span>
-          <div className="area-select-label-wrap">
-            <span className="area-micro-tag">Step 1: Your Location & DISCO</span>
-            <label htmlFor="city-select-dropdown" className="area-heading">
-              Select Your City / Region:
-            </label>
+        {/* Compact Location & DISCO Pill Bar */}
+        <div className="location-toolbar">
+          <div className="location-select-capsule">
+            <span className="loc-icon">📍</span>
+            <select
+              id="city-select-dropdown"
+              className="city-select-input"
+              value={selectedCity.id}
+              onChange={(e) => {
+                const found = PAKISTAN_CITIES.find(c => c.id === e.target.value);
+                if (found) {
+                  setSelectedCity(found);
+                  setSelectedArea('All Areas');
+                }
+              }}
+            >
+              {PAKISTAN_CITIES.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.disco})
+                </option>
+              ))}
+            </select>
+            <span className="sun-badge">☀️ {selectedCity.sunHours}h/day Sun</span>
           </div>
-        </div>
 
-        <div className="area-select-controls">
-          <select
-            id="city-select-dropdown"
-            className="city-hero-dropdown"
-            value={selectedCity.id}
-            onChange={(e) => {
-              const found = PAKISTAN_CITIES.find(c => c.id === e.target.value);
-              if (found) {
-                setSelectedCity(found);
-                setSelectedArea('All Areas');
-              }
-            }}
-          >
-            {PAKISTAN_CITIES.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.disco}) — {c.sunHours} Sun Hours
-              </option>
-            ))}
-          </select>
-
-          <div className="city-sunshine-badge" title="Average daily peak sunshine irradiance in this region">
-            <span className="sun-icon">☀️</span>
-            <span>{selectedCity.sunHours} hrs/day Peak Sun</span>
+          <div className="minimal-step-trail">
+            <span className="trail-item">1. Location</span>
+            <span className="trail-sep">•</span>
+            <span className="trail-item">2. System Size</span>
+            <span className="trail-sep">•</span>
+            <span className="trail-item">3. Turnkey BOM</span>
+            <span className="trail-sep">•</span>
+            <span className="trail-item">4. Vendors</span>
           </div>
         </div>
       </div>
 
-      {/* STEP 2: Input Mode Tabs */}
-      <div className="input-mode-tabs-container">
-        <div className="input-mode-tabs">
-          {/* Direct KW Selector (Primary Choice) */}
+      {/* Sleek Segmented Switcher & Quick House Presets */}
+      <div className="mode-segmented-wrap">
+        <div className="mode-segmented-control" role="tablist">
           <button
             type="button"
-            className={`mode-tab-btn ${inputMode === 'direct_kw' ? 'is-active' : ''}`}
+            className={`segmented-tab ${inputMode === 'direct_kw' ? 'active' : ''}`}
             onClick={() => setInputMode('direct_kw')}
           >
-            <span className="tab-icon">⚡</span>
-            <div className="tab-text">
-              <strong>Select Plates & KW (Recommended)</strong>
-              <span>Choose directly: 3kW, 5kW, 10kW, 15kW...</span>
-            </div>
+            ⚡ Select Plates & kW
           </button>
-
           <button
             type="button"
-            className={`mode-tab-btn ${inputMode === 'bill_rs' ? 'is-active' : ''}`}
+            className={`segmented-tab ${inputMode === 'bill_rs' ? 'active' : ''}`}
             onClick={() => setInputMode('bill_rs')}
           >
-            <span className="tab-icon">💳</span>
-            <div className="tab-text">
-              <strong>Monthly Bill (in Rupees)</strong>
-              <span>e.g. Rs. 40,000 / month</span>
-            </div>
+            💳 Monthly Bill
           </button>
-
           <button
             type="button"
-            className={`mode-tab-btn ${inputMode === 'bill_units' ? 'is-active' : ''}`}
+            className={`segmented-tab ${inputMode === 'bill_units' ? 'active' : ''}`}
             onClick={() => setInputMode('bill_units')}
           >
-            <span className="tab-icon">📊</span>
-            <div className="tab-text">
-              <strong>Electricity Units (kWh)</strong>
-              <span>e.g. 600 or 1,000 Units</span>
-            </div>
+            📊 Monthly Units
           </button>
-
           <button
             type="button"
-            className={`mode-tab-btn ${inputMode === 'appliances' ? 'is-active' : ''}`}
+            className={`segmented-tab ${inputMode === 'appliances' ? 'active' : ''}`}
             onClick={() => setInputMode('appliances')}
           >
-            <span className="tab-icon">🏠</span>
-            <div className="tab-text">
-              <strong>By Home Appliances</strong>
-              <span>ACs, Fans, Fridge, Water Motor...</span>
-            </div>
+            🏠 By Appliances
           </button>
         </div>
 
-        {/* Quick House Size Presets */}
-        <div className="house-presets-bar">
-          <span className="presets-label">Quick House Size Shortcuts:</span>
-          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('5marla')}>
-            🏠 5 Marla (~3.5 kW)
+        {/* Clean House Size Chips */}
+        <div className="presets-chips-row">
+          <span className="preset-chip-title">Quick Presets:</span>
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('5marla')}>
+            5 Marla (~3.5 kW)
           </button>
-          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('10marla')}>
-            🏡 10 Marla (~7 kW)
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('10marla')}>
+            10 Marla (~7 kW)
           </button>
-          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('1kanal')}>
-            🏰 1 Kanal (~10 kW)
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('1kanal')}>
+            1 Kanal (~10 kW)
           </button>
-          <button type="button" className="house-preset-btn" onClick={() => applyHousePreset('2kanal')}>
-            👑 2 Kanal (~15 kW)
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('2kanal')}>
+            2 Kanal (~15 kW)
           </button>
         </div>
       </div>
@@ -357,18 +313,34 @@ export default function SolarCalculator() {
               </p>
 
               <div className="big-value-display-box">
-                <input
-                  type="number"
-                  step="0.5"
-                  min="2"
-                  max="50"
-                  className="big-number-input"
-                  value={targetKw}
-                  onChange={(e) => setTargetKw(Math.max(1, parseFloat(e.target.value) || 1))}
-                />
-                <span className="currency-label" style={{ fontSize: '1.6rem', marginLeft: '8px' }}>
-                  kW System
-                </span>
+                <button
+                  type="button"
+                  className="kw-adjust-btn"
+                  onClick={() => setTargetKw(prev => Math.max(1, +(prev - 1).toFixed(1)))}
+                  aria-label="Decrease kW"
+                >
+                  −
+                </button>
+                <div className="kw-value-center">
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="1"
+                    max="50"
+                    className="big-number-input"
+                    value={targetKw}
+                    onChange={(e) => setTargetKw(Math.max(1, parseFloat(e.target.value) || 1))}
+                  />
+                  <span className="currency-label">kW System</span>
+                </div>
+                <button
+                  type="button"
+                  className="kw-adjust-btn"
+                  onClick={() => setTargetKw(prev => +(prev + 1).toFixed(1))}
+                  aria-label="Increase kW"
+                >
+                  +
+                </button>
               </div>
 
               {/* KW Slider */}
@@ -422,17 +394,35 @@ export default function SolarCalculator() {
               </p>
 
               <div className="big-value-display-box">
-                <span className="currency-label">PKR</span>
-                <input
-                  type="number"
-                  step="1000"
-                  min="5000"
-                  max="500000"
-                  className="big-number-input"
-                  value={monthlyBillRs}
-                  onChange={(e) => handleBillRsChange(e.target.value)}
-                />
-                <span className="time-badge">/ Month</span>
+                <button
+                  type="button"
+                  className="kw-adjust-btn"
+                  onClick={() => handleBillRsChange(Math.max(5000, (parseInt(monthlyBillRs, 10) || 20000) - 5000))}
+                  aria-label="Decrease bill"
+                >
+                  −
+                </button>
+                <div className="kw-value-center">
+                  <span className="currency-label">PKR</span>
+                  <input
+                    type="number"
+                    step="1000"
+                    min="5000"
+                    max="500000"
+                    className="big-number-input bill-number-input"
+                    value={monthlyBillRs}
+                    onChange={(e) => handleBillRsChange(e.target.value)}
+                  />
+                  <span className="time-badge">/ Month</span>
+                </div>
+                <button
+                  type="button"
+                  className="kw-adjust-btn"
+                  onClick={() => handleBillRsChange((parseInt(monthlyBillRs, 10) || 20000) + 5000)}
+                  aria-label="Increase bill"
+                >
+                  +
+                </button>
               </div>
 
               <input
@@ -483,18 +473,36 @@ export default function SolarCalculator() {
               </p>
 
               <div className="big-value-display-box">
-                <input
-                  type="number"
-                  step="25"
-                  min="50"
-                  max="5000"
-                  className="big-number-input"
-                  value={monthlyUnits}
-                  onChange={(e) => handleUnitsChange(e.target.value)}
-                />
-                <span className="currency-label" style={{ fontSize: '1.2rem', marginLeft: '8px' }}>
-                  Units / Month
-                </span>
+                <button
+                  type="button"
+                  className="kw-adjust-btn"
+                  onClick={() => handleUnitsChange(Math.max(50, (parseInt(monthlyUnits, 10) || 300) - 50))}
+                  aria-label="Decrease units"
+                >
+                  −
+                </button>
+                <div className="kw-value-center">
+                  <input
+                    type="number"
+                    step="25"
+                    min="50"
+                    max="5000"
+                    className="big-number-input units-number-input"
+                    value={monthlyUnits}
+                    onChange={(e) => handleUnitsChange(e.target.value)}
+                  />
+                  <span className="currency-label" style={{ fontSize: '1.2rem', marginLeft: '6px' }}>
+                    Units / Month
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="kw-adjust-btn"
+                  onClick={() => handleUnitsChange((parseInt(monthlyUnits, 10) || 300) + 50)}
+                  aria-label="Increase units"
+                >
+                  +
+                </button>
               </div>
 
               <input
@@ -588,6 +596,117 @@ export default function SolarCalculator() {
               </div>
             </div>
           )}
+
+          {/* Live System Yield & Load Capability Box (Fills space with high-value real-time data) */}
+          <div className="system-live-insights-card">
+            <div className="insights-card-header">
+              <div className="insights-title-row">
+                <span className="insights-dot" />
+                <h4 className="insights-title">{calculatedResults.systemKw} kW System Live Output</h4>
+              </div>
+              <span className="insights-badge">{selectedCity.name.split(' ')[0]} Benchmark</span>
+            </div>
+
+            {/* 4 Mini Stat Tiles */}
+            <div className="insights-stats-grid">
+              <div className="insight-stat-tile">
+                <span className="stat-icon">⚡</span>
+                <div className="stat-info">
+                  <span className="stat-label">Daily Generation</span>
+                  <strong className="stat-val">~{calculatedResults.dailyGeneratedUnits} <span className="stat-unit">Units/day</span></strong>
+                </div>
+              </div>
+
+              <div className="insight-stat-tile">
+                <span className="stat-icon">📈</span>
+                <div className="stat-info">
+                  <span className="stat-label">Monthly Generation</span>
+                  <strong className="stat-val">~{calculatedResults.monthlyGeneratedUnits} <span className="stat-unit">Units/mo</span></strong>
+                </div>
+              </div>
+
+              <div className="insight-stat-tile highlight-green">
+                <span className="stat-icon">💵</span>
+                <div className="stat-info">
+                  <span className="stat-label">Monthly Bill Offset</span>
+                  <strong className="stat-val text-mint">Rs. {calculatedResults.monthlySavings.toLocaleString()}</strong>
+                </div>
+              </div>
+
+              <div className="insight-stat-tile">
+                <span className="stat-icon">🏠</span>
+                <div className="stat-info">
+                  <span className="stat-label">Required Roof Area</span>
+                  <strong className="stat-val">~{calculatedResults.roofAreaSqFt} <span className="stat-unit">sq. ft</span></strong>
+                </div>
+              </div>
+            </div>
+
+            {/* Real-World Appliance Load Capability Preview */}
+            <div className="load-capability-section">
+              <div className="load-section-header">
+                <span className="load-section-title">⚡ What Can This {calculatedResults.systemKw} kW System Run?</span>
+                <span className="load-simultaneous-tag">Simultaneous Daytime Load</span>
+              </div>
+              <div className="load-appliances-pills">
+                {parseFloat(calculatedResults.systemKw) >= 15 ? (
+                  <>
+                    <span className="load-pill">❄️ 3-4 Inverter ACs (1.5 Ton)</span>
+                    <span className="load-pill">💧 2x Water Pumps (2 HP)</span>
+                    <span className="load-pill">🧊 2-3 Refrigerators & Freezers</span>
+                    <span className="load-pill">💡 Full Commercial / Large Villa Lighting</span>
+                    <span className="load-pill highlight-load">⚡ Heavy Duty Appliances</span>
+                  </>
+                ) : parseFloat(calculatedResults.systemKw) >= 10 ? (
+                  <>
+                    <span className="load-pill">❄️ 2x Inverter ACs (1.5 Ton)</span>
+                    <span className="load-pill">💧 1x 1.5 HP Water Pump</span>
+                    <span className="load-pill">🧊 2x Refrigerators / Deep Freezers</span>
+                    <span className="load-pill">💡 All House Fans & LED Lights</span>
+                    <span className="load-pill">⚡ Microwave & Washing Machine</span>
+                  </>
+                ) : parseFloat(calculatedResults.systemKw) >= 7 ? (
+                  <>
+                    <span className="load-pill">❄️ 1-2 Inverter ACs (1.5 Ton)</span>
+                    <span className="load-pill">💧 1x 1 HP Water Pump</span>
+                    <span className="load-pill">🧊 1-2 Refrigerators</span>
+                    <span className="load-pill">💡 8-10 Fans & All Lights</span>
+                    <span className="load-pill">📺 LED TVs & Computers</span>
+                  </>
+                ) : parseFloat(calculatedResults.systemKw) >= 5 ? (
+                  <>
+                    <span className="load-pill">❄️ 1x Inverter AC (1.5 Ton)</span>
+                    <span className="load-pill">🧊 1x Refrigerator</span>
+                    <span className="load-pill">💧 1x 1 HP Water Pump (Daytime)</span>
+                    <span className="load-pill">💡 6 Fans, LEDs & LED TV</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="load-pill">❄️ 1x 1-Ton Inverter AC or Room Cooler</span>
+                    <span className="load-pill">🧊 1x Inverter Refrigerator</span>
+                    <span className="load-pill">💡 4-5 Ceiling Fans & All LEDs</span>
+                    <span className="load-pill">📱 TV, Laptops & Mobile Charging</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Efficiency & Return Highlights */}
+            <div className="insights-footer-strip">
+              <div className="strip-metric">
+                <span className="metric-icon">⏳</span>
+                <span>Payback: <strong>~{calculatedResults.paybackYears} Yrs</strong></span>
+              </div>
+              <div className="strip-metric">
+                <span className="metric-icon">🌳</span>
+                <span>CO₂ Saved: <strong>~{calculatedResults.co2OffsetTonnes} T/yr</strong></span>
+              </div>
+              <div className="strip-metric">
+                <span className="metric-icon">🔌</span>
+                <span>Inverter: <strong>{calculatedResults.inverterKw} kW Tier-1</strong></span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Solar Plates & Hardware Preferences */}
@@ -775,8 +894,11 @@ export default function SolarCalculator() {
         {/* Itemized Bill of Materials (BOM) Breakdown Table */}
         <div className="bom-breakdown-card">
           <div className="bom-header">
-            <h4>📋 Complete Turnkey Itemized Cost Breakdown (Estimated)</h4>
-            <span className="bom-sub">Transparent hardware & installation costs:</span>
+            <div>
+              <h4>📋 Complete Turnkey Itemized Cost Breakdown (Estimated)</h4>
+              <span className="bom-sub">Transparent hardware & installation costs:</span>
+            </div>
+            <span className="bom-swipe-hint">👈 Swipe to scroll 👉</span>
           </div>
 
           <div className="bom-table-wrap">

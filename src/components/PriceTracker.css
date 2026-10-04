@@ -128,71 +128,75 @@
 .col-vendor {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 240px;
 }
 
 .brand-name-bold {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 14.5px;
+  font-weight: 700;
   color: #ffffff;
 }
 
 .vendor-sub {
   font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+
+.vendor-sub strong {
+  color: #ffffff;
+}
+
+.tech-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 210, 255, 0.12);
+  color: #00d2ff;
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  font-weight: 600;
 }
 
 .col-city {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 13px;
-}
-
-.tech-badge {
-  display: inline-block;
-  font-size: 11.5px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12.5px;
   white-space: nowrap;
-}
-
-.col-mono {
-  font-family: monospace;
-  font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.9);
 }
 
 .col-per-watt {
   font-family: monospace;
-  font-size: 13px;
-  color: #27e8a7;
-  font-weight: 600;
+  font-size: 13.5px;
+  color: #10b981;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .col-price {
-  font-weight: 700;
+  font-weight: 800;
   color: #00d2ff !important;
   font-family: monospace;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .col-muted {
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
 }
 
 .col-rating {
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .rating-star {
   color: #fbbf24;
-  margin-right: 4px;
+  margin-right: 3px;
 }
 
 /* Loading & Error States */
@@ -221,35 +225,42 @@
 .benchmark-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  gap: 16px;
   width: 100%;
 }
 
 .benchmark-card {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  padding: 20px 22px;
+  border-radius: 14px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  transition: all 0.18s ease;
+}
+
+.benchmark-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 210, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 .benchmark-label {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .benchmark-val {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #00d2ff;
   margin: 2px 0;
 }
 
 .benchmark-sub {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
   line-height: 1.4;
 }
 
@@ -260,11 +271,56 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .tracker-section {
-    padding: 24px 18px;
+    padding: 24px 14px;
     border-radius: 18px;
   }
+
+  .table-wrapper {
+    border: none;
+    background: transparent;
+    overflow-x: visible;
+  }
+
+  .clean-table {
+    display: block;
+    width: 100%;
+  }
+
+  .clean-table thead {
+    display: none;
+  }
+
+  .clean-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .clean-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 14px;
+    gap: 6px;
+  }
+
+  .clean-table td {
+    padding: 0;
+  }
+
+  .col-vendor {
+    min-width: 0;
+  }
+
+  .col-price {
+    font-size: 1.2rem;
+  }
+
   .benchmark-grid {
     grid-template-columns: 1fr;
   }

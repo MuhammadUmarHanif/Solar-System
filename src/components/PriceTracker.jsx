@@ -166,13 +166,10 @@ const PriceTracker = () => {
           <table className="clean-table">
             <thead>
               <tr>
-                <th>Brand & Module Model</th>
+                <th>Solar Module & Technology</th>
                 <th>Trade Hub / City</th>
-                <th>Technology</th>
-                <th>Capacity</th>
                 <th>Rate / Watt</th>
                 <th>Price / Module (PKR)</th>
-                <th>Efficiency</th>
                 <th>Warranty</th>
                 <th>Distributor Score</th>
               </tr>
@@ -182,16 +179,13 @@ const PriceTracker = () => {
                 <tr key={index}>
                   <td className="col-vendor">
                     <span className="brand-name-bold">{item.brand}</span>
-                    <span className="vendor-sub">{item.vendor}</span>
+                    <span className="vendor-sub">
+                      {item.vendor} • <span className="tech-tag">{item.panelType}</span> • <strong>{item.capacity}</strong> ({item.efficiency})
+                    </span>
                   </td>
-                  <td className="col-city">{item.market}</td>
-                  <td>
-                    <span className="tech-badge">{item.panelType}</span>
-                  </td>
-                  <td className="col-mono">{item.capacity}</td>
+                  <td className="col-city">📍 {item.market}</td>
                   <td className="col-per-watt">{item.perWatt}</td>
                   <td className="col-price">{item.price}</td>
-                  <td className="col-mono">{item.efficiency}</td>
                   <td className="col-muted">{item.warranty}</td>
                   <td className="col-rating">
                     <span className="rating-star">★</span> {item.rating} / 5.0

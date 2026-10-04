@@ -1,9 +1,9 @@
-/* QuoteModal.css */
+/* QuoteModal.css - Ultra Clean, 100% Mobile Responsive */
 
 .quote-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 13, 0.85);
+  background: rgba(4, 7, 13, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   display: flex;
@@ -19,17 +19,19 @@
   border: 1px solid rgba(0, 210, 255, 0.3);
   border-radius: 20px;
   width: 100%;
-  max-width: 540px;
-  padding: 32px;
+  max-width: 520px;
+  padding: 30px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 255, 0.15);
   color: #ffffff;
-  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 92vh;
+  overflow-y: auto;
 }
 
 @keyframes modalSlideUp {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.97);
+    transform: translateY(16px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -39,8 +41,8 @@
 
 .quote-modal-close {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 16px;
+  right: 16px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
@@ -66,23 +68,23 @@
   border: 1px solid rgba(0, 210, 255, 0.35);
   color: #00d2ff;
   border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  padding: 3px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
 .quote-modal-header h3 {
-  margin: 0 0 6px;
-  font-size: 1.45rem;
+  margin: 0 0 4px;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #ffffff;
 }
 
 .quote-header-sub {
-  margin: 0 0 16px;
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
   line-height: 1.45;
 }
 
@@ -93,7 +95,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 10px 14px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
   gap: 10px;
 }
@@ -105,12 +107,12 @@
 }
 
 .item-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.55);
 }
 
 .item-val {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #ffffff;
 }
@@ -122,17 +124,17 @@
 .quote-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .quote-input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .quote-input-group label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -143,7 +145,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
-  padding: 10px 14px;
+  padding: 10px 12px;
   color: #ffffff;
   font-size: 0.88rem;
   outline: none;
@@ -165,8 +167,8 @@
 }
 
 .input-hint {
-  font-size: 0.74rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .quote-input-row {
@@ -176,16 +178,16 @@
 }
 
 .btn-submit-quote {
-  margin-top: 8px;
+  margin-top: 6px;
   background: linear-gradient(135deg, #00d2ff, #0077ff);
   color: #000000;
   font-weight: 700;
-  font-size: 0.95rem;
-  padding: 13px 20px;
-  border-radius: 12px;
+  font-size: 0.92rem;
+  padding: 12px 18px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   box-shadow: 0 4px 18px rgba(0, 210, 255, 0.35);
 }
 
@@ -197,56 +199,56 @@
 /* Success View */
 .quote-success-view {
   text-align: center;
-  padding: 16px 8px;
+  padding: 12px 6px;
 }
 
 .success-icon-wrap {
-  width: 58px;
-  height: 58px;
+  width: 52px;
+  height: 52px;
   background: rgba(16, 185, 129, 0.15);
   border: 2px solid #10b981;
   color: #10b981;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
 }
 
 .quote-success-view h3 {
-  margin: 0 0 8px;
-  font-size: 1.55rem;
+  margin: 0 0 6px;
+  font-size: 1.45rem;
   color: #ffffff;
 }
 
 .success-msg {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.92rem;
-  margin: 0 0 20px;
+  font-size: 0.88rem;
+  margin: 0 0 18px;
 }
 
 .ref-badge-card {
   background: rgba(0, 210, 255, 0.08);
   border: 1px solid rgba(0, 210, 255, 0.25);
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 24px;
+  padding: 14px;
+  margin-bottom: 20px;
 }
 
 .ref-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .ref-code {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #00d2ff;
   letter-spacing: 0.04em;
@@ -254,8 +256,8 @@
 }
 
 .ref-sub {
-  margin: 8px 0 0;
-  font-size: 0.8rem;
+  margin: 6px 0 0;
+  font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.4;
 }
@@ -263,17 +265,17 @@
 .success-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .btn-whatsapp-direct {
   background: #25D366;
   color: #0b2214;
-  padding: 12px 20px;
+  padding: 11px 18px;
   border-radius: 10px;
   font-weight: 700;
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   display: block;
   box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
 }
@@ -282,8 +284,41 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  padding: 10px 20px;
+  padding: 9px 18px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+}
+
+/* Mobile Breakpoints */
+@media (max-width: 640px) {
+  .quote-modal-overlay {
+    padding: 10px;
+  }
+  .quote-modal-content {
+    padding: 20px 14px;
+    border-radius: 16px;
+  }
+  .quote-modal-header h3 {
+    font-size: 1.2rem;
+  }
+  .quote-input-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .quote-summary-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .summary-item:last-child {
+    grid-column: span 2;
+  }
+  .ref-code {
+    font-size: 1.3rem;
+  }
+  .btn-submit-quote {
+    font-size: 0.85rem;
+    padding: 11px 14px;
+  }
 }
