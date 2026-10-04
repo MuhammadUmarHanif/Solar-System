@@ -5,6 +5,7 @@ import SolarCalculator from './components/SolarCalculator';
 import PriceTracker from './components/PriceTracker';
 import AIChatbot from './components/AIChatbot';
 import FAQ from './components/FAQ';
+import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 
 const CURRENT_USER_KEY = 'mySolarCurrentUser';
@@ -55,16 +56,8 @@ function App() {
         </div>
       </main>
 
-      {/* 3. Deep Space Themed Footer */}
-      <footer className="Footer glass-panel">
-        <div className="Footer__inner">
-          <span>Orbit Solar Guidance System</span>
-          <span className="Footer__dot" aria-hidden="true">•</span>
-          <span>Deep Space Energy Solutions</span>
-          <span className="Footer__dot" aria-hidden="true">•</span>
-          <span>Pakistan</span>
-        </div>
-      </footer>
+      {/* 3. Clean Modern Pakistani Solar Platform Footer */}
+      <Footer />
 
       {/* 4. Authentication Modal */}
       <AuthModal

@@ -76,7 +76,7 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
       if (v.paused) {
         const p = v.play();
         if (p && typeof p.catch === 'function') {
-          p.catch(() => {});
+          p.catch(() => { });
         }
       }
     };

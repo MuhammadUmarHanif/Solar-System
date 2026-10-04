@@ -1,0 +1,423 @@
+/* Clean Modern Footer Styles - Pakistan Solar Platform */
+
+.clean-footer {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(8, 10, 16, 0.94) 0%, #05070a 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  margin-top: 60px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.footer-top-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00d2ff, #10b981, transparent);
+  opacity: 0.8;
+}
+
+.clean-footer-inner {
+  width: min(1280px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 56px 0 40px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+/* Brand Column */
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-solar-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.4));
+}
+
+.footer-brand-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.brand-highlight {
+  color: #00d2ff;
+}
+
+.footer-pak-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.footer-brand-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 360px;
+}
+
+.footer-live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.75);
+  width: fit-content;
+}
+
+.status-dot-pulse {
+  width: 7px;
+  height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* Link Columns */
+.footer-links-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-col-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links-list li button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.footer-links-list li button:hover {
+  color: #00d2ff;
+  transform: translateX(3px);
+}
+
+.footer-cities-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.footer-cities-grid li span {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Quality Standards Column */
+.footer-standards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.standard-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.standard-icon {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.standard-item strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.standard-item p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.4;
+}
+
+/* Bottom Bar */
+.footer-bottom-bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 18px 0;
+}
+
+.footer-bottom-inner {
+  width: min(1280px, calc(100% - 48px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-copy-text {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+}
+
+.footer-copy-text strong {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.footer-bottom-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-theme-btn,
+.footer-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.footer-theme-btn:hover,
+.footer-top-btn:hover {
+  background: rgba(0, 210, 255, 0.12);
+  border-color: #00d2ff;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.arrow-up-icon {
+  font-weight: 800;
+  color: #00d2ff;
+}
+
+/* ==============================================================
+   RESPONSIVE DESIGN (Tablets & Mobile Phones)
+   ============================================================== */
+
+@media (max-width: 1024px) {
+  .clean-footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 40px 0 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .clean-footer {
+    margin-top: 36px;
+  }
+
+  .clean-footer-inner {
+    width: calc(100% - 24px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 14px;
+    padding: 24px 0 18px;
+  }
+
+  /* Brand Column spans full 2 columns with divider */
+  .footer-brand-col {
+    grid-column: span 2;
+    gap: 10px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .footer-logo-row {
+    gap: 6px;
+  }
+
+  .footer-solar-icon {
+    font-size: 1.35rem;
+  }
+
+  .footer-brand-title {
+    font-size: 1.25rem;
+  }
+
+  .footer-brand-desc {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    max-width: 100%;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .footer-live-status {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    margin-top: 2px;
+  }
+
+  /* Col 2 (Solar Tools) takes column 1 */
+  .clean-footer-inner > .footer-links-col:nth-child(2) {
+    grid-column: 1;
+    gap: 8px;
+  }
+
+  /* Col 3 (Major Service Areas) takes column 2 */
+  .clean-footer-inner > .footer-links-col:nth-child(3) {
+    grid-column: 2;
+    gap: 8px;
+  }
+
+  .footer-col-title {
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    color: #00d2ff;
+    margin-bottom: 2px;
+  }
+
+  .footer-links-list {
+    gap: 6px;
+  }
+
+  .footer-links-list li button {
+    font-size: 0.74rem;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .footer-cities-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .footer-cities-grid li span {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  /* Col 4 (Quality Standards) spans full 2 columns with divider */
+  .clean-footer-inner > .footer-links-col:nth-child(4) {
+    grid-column: span 2;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    gap: 8px;
+  }
+
+  .footer-standards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .standard-item {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 6px 10px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .standard-icon {
+    font-size: 1rem;
+  }
+
+  .standard-item strong {
+    font-size: 0.76rem;
+    margin-bottom: 1px;
+    line-height: 1.2;
+  }
+
+  .standard-item p {
+    font-size: 0.66rem;
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Bottom Bar */
+  .footer-bottom-bar {
+    padding: 14px 0;
+  }
+
+  .footer-bottom-inner {
+    width: calc(100% - 24px);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .footer-copy-text {
+    font-size: 0.7rem;
+    text-align: center;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .footer-top-btn {
+    align-self: center;
+    padding: 6px 16px;
+    font-size: 0.76rem;
+    background: rgba(0, 210, 255, 0.08);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    color: #00d2ff;
+  }
+}

@@ -2,8 +2,13 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #020408;
+  background: var(--bg-page, #020408);
   overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+body.light-theme .App {
+  background: #f8fafc;
 }
 
 .Main {
@@ -37,36 +42,7 @@ section {
   }
 }
 
-/* Deep Space Themed Footer (Full width) */
-.Footer {
-  width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 10, 16, 0.90);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  padding: 28px 0;
-  margin-top: auto;
-}
-
-.Footer__inner {
-  width: min(1560px, calc(100% - 48px));
-  margin: 0 auto;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.92rem;
-  font-weight: 500;
-  flex-wrap: wrap;
-}
-
-.Footer__dot {
-  opacity: 0.4;
-  color: #00d2ff;
-  margin: 0 6px;
-}
+/* Clean Footer handled in components/Footer.css */
 
 /* Global button styles for features */
 .btn {
@@ -109,4 +85,57 @@ section {
   border-color: rgba(0, 210, 255, 0.45);
   box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
   transform: translateY(-2px);
+}
+
+/* Floating Theme Switcher Button */
+.floating-theme-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.light-theme .floating-theme-toggle {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.floating-theme-toggle:hover {
+  transform: scale(1.1) translateY(-2px);
+  border-color: #00d2ff;
+  box-shadow: 0 12px 35px rgba(0, 210, 255, 0.35);
+}
+
+.floating-toggle-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.floating-toggle-tooltip {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .floating-theme-toggle {
+    bottom: 18px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
+  }
 }

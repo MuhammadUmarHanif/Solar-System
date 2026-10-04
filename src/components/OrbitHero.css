@@ -532,29 +532,146 @@
   }
 }
 
-@media (max-width: 640px) {
-  :root {
-    --u: calc(100vw / 486);
+@media (max-width: 768px) {
+  .orbit-hero-wrapper {
+    overflow-x: hidden;
+    height: 100svh;
+    min-height: 580px;
   }
+
   .orbit-hero-frame .bar {
-    left: 5.2vw;
-    width: 89.6vw;
+    left: 14px;
+    width: calc(100vw - 28px);
+    top: 14px;
   }
-  .orbit-hero-frame .hero p {
-    width: min(calc(560 * var(--u)), 88vw);
-    line-height: calc(23 * var(--u));
+
+  /* Fluid Mobile Screen Container - Elevate content to top half */
+  .orbit-hero-frame div.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100vw;
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 64px) 16px 20px;
+    box-sizing: border-box;
+  }
+
+  .orbit-hero-frame main.hero {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 6px;
+  }
+
+  /* Mobile Pill */
+  .orbit-hero-frame a.pill {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    min-width: 0;
+    height: 26px;
+    padding: 0 11px 0 6px;
+    margin-bottom: 10px;
+    border-radius: 999px;
+  }
+
+  .orbit-hero-frame a.pill:hover {
+    transform: translateY(-1px);
+  }
+
+  .orbit-hero-frame span.pill-label {
+    font-size: 11px;
+    height: 26px;
+    line-height: 26px;
+  }
+
+  /* Mobile Headline - Elevated, clear of the planet body */
+  .orbit-hero-frame main.hero h1 {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    font-size: clamp(1.75rem, 7.2vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 10px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 4px;
+  }
+
+  .orbit-hero-frame .ln {
+    display: block;
+    overflow: visible;
+    padding-bottom: 2px;
+    margin-bottom: 0;
+  }
+
+  /* Mobile Description */
+  .orbit-hero-frame main.hero p {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto 16px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.78);
+    padding: 0 6px;
+    box-sizing: border-box;
+  }
+
+  /* Mobile CTA Buttons */
+  .orbit-hero-frame div.cta {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .orbit-hero-frame .cta .btn {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 18px;
+    font-size: 13px;
+    border-radius: 999px;
+    white-space: nowrap;
   }
 }
 
 @media (max-width: 380px) {
-  :root {
-    --u: calc(100vw / 470);
+  .orbit-hero-frame main.hero h1 {
+    font-size: 1.7rem;
   }
-}
-
-@media (max-width: 1023px) and (max-height: 520px) {
-  :root {
-    --u: min(calc(100vw / 900), calc(100vh / 470));
+  .orbit-hero-frame main.hero p {
+    font-size: 12.5px;
+    max-width: 290px;
+  }
+  .orbit-hero-frame .cta .btn {
+    padding: 0 14px;
+    font-size: 12.5px;
   }
 }
 
@@ -662,3 +779,91 @@
     to { transform: none; }
   }
 }
+
+/* Theme Toggle Button in Header */
+.orbit-hero-frame .theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(6 * var(--u));
+  height: calc(36.2 * var(--u));
+  padding: 0 calc(12 * var(--u));
+  border-radius: calc(10 * var(--u));
+  background: rgba(255, 255, 255, 0.08);
+  border: calc(1 * var(--u)) solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-size: calc(12 * var(--u));
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.orbit-hero-frame .theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 210, 255, 0.5);
+  box-shadow: 0 0 14px rgba(0, 210, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.orbit-hero-frame .theme-toggle-icon {
+  font-size: calc(13 * var(--u));
+  line-height: 1;
+}
+
+.orbit-hero-frame .theme-toggle-label {
+  font-size: calc(11.5 * var(--u));
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Light Theme Overrides for Orbit Hero */
+body.light-theme .orbit-hero-frame div.veil {
+  background: linear-gradient(to bottom, rgba(248, 250, 252, 0.15) 0%, rgba(248, 250, 252, 0.45) 50%, rgba(248, 250, 252, 0.88) 85%, #f8fafc 100%);
+}
+
+body.light-theme .orbit-hero-frame nav.sheet {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .orbit-hero-frame nav.sheet a {
+  color: #0f172a;
+}
+
+body.light-theme .orbit-hero-frame nav.sheet a:hover {
+  background: rgba(2, 132, 199, 0.08);
+  color: #0284c7;
+}
+
+body.light-theme .orbit-hero-frame .ghost {
+  background: rgba(255, 255, 255, 0.85);
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .orbit-hero-frame .ghost:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+}
+
+body.light-theme .orbit-hero-frame .theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #0f172a;
+}
+
+body.light-theme .orbit-hero-frame .theme-toggle-btn:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 12px rgba(2, 132, 199, 0.2);
+}
+
+body.light-theme .orbit-hero-frame button.menu {
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+}
+

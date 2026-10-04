@@ -68,32 +68,32 @@ export default function AreaVendorRateList({
 
   return (
     <div id="area-vendors" className="area-vendors-container">
-      {/* Header Banner */}
-      <div className="area-vendors-header">
-        <div className="vendors-header-main">
-          <div className="header-badges-row">
-            <span className="live-verified-badge">
-              <span className="live-ping"></span> Live Rate List 2024-2026
+      {/* Header Banner - Clean Minimal */}
+      <div className="vendors-header-clean">
+        <div className="vendors-header-text">
+          <div className="vendors-kicker-row">
+            <span className="live-status-pill">
+              <span className="live-ping" /> Live Verified Rates
             </span>
-            <span className="location-pill">
+            <span className="location-tag">
               📍 {selectedCity.name} ({selectedCity.disco})
             </span>
           </div>
-          <h3>Verified Solar Vendors & Rate List in {selectedCity.name}</h3>
-          <p className="vendors-header-sub">
-            Realtime verified rates for your <strong>{exactSystemKw} kW</strong> system with <strong>{selectedPanel.brand}</strong> panels. Contact vendors directly for immediate site inspection & turnkey installation.
+          <h3 className="vendors-heading">
+            Verified Solar Installers & Turnkey Rates
+          </h3>
+          <p className="vendors-subheading">
+            Realtime turnkey package estimates for your <strong>{exactSystemKw} kW</strong> system with <strong>{selectedPanel.brand}</strong> panels. Direct installer contact with zero middleman markup.
           </p>
         </div>
 
-        {/* Live Market Price Badge for This Area */}
-        <div className="market-benchmark-card">
-          <div className="benchmark-title">Today's Market Rate ({selectedCity.name.split(' ')[0]})</div>
-          <div className="benchmark-rate-val">
-            Rs. {selectedPanel.pricePerWatt} <span className="rate-unit">/ Watt</span>
+        {/* Minimal Market Benchmark Pill */}
+        <div className="market-benchmark-pill">
+          <span className="benchmark-label">Market Benchmark ({selectedCity.name.split(' ')[0]})</span>
+          <div className="benchmark-price">
+            Rs. {selectedPanel.pricePerWatt} <span className="benchmark-unit">/ W</span>
           </div>
-          <div className="benchmark-sub">
-            Turnkey: ~Rs. 114k - 122k / kW
-          </div>
+          <span className="benchmark-turnkey-hint">Turnkey: ~Rs. 114k - 122k/kW</span>
         </div>
       </div>
 
@@ -148,101 +148,83 @@ export default function AreaVendorRateList({
             const estimatedTotalCost = Math.round(kw * turnkeyRateForKw);
 
             return (
-              <div key={vendor.id} className={`vendor-rate-card ${index === 0 ? 'is-top-pick' : ''}`}>
-                {index === 0 && (
-                  <div className="top-vendor-ribbon">
-                    🏆 Top Rated in {selectedCity.name.split(' ')[0]}
-                  </div>
-                )}
-
-                {/* Top Section */}
-                <div className="vendor-card-top">
-                  <div className="vendor-info-block">
-                    <div className="vendor-name-row">
-                      <h4 className="vendor-name">{vendor.name}</h4>
-                      <span className="pec-badge" title="Pakistan Engineering Council Registered">
-                        ✓ {vendor.pecReg}
-                      </span>
+              <div key={vendor.id} className={`vendor-card-clean ${index === 0 ? 'top-pick-card' : ''}`}>
+                {/* Header Row: Vendor Info (Left) + Pricing (Right) */}
+                <div className="vendor-card-header">
+                  <div className="vendor-info-side">
+                    <div className="vendor-title-row">
+                      <h4 className="vendor-title">{vendor.name}</h4>
+                      {index === 0 && (
+                        <span className="top-choice-badge">★ Top Rated</span>
+                      )}
+                      <span className="pec-licensed-badge">✓ {vendor.pecReg}</span>
                     </div>
 
-                    <div className="vendor-meta-row">
-                      <span className="vendor-area-tag">📍 {vendor.area}</span>
-                      <span className="vendor-projects-tag">✓ {vendor.completedProjects} Completed</span>
-                      <span className="vendor-rating-tag">★ {vendor.rating} ({vendor.reviewsCount})</span>
+                    <div className="vendor-meta-strip">
+                      <span className="meta-item loc">📍 {vendor.area}</span>
+                      <span className="meta-sep">•</span>
+                      <span className="meta-item rating">★ {vendor.rating} <span className="reviews">({vendor.reviewsCount})</span></span>
+                      <span className="meta-sep">•</span>
+                      <span className="meta-item completed">{vendor.completedProjects} installs</span>
                     </div>
 
-                    <p className="vendor-address-txt">{vendor.address}</p>
+                    <p className="vendor-address-sub">{vendor.address}</p>
                   </div>
 
-                  {/* Turnkey Price Calculation for this exact system */}
-                  <div className="vendor-pricing-highlight">
-                    <span className="turnkey-label">Estimated Turnkey Package</span>
-                    <div className="vendor-big-price">
-                      PKR {(estimatedTotalCost / 100000).toFixed(2)} <span className="lakh-unit">Lakh</span>
+                  {/* Clean Price Hero (Direct, no heavy inner box) */}
+                  <div className="vendor-price-side">
+                    <span className="price-side-label">Turnkey Package ({kw} kW)</span>
+                    <div className="price-side-val">
+                      PKR {(estimatedTotalCost / 100000).toFixed(2)} <span className="price-side-unit">Lakh</span>
                     </div>
-                    <div className="vendor-rate-breakdown">
-                      <span>Rate: <strong>Rs. {turnkeyRateForKw.toLocaleString()}</strong> / kW</span>
-                      <span className="bullet-sep">•</span>
-                      <span>Panels: <strong>Rs. {vendor.panelPerWattWholesale}</strong> / W</span>
+                    <div className="price-side-rates">
+                      Rs. {turnkeyRateForKw.toLocaleString()}/kW • Rs. {vendor.panelPerWattWholesale}/W
                     </div>
                   </div>
                 </div>
 
-                {/* Features & Equipment Included */}
-                <div className="vendor-specs-row">
-                  <div className="spec-pill">
-                    <span className="spec-icon">⚡</span>
-                    <span>Brands: {vendor.featuredBrands.join(', ')}</span>
-                  </div>
-                  <div className="spec-pill">
-                    <span className="spec-icon">🛡️</span>
-                    <span>{vendor.warranties}</span>
-                  </div>
-                  <div className="spec-pill green-tint">
-                    <span className="spec-icon">📋</span>
-                    <span>Net Metering: {vendor.netMeteringDays}</span>
-                  </div>
-                  <div className="spec-pill pulse-tint">
-                    <span className="spec-icon">📦</span>
-                    <span>{vendor.stockStatus}</span>
-                  </div>
+                {/* Middle Row: Inclusions / Specs as clean pills */}
+                <div className="vendor-specs-strip">
+                  <span className="spec-chip">⚡ {vendor.featuredBrands.join(', ')}</span>
+                  <span className="spec-chip">🛡️ {vendor.warranties}</span>
+                  <span className="spec-chip highlight">📋 Net Metering: {vendor.netMeteringDays}</span>
+                  <span className="spec-chip">📦 {vendor.stockStatus}</span>
                 </div>
 
-                {/* Card Actions */}
-                <div className="vendor-actions-row">
-                  <a
-                    href={getWhatsAppLink(vendor)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="vendor-btn whatsapp-btn"
-                  >
-                    <span className="btn-icon">💬</span>
-                    <span>WhatsApp Quote</span>
-                  </a>
+                {/* Actions Footer */}
+                <div className="vendor-card-actions">
+                  <div className="actions-main-group">
+                    <a
+                      href={getWhatsAppLink(vendor)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="clean-btn whatsapp-action-btn"
+                    >
+                      <span>💬 WhatsApp Direct Quote</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      className="clean-btn survey-action-btn"
+                      onClick={() => onOpenQuoteModal({
+                        vendor,
+                        systemKw: exactSystemKw,
+                        panel: selectedPanel,
+                        totalCost: estimatedTotalCost,
+                        city: selectedCity
+                      })}
+                    >
+                      <span>📋 Request Free Survey</span>
+                    </button>
+                  </div>
 
                   <button
                     type="button"
-                    className="vendor-btn quote-btn"
-                    onClick={() => onOpenQuoteModal({
-                      vendor,
-                      systemKw: exactSystemKw,
-                      panel: selectedPanel,
-                      totalCost: estimatedTotalCost,
-                      city: selectedCity
-                    })}
-                  >
-                    <span className="btn-icon">📝</span>
-                    <span>Request Free Survey</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="vendor-btn call-btn"
+                    className="vendor-tel-btn"
                     onClick={() => handleCopyPhone(vendor)}
                     title="Click to copy phone number"
                   >
-                    <span className="btn-icon">📞</span>
-                    <span>{copiedVendorId === vendor.id ? 'Copied!' : vendor.phone}</span>
+                    <span>📞 {copiedVendorId === vendor.id ? 'Copied!' : vendor.phone}</span>
                   </button>
                 </div>
               </div>
