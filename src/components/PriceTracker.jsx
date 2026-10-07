@@ -49,6 +49,7 @@ const PriceTracker = () => {
     }
 
     return [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProducts, activeSupplier, dataVersion]);
 
   const filteredPrices = useMemo(() => {
@@ -67,6 +68,7 @@ const PriceTracker = () => {
 
   const lastUpdated = useMemo(() => {
     return new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataVersion]);
 
   return (

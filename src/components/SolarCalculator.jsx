@@ -82,6 +82,7 @@ export default function SolarCalculator({ supplierOverride }) {
       }
     }
     return SOLAR_PANELS;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveSupplier, supplierCtx?.dataVersion]);
 
   const availableInverters = useMemo(() => {
@@ -90,6 +91,7 @@ export default function SolarCalculator({ supplierOverride }) {
       if (dbInverters && dbInverters.length > 0) return dbInverters;
     }
     return [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveSupplier, supplierCtx?.dataVersion]);
 
   const availableBatteries = useMemo(() => {
@@ -106,6 +108,7 @@ export default function SolarCalculator({ supplierOverride }) {
       }
     }
     return BATTERY_OPTIONS;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveSupplier, supplierCtx?.dataVersion]);
 
   // System Configuration
@@ -120,12 +123,14 @@ export default function SolarCalculator({ supplierOverride }) {
     if (availablePanels.length > 0 && !availablePanels.find(p => p.id === selectedPanel?.id)) {
       setSelectedPanel(availablePanels[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availablePanels]);
 
   useEffect(() => {
     if (availableBatteries.length > 0 && !availableBatteries.find(b => b.id === selectedBattery?.id)) {
       setSelectedBattery(availableBatteries[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableBatteries]);
 
   // Non-intrusive Inline Booking State

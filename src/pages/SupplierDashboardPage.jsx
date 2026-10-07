@@ -152,12 +152,14 @@ export default function SupplierDashboardPage() {
   const supplierProducts = useMemo(() => {
     if (!supplier) return [];
     return dbService.getProductsBySupplier(supplier.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplier, dataVersion]);
 
   // Fetch Supplier Leads
   const supplierLeads = useMemo(() => {
     if (!supplier) return [];
     return dbService.getLeadsBySupplier(supplier.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplier, dataVersion]);
 
   // Filtered Products

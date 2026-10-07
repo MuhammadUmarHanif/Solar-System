@@ -48,6 +48,7 @@ export const SupplierProvider = ({ children }) => {
   const activeProducts = useMemo(() => {
     if (!activeSupplier) return [];
     return dbService.getProductsBySupplier(activeSupplier.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSupplier, dataVersion]);
 
   // Categorized Active Products
