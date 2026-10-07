@@ -1,54 +1,125 @@
 import React, { useState } from 'react';
 import './QuoteModal.css';
+import { useSupplier } from '../context/SupplierContext';
+import dbService from '../services/db';
+import { IconX, IconZap, IconCheckCircle, IconWhatsApp } from './Icons';
 
 export default function QuoteModal({ isOpen, onClose, quoteData }) {
+  const { activeSupplier, submitCustomerBooking } = useSupplier() || {};
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    whatsappNumber: '',
     address: '',
     roofType: 'Concrete Flat Roof',
     notes: ''
   });
   const [submitted, setSubmitted] = useState(false);
   const [referenceId, setReferenceId] = useState('');
+  const [generatedWaUrl, setGeneratedWaUrl] = useState('');
 
   if (!isOpen || !quoteData) return null;
 
-  const { vendor, systemKw, panel, totalCost, city } = quoteData;
+  const { 
+    vendor, 
+    supplier: propSupplier, 
+    systemKw, 
+    numberOfPanels,
+    panel, 
+    inverter,
+    battery,
+    totalCost, 
+    city 
+  } = quoteData;
+
+  const supplier = propSupplier || vendor || activeSupplier || {
+    name: 'Orbit Certified Solar Partner',
+    whatsapp: '923008452190',
+    cityName: city?.name || 'Pakistan'
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim()) return;
 
-    const ref = `PAK-${city?.id?.toUpperCase() || 'SOLAR'}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const cityCode = (city?.id || city?.name || 'PAK').substring(0, 3).toUpperCase();
+    const ref = `PAK-${cityCode}-${Math.floor(1000 + Math.random() * 9000)}`;
     setReferenceId(ref);
 
-    // Save lead locally
-    const lead = {
+    const waNum = formData.whatsappNumber.trim() || formData.phone.trim();
+
+    // Lead payload for SaaS DB
+    const leadPayload = {
       ref,
-      ...formData,
-      vendor: vendor?.name,
-      systemKw,
-      panel: panel?.name,
-      totalCost,
-      city: city?.name,
-      timestamp: new Date().toISOString()
+      supplierId: supplier.id || activeSupplier?.id || 'sup_apex_solar',
+      customerName: formData.name.trim(),
+      phone: formData.phone.trim(),
+      whatsappNumber: waNum,
+      city: typeof city === 'string' ? city : (city?.name || 'Pakistan'),
+      address: formData.address.trim(),
+      roofType: formData.roofType,
+      systemKw: parseFloat(systemKw) || 5.0,
+      numberOfPanels: numberOfPanels || 10,
+      selectedPanel: panel ? {
+        id: panel.id,
+        name: panel.name || `${panel.brand} ${panel.wattage || panel.watts}W`,
+        wattage: panel.wattage || panel.watts || 585,
+        price: panel.price || 0
+      } : null,
+      selectedInverter: inverter ? {
+        id: inverter.id,
+        name: inverter.name,
+        wattage: inverter.wattage || (systemKw * 1000),
+        price: inverter.price || 0
+      } : null,
+      selectedBattery: battery ? {
+        id: battery.id,
+        name: battery.name,
+        capacityKwh: battery.capacityKwh || 5,
+        price: battery.price || 0
+      } : null,
+      estimatedTotalCost: totalCost || 0,
+      notes: formData.notes.trim()
     };
 
+    // Save to Multi-tenant Database
     try {
-      const existing = JSON.parse(localStorage.getItem('solar_quote_requests') || '[]');
-      existing.unshift(lead);
-      localStorage.setItem('solar_quote_requests', JSON.stringify(existing));
+      if (submitCustomerBooking) {
+        submitCustomerBooking(leadPayload);
+      } else {
+        dbService.createLead(leadPayload);
+      }
     } catch {
-      // fallback
+      dbService.createLead(leadPayload);
     }
+
+    // Build Professional Pre-filled WhatsApp message
+    const waText = 
+      `Hello ${supplier.name},\n` +
+      `I am interested in the solar system calculated through your website (Ref: ${ref}).\n\n` +
+      `⚡ System Size: ${systemKw} kW\n` +
+      `☀️ Panels: ${numberOfPanels || '10'} × ${panel?.name || 'Tier-1 Module'}\n` +
+      (inverter?.name ? `🔌 Inverter: ${inverter.name}\n` : '') +
+      (battery?.name ? `🔋 Battery: ${battery.name}\n` : '') +
+      `💰 Estimated Cost: PKR ${(totalCost / 100000).toFixed(2)} Lakh (Rs. ${Number(totalCost).toLocaleString()})\n` +
+      `👤 Name: ${formData.name.trim()}\n` +
+      `📞 Phone: ${formData.phone.trim()}\n` +
+      `📍 City: ${typeof city === 'string' ? city : (city?.name || 'Pakistan')}\n` +
+      (formData.address ? `🏠 Address: ${formData.address.trim()}\n` : '') +
+      (formData.notes ? `📝 Notes: ${formData.notes.trim()}\n\n` : '\n') +
+      `I would like to confirm the final price and schedule a roof site survey.`;
+
+    const cleanWaNumber = (supplier.whatsapp || '923008452190').replace(/[^0-9]/g, '');
+    const waUrl = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(waText)}`;
+    setGeneratedWaUrl(waUrl);
 
     setSubmitted(true);
   };
 
   const handleResetAndClose = () => {
     setSubmitted(false);
-    setFormData({ name: '', phone: '', address: '', roofType: 'Concrete Flat Roof', notes: '' });
+    setFormData({ name: '', phone: '', whatsappNumber: '', address: '', roofType: 'Concrete Flat Roof', notes: '' });
     onClose();
   };
 
@@ -56,16 +127,19 @@ export default function QuoteModal({ isOpen, onClose, quoteData }) {
     <div className="quote-modal-overlay" onClick={handleResetAndClose}>
       <div className="quote-modal-content" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="quote-modal-close" onClick={handleResetAndClose} aria-label="Close">
-          ✕
+          <IconX size={16} />
         </button>
 
         {!submitted ? (
           <>
             <div className="quote-modal-header">
-              <span className="quote-pill">⚡ Free Official Site Survey</span>
-              <h3>Request Turnkey Quote from {vendor?.name}</h3>
+              <span className="quote-pill">
+                <IconZap size={13} />
+                <span>Free Official Site Survey & Turnkey Proposal</span>
+              </span>
+              <h3>Book / Request This System with {supplier?.name}</h3>
               <p className="quote-header-sub">
-                Lock in verified rates for your <strong>{systemKw} kW</strong> system in <strong>{vendor?.area}, {city?.name}</strong>.
+                Lock in verified equipment & labor rates for your <strong>{systemKw} kW</strong> system in <strong>{supplier?.cityName || city?.name}</strong>.
               </p>
             </div>
 
@@ -73,15 +147,15 @@ export default function QuoteModal({ isOpen, onClose, quoteData }) {
             <div className="quote-summary-strip">
               <div className="summary-item">
                 <span className="item-label">System Size:</span>
-                <span className="item-val">{systemKw} kW</span>
+                <span className="item-val num-tabular">{systemKw} kW</span>
               </div>
               <div className="summary-item">
-                <span className="item-label">Panel:</span>
-                <span className="item-val">{panel?.brand} {panel?.watts}W</span>
+                <span className="item-label">Modules:</span>
+                <span className="item-val num-tabular">{numberOfPanels || '10'} × {panel?.wattage || panel?.watts || 585}W</span>
               </div>
               <div className="summary-item">
                 <span className="item-label">Est. Turnkey:</span>
-                <span className="item-val highlight-green">PKR {(totalCost / 100000).toFixed(2)} Lakh</span>
+                <span className="item-val highlight-green num-tabular">PKR {(totalCost / 100000).toFixed(2)} Lakh</span>
               </div>
             </div>
 
@@ -98,17 +172,29 @@ export default function QuoteModal({ isOpen, onClose, quoteData }) {
                 />
               </div>
 
-              <div className="quote-input-group">
-                <label htmlFor="q-phone">WhatsApp / Mobile Number *</label>
-                <input
-                  id="q-phone"
-                  type="tel"
-                  required
-                  placeholder="e.g. 0300 1234567"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-                <span className="input-hint">The vendor will send the itemized bill of materials on WhatsApp.</span>
+              <div className="quote-input-row">
+                <div className="quote-input-group">
+                  <label htmlFor="q-phone">Contact Phone Number *</label>
+                  <input
+                    id="q-phone"
+                    type="tel"
+                    required
+                    placeholder="e.g. 0300 1234567"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+
+                <div className="quote-input-group">
+                  <label htmlFor="q-whatsapp">WhatsApp Number (Optional)</label>
+                  <input
+                    id="q-whatsapp"
+                    type="tel"
+                    placeholder="e.g. 0300 1234567 (if different)"
+                    value={formData.whatsappNumber}
+                    onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+                  />
+                </div>
               </div>
 
               <div className="quote-input-row">
@@ -124,14 +210,14 @@ export default function QuoteModal({ isOpen, onClose, quoteData }) {
                 </div>
 
                 <div className="quote-input-group">
-                  <label htmlFor="q-roof">Roof Type</label>
+                  <label htmlFor="q-roof">Roof Structure Type</label>
                   <select
                     id="q-roof"
                     value={formData.roofType}
                     onChange={(e) => setFormData({ ...formData, roofType: e.target.value })}
                   >
-                    <option value="Concrete Flat Roof">Concrete Flat Roof</option>
-                    <option value="Elevated Walkable Structure">Elevated Walkable Structure</option>
+                    <option value="Concrete Flat Roof">Concrete Flat Roof (Standard L2/L3)</option>
+                    <option value="Elevated Walkable Structure">Elevated Walkable Steel Structure</option>
                     <option value="Tin / Corrugated Shed">Tin / Corrugated Shed</option>
                     <option value="Open Ground / Lawn">Open Ground / Lawn</option>
                   </select>
@@ -143,7 +229,7 @@ export default function QuoteModal({ isOpen, onClose, quoteData }) {
                 <textarea
                   id="q-notes"
                   rows="2"
-                  placeholder="e.g. Need net metering expedited before summer..."
+                  placeholder="e.g. Inverter brand preference, net metering timeline..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 />
@@ -151,33 +237,38 @@ export default function QuoteModal({ isOpen, onClose, quoteData }) {
 
               <div className="quote-actions">
                 <button type="submit" className="btn-submit-quote">
-                  Confirm Free Quote & Site Survey Request
+                  Confirm Booking & Request Official Survey
                 </button>
               </div>
             </form>
           </>
         ) : (
           <div className="quote-success-view">
-            <div className="success-icon-wrap">✓</div>
-            <h3>Quote Request Confirmed!</h3>
+            <div className="success-icon-wrap">
+              <IconCheckCircle size={32} />
+            </div>
+            <h3>System Booking Confirmed!</h3>
             <p className="success-msg">
-              Your inquiry has been submitted to <strong>{vendor?.name}</strong>.
+              Your solar inquiry has been saved and assigned to <strong>{supplier?.name}</strong>.
             </p>
 
             <div className="ref-badge-card">
               <span className="ref-label">Official Tracking Reference:</span>
-              <span className="ref-code">{referenceId}</span>
-              <p className="ref-sub">An engineer from {vendor?.name} will contact you at <strong>{formData.phone}</strong> within 2 hours to confirm your roof survey.</p>
+              <span className="ref-code num-tabular">{referenceId}</span>
+              <p className="ref-sub">
+                A certified solar engineer from {supplier?.name} has received your specification and will contact you at <strong>{formData.phone}</strong>.
+              </p>
             </div>
 
             <div className="success-actions">
               <a
-                href={`https://wa.me/${vendor?.whatsapp}?text=${encodeURIComponent(`Assalam o Alaikum! I just booked a site survey on Orbit Solar. Ref ID: ${referenceId} for ${systemKw} kW in ${city?.name}.`)}`}
+                href={generatedWaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp-direct"
               >
-                Chat Directly on WhatsApp Now
+                <IconWhatsApp size={18} />
+                <span>Contact {supplier?.name} on WhatsApp Now</span>
               </a>
 
               <button type="button" className="btn-done" onClick={handleResetAndClose}>

@@ -1,17 +1,37 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './SolarCalculator.css';
 import {
-  PAKISTAN_CITIES,
   SOLAR_PANELS,
   SYSTEM_TYPES,
   STRUCTURE_TYPES,
   BATTERY_OPTIONS,
   INITIAL_APPLIANCES
 } from '../data/solarData';
-import AreaVendorRateList from './AreaVendorRateList';
 import QuoteModal from './QuoteModal';
+import { useSupplier } from '../context/SupplierContext';
+import dbService from '../services/db';
+import {
+  IconZap,
+  IconSun,
+  IconBuilding,
+  IconShield,
+  IconLayers,
+  IconBattery,
+  IconCpu,
+  IconTool,
+  IconCash,
+  IconClock,
+  IconTrendingUp,
+  IconHome,
+  IconFileText,
+  IconCheck,
+  IconTree
+} from './Icons';
 
-export default function SolarCalculator() {
+export default function SolarCalculator({ supplierOverride }) {
+  const supplierCtx = useSupplier();
+  const effectiveSupplier = supplierOverride || supplierCtx?.activeSupplier;
+
   // Input Mode: 'direct_kw' (Recommended), 'bill_rs', 'bill_units', or 'appliances'
   const [inputMode, setInputMode] = useState('direct_kw');
 
@@ -23,18 +43,91 @@ export default function SolarCalculator() {
   const [monthlyUnits, setMonthlyUnits] = useState(850);
   const [appliances, setAppliances] = useState(INITIAL_APPLIANCES);
 
-  // Average NEPRA tariff in Pakistan (including taxes, fuel price adjustment - FPA, surcharges)
-  const avgTariff = 48; // PKR per unit
+  // Dynamic Calculator Config from Supplier
+  const calcConfig = useMemo(() => {
+    return effectiveSupplier?.calculatorConfig || {
+      derateFactor: 0.80,
+      avgTariff: 48,
+      installationLaborBase: 26000,
+      installationLaborPerKw: 2800,
+      netMeteringOngrid: 115000,
+      netMeteringHybrid: 85000,
+      cableProtectionBase: 38000,
+      cableProtectionPerKw: 5800,
+      standardStructureCostPerWatt: 5.5,
+      elevatedStructureCostPerWatt: 15.0
+    };
+  }, [effectiveSupplier]);
 
-  // Location / City Selection
-  const [selectedCity, setSelectedCity] = useState(PAKISTAN_CITIES[0]); // Default Lahore
-  const [selectedArea, setSelectedArea] = useState('All Areas');
+  const avgTariff = calcConfig.avgTariff || 48;
+
+  // Dynamic Supplier Products
+  const availablePanels = useMemo(() => {
+    if (effectiveSupplier) {
+      const dbPanels = dbService.getProductsBySupplier(effectiveSupplier.id, { category: 'panels', onlyActive: true });
+      if (dbPanels && dbPanels.length > 0) {
+        return dbPanels.map(p => ({
+          id: p.id,
+          name: p.name,
+          brand: p.brand || p.name.split(' ')[0],
+          model: p.model || '',
+          watts: p.wattage || 585,
+          price: p.price,
+          pricePerWatt: p.pricePerWatt || (p.wattage ? +(p.price / p.wattage).toFixed(1) : 36),
+          efficiency: '22.8%',
+          bifacial: p.type?.toLowerCase().includes('bifacial') ?? true,
+          tag: `${p.brand || 'Tier-1'} • ${p.type || 'N-Type'}`,
+          series: p.model || 'TOPCon',
+          warranty: `${p.warrantyYears || 25}Y Linear`
+        }));
+      }
+    }
+    return SOLAR_PANELS;
+  }, [effectiveSupplier, supplierCtx?.dataVersion]);
+
+  const availableInverters = useMemo(() => {
+    if (effectiveSupplier) {
+      const dbInverters = dbService.getProductsBySupplier(effectiveSupplier.id, { category: 'inverters', onlyActive: true });
+      if (dbInverters && dbInverters.length > 0) return dbInverters;
+    }
+    return [];
+  }, [effectiveSupplier, supplierCtx?.dataVersion]);
+
+  const availableBatteries = useMemo(() => {
+    if (effectiveSupplier) {
+      const dbBats = dbService.getProductsBySupplier(effectiveSupplier.id, { category: 'batteries', onlyActive: true });
+      if (dbBats && dbBats.length > 0) {
+        return dbBats.map(b => ({
+          id: b.id,
+          name: b.name,
+          desc: `${b.brand || 'Lithium'} ${(b.wattage ? b.wattage / 1000 : 5)} kWh • ${b.type || 'LiFePO4'}`,
+          price: b.price,
+          capacityKwh: b.wattage ? (b.wattage / 1000) : 5.12
+        }));
+      }
+    }
+    return BATTERY_OPTIONS;
+  }, [effectiveSupplier, supplierCtx?.dataVersion]);
 
   // System Configuration
   const [selectedSystemType, setSelectedSystemType] = useState('ongrid'); // 'ongrid' | 'hybrid'
-  const [selectedPanel, setSelectedPanel] = useState(SOLAR_PANELS[0]); // Default Jinko 585W TOPCon
+  const [selectedPanel, setSelectedPanel] = useState(() => availablePanels[0] || SOLAR_PANELS[0]);
+  const [selectedInverter, setSelectedInverter] = useState(null);
   const [selectedStructure, setSelectedStructure] = useState(STRUCTURE_TYPES[0]); // Standard L2/L3
-  const [selectedBattery, setSelectedBattery] = useState(BATTERY_OPTIONS[1]); // 5.12 kWh LiFePO4
+  const [selectedBattery, setSelectedBattery] = useState(() => availableBatteries[0] || BATTERY_OPTIONS[1]);
+
+  // Synchronize selections when catalog updates
+  useEffect(() => {
+    if (availablePanels.length > 0 && !availablePanels.find(p => p.id === selectedPanel?.id)) {
+      setSelectedPanel(availablePanels[0]);
+    }
+  }, [availablePanels]);
+
+  useEffect(() => {
+    if (availableBatteries.length > 0 && !availableBatteries.find(b => b.id === selectedBattery?.id)) {
+      setSelectedBattery(availableBatteries[0]);
+    }
+  }, [availableBatteries]);
 
   // Interactive Quote Modal state
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -80,8 +173,8 @@ export default function SolarCalculator() {
   // Live Auto Calculation
   const calculatedResults = useMemo(() => {
     let requiredDcKw = 0;
-    const derateFactor = 0.80; // 20% system losses (dust, inverter, temperature coefficient)
-    const sunHours = selectedCity.sunHours;
+    const derateFactor = calcConfig.derateFactor || 0.80; // system losses
+    const sunHours = 5.0; // Standard Pakistan average (5.0 - 5.5 h/day)
 
     if (inputMode === 'direct_kw') {
       requiredDcKw = targetKw;
@@ -104,48 +197,74 @@ export default function SolarCalculator() {
     if (requiredDcKw <= 0) requiredDcKw = 3.5;
 
     // Number of Panels required
-    const panelWatts = selectedPanel.watts;
+    const panelWatts = selectedPanel?.watts || 585;
     const numberOfPanels = Math.max(4, Math.ceil((requiredDcKw * 1000) / panelWatts));
     const exactSystemKw = (numberOfPanels * panelWatts) / 1000;
 
-    // Matching Inverter
+    // Matching Inverter (from supplier catalog if available)
     let inverterKw = 3.6;
     let inverterName = "3.6 kW Single-Phase Inverter";
     let inverterCost = 145000;
+    let inverterObj = null;
 
-    if (exactSystemKw > 24) {
-      inverterKw = 30;
-      inverterName = "30 kW Three-Phase Industrial Inverter (Sungrow / Huawei)";
-      inverterCost = 480000;
-    } else if (exactSystemKw > 18) {
-      inverterKw = 20;
-      inverterName = "20 kW Three-Phase Inverter (Sungrow / Huawei / Solis)";
-      inverterCost = 390000;
-    } else if (exactSystemKw > 13) {
-      inverterKw = 15;
-      inverterName = "15 kW Three-Phase Inverter (Sungrow / Huawei / Solis)";
-      inverterCost = 310000;
-    } else if (exactSystemKw > 8.5) {
-      inverterKw = 10;
-      inverterName = "10 kW Three-Phase Inverter (Sungrow / Huawei / Solis)";
-      inverterCost = 225000;
-    } else if (exactSystemKw > 5.5) {
-      inverterKw = 8;
-      inverterName = "8 kW Three-Phase Inverter (Solis / Knox / Sungrow)";
-      inverterCost = 195000;
-    } else if (exactSystemKw > 3.8) {
-      inverterKw = 6;
-      inverterName = "6 kW Dual-MPPT Inverter (Inverex Nitrox / Solis)";
-      inverterCost = 175000;
+    if (selectedInverter) {
+      inverterCost = selectedInverter.price;
+      inverterName = selectedInverter.name;
+      inverterKw = (selectedInverter.wattage || 6000) / 1000;
+      inverterObj = selectedInverter;
+    } else if (availableInverters.length > 0) {
+      // Auto-match closest inverter capacity >= exactSystemKw
+      const autoMatch = availableInverters.find(i => ((i.wattage || 6000) / 1000) >= exactSystemKw) || availableInverters[availableInverters.length - 1];
+      if (autoMatch) {
+        inverterCost = autoMatch.price;
+        inverterName = autoMatch.name;
+        inverterKw = (autoMatch.wattage || 6000) / 1000;
+        inverterObj = autoMatch;
+      }
+    } else {
+      if (exactSystemKw > 24) {
+        inverterKw = 30;
+        inverterName = "30 kW Three-Phase Industrial Inverter (Sungrow / Huawei)";
+        inverterCost = 480000;
+      } else if (exactSystemKw > 18) {
+        inverterKw = 20;
+        inverterName = "20 kW Three-Phase Inverter (Sungrow / Huawei / Solis)";
+        inverterCost = 390000;
+      } else if (exactSystemKw > 13) {
+        inverterKw = 15;
+        inverterName = "15 kW Three-Phase Inverter (Sungrow / Huawei / Solis)";
+        inverterCost = 310000;
+      } else if (exactSystemKw > 8.5) {
+        inverterKw = 10;
+        inverterName = "10 kW Three-Phase Inverter (Sungrow / Huawei / Solis)";
+        inverterCost = 225000;
+      } else if (exactSystemKw > 5.5) {
+        inverterKw = 8;
+        inverterName = "8 kW Three-Phase Inverter (Solis / Knox / Sungrow)";
+        inverterCost = 195000;
+      } else if (exactSystemKw > 3.8) {
+        inverterKw = 6;
+        inverterName = "6 kW Dual-MPPT Inverter (Inverex Nitrox / Solis)";
+        inverterCost = 175000;
+      }
     }
 
-    // Bill of Materials (BOM) itemized breakdown
-    const panelsCost = numberOfPanels * selectedPanel.price;
-    const structureCost = Math.round(exactSystemKw * 1000 * selectedStructure.costPerWatt);
-    const cablesAndProtections = Math.round(38000 + (exactSystemKw * 5800)); // AC/DC Schneider/Terasaki breakers, SPD, copper cables
-    const netMeteringCost = selectedSystemType === 'ongrid' ? 115000 : 85000; // DISCO green meter, earthing, inspection, paperwork
-    const batteryCost = selectedSystemType === 'hybrid' ? selectedBattery.price : 0;
-    const installationLabor = Math.round(26000 + (exactSystemKw * 2800)); // Professional civil + electrical mounting
+    // Bill of Materials (BOM) itemized breakdown with supplier rates
+    const panelsCost = numberOfPanels * (selectedPanel?.price || 20000);
+    const structureCostPerWatt = selectedStructure.id === 'elevated'
+      ? (calcConfig.elevatedStructureCostPerWatt || 15.0)
+      : (calcConfig.standardStructureCostPerWatt || 5.5);
+    const structureCost = Math.round(exactSystemKw * 1000 * structureCostPerWatt);
+    const cablesAndProtections = Math.round(
+      (calcConfig.cableProtectionBase || 38000) + (exactSystemKw * (calcConfig.cableProtectionPerKw || 5800))
+    );
+    const netMeteringCost = selectedSystemType === 'ongrid'
+      ? (calcConfig.netMeteringOngrid || 115000)
+      : (calcConfig.netMeteringHybrid || 85000);
+    const batteryCost = selectedSystemType === 'hybrid' ? (selectedBattery?.price || 0) : 0;
+    const installationLabor = Math.round(
+      (calcConfig.installationLaborBase || 26000) + (exactSystemKw * (calcConfig.installationLaborPerKw || 2800))
+    );
 
     const turnkeySubtotal = panelsCost + inverterCost + structureCost + cablesAndProtections + netMeteringCost + batteryCost + installationLabor;
     const totalEstimatedCostMin = Math.round(turnkeySubtotal * 0.96);
@@ -160,17 +279,18 @@ export default function SolarCalculator() {
 
     // Financial Return
     const paybackYears = (totalEstimatedCostMin / Math.max(1, yearlySavings)).toFixed(1);
-    const roofAreaSqFt = Math.round(numberOfPanels * 23.5); // ~23.5 sq ft per 550W+ module with walking clearance
+    const roofAreaSqFt = Math.round(numberOfPanels * 23.5);
     const co2OffsetTonnes = (monthlyGeneratedUnits * 12 * 0.0007).toFixed(1);
 
     return {
       systemKw: exactSystemKw.toFixed(1),
       requiredDcKw: requiredDcKw.toFixed(1),
       numberOfPanels,
-      panelModel: selectedPanel.name,
+      panelModel: selectedPanel?.name || 'Selected Module',
       inverterName,
       inverterKw,
       inverterCost,
+      inverterObj,
       panelsCost,
       structureCost,
       cablesAndProtections,
@@ -189,7 +309,7 @@ export default function SolarCalculator() {
       roofAreaSqFt,
       co2OffsetTonnes
     };
-  }, [inputMode, targetKw, monthlyBillRs, monthlyUnits, appliances, selectedCity, selectedSystemType, selectedPanel, selectedStructure, selectedBattery]);
+  }, [inputMode, targetKw, monthlyBillRs, monthlyUnits, appliances, selectedSystemType, selectedPanel, selectedInverter, selectedStructure, selectedBattery, availableInverters, calcConfig, avgTariff]);
 
   // Open modal handler
   const handleOpenQuoteModal = (quotePayload) => {
@@ -199,49 +319,46 @@ export default function SolarCalculator() {
 
   return (
     <section id="calculator" className="calculator-section glass-panel">
-      {/* Clean Minimalist Header & Location Bar */}
+      {/* Clean Minimalist Header & Company Bar */}
       <div className="calc-header-wrap">
         <div className="calc-title-group">
-          <span className="clean-kicker-pill">⚡ Pakistan Solar Engine</span>
+          <div className="calc-header-kicker-row">
+            <span className="clean-kicker-pill">
+              <IconZap size={13} />
+              <span>Pakistan Solar Engine</span>
+            </span>
+            {effectiveSupplier?.pecReg && (
+              <span className="supplier-active-tag">
+                <IconShield size={13} />
+                <span>{effectiveSupplier.pecReg}</span>
+              </span>
+            )}
+          </div>
           <h2 className="calc-main-title">Solar Sizing & Live Turnkey Rates</h2>
           <p className="calc-subtitle">
-            Accurate turnkey cost estimate, equipment breakdown, and verified local installer rates in <strong>{selectedCity.name.split(' ')[0]}</strong>.
+            Accurate turnkey cost estimate, equipment breakdown, and verified turnkey installation rates by <strong>{effectiveSupplier?.name || 'Orbit Solar Technologies'}</strong>.
           </p>
         </div>
 
-        {/* Compact Location & DISCO Pill Bar */}
-        <div className="location-toolbar">
-          <div className="location-select-capsule">
-            <span className="loc-icon">📍</span>
-            <select
-              id="city-select-dropdown"
-              className="city-select-input"
-              value={selectedCity.id}
-              onChange={(e) => {
-                const found = PAKISTAN_CITIES.find(c => c.id === e.target.value);
-                if (found) {
-                  setSelectedCity(found);
-                  setSelectedArea('All Areas');
-                }
-              }}
-            >
-              {PAKISTAN_CITIES.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.disco})
-                </option>
-              ))}
-            </select>
-            <span className="sun-badge">☀️ {selectedCity.sunHours}h/day Sun</span>
+        {/* Company Name Badge in place of Location Bar */}
+        <div className="location-toolbar company-header-toolbar">
+          <div className="company-branding-capsule">
+            <span className="company-capsule-icon-wrap">
+              <IconBuilding size={15} />
+            </span>
+            <span className="company-capsule-name">{effectiveSupplier?.name || 'Orbit Solar Technologies'}</span>
+            <span className="company-capsule-badge">
+              <IconCheck size={11} />
+              <span>Verified EPC</span>
+            </span>
           </div>
 
           <div className="minimal-step-trail">
-            <span className="trail-item">1. Location</span>
+            <span className="trail-item">1. System Sizing</span>
             <span className="trail-sep">•</span>
-            <span className="trail-item">2. System Size</span>
+            <span className="trail-item">2. Turnkey BOM</span>
             <span className="trail-sep">•</span>
-            <span className="trail-item">3. Turnkey BOM</span>
-            <span className="trail-sep">•</span>
-            <span className="trail-item">4. Vendors</span>
+            <span className="trail-item">3. Official Quote</span>
           </div>
         </div>
       </div>
@@ -254,28 +371,32 @@ export default function SolarCalculator() {
             className={`segmented-tab ${inputMode === 'direct_kw' ? 'active' : ''}`}
             onClick={() => setInputMode('direct_kw')}
           >
-            ⚡ Select Plates & kW
+            <IconZap size={15} />
+            <span>Select Plates & kW</span>
           </button>
           <button
             type="button"
             className={`segmented-tab ${inputMode === 'bill_rs' ? 'active' : ''}`}
             onClick={() => setInputMode('bill_rs')}
           >
-            💳 Monthly Bill
+            <IconCash size={15} />
+            <span>Monthly Bill</span>
           </button>
           <button
             type="button"
             className={`segmented-tab ${inputMode === 'bill_units' ? 'active' : ''}`}
             onClick={() => setInputMode('bill_units')}
           >
-            📊 Monthly Units
+            <IconLayers size={15} />
+            <span>Monthly Units</span>
           </button>
           <button
             type="button"
             className={`segmented-tab ${inputMode === 'appliances' ? 'active' : ''}`}
             onClick={() => setInputMode('appliances')}
           >
-            🏠 By Appliances
+            <IconHome size={15} />
+            <span>By Appliances</span>
           </button>
         </div>
 
@@ -377,7 +498,8 @@ export default function SolarCalculator() {
               </div>
 
               <div className="calculated-unit-hint">
-                💡 A <strong>{targetKw} kW</strong> system requires approximately <strong>{calculatedResults.numberOfPanels} plates</strong> ({selectedPanel.watts}W) and produces ~<strong>{calculatedResults.monthlyGeneratedUnits} units/month</strong> in {selectedCity.name.split(' ')[0]}.
+                <IconSun size={15} className="hint-svg-icon" />
+                <span>A <strong>{targetKw} kW</strong> system requires approximately <strong>{calculatedResults.numberOfPanels} plates</strong> ({selectedPanel.watts}W) and produces ~<strong>{calculatedResults.monthlyGeneratedUnits} units/month</strong>.</span>
               </div>
             </div>
           )}
@@ -456,7 +578,8 @@ export default function SolarCalculator() {
               </div>
 
               <div className="calculated-unit-hint">
-                💡 This bill equals approximately <strong>{monthlyUnits} Units (kWh)</strong> per month at current NEPRA tariffs.
+                <IconSun size={15} className="hint-svg-icon" />
+                <span>This bill equals approximately <strong>{monthlyUnits} Units (kWh)</strong> per month at current NEPRA tariffs.</span>
               </div>
             </div>
           )}
@@ -536,7 +659,8 @@ export default function SolarCalculator() {
               </div>
 
               <div className="calculated-unit-hint">
-                💡 Consuming {monthlyUnits} units costs approximately <strong>PKR {monthlyBillRs.toLocaleString()}</strong> every month.
+                <IconSun size={15} className="hint-svg-icon" />
+                <span>Consuming {monthlyUnits} units costs approximately <strong>PKR {monthlyBillRs.toLocaleString()}</strong> every month.</span>
               </div>
             </div>
           )}
@@ -604,40 +728,40 @@ export default function SolarCalculator() {
                 <span className="insights-dot" />
                 <h4 className="insights-title">{calculatedResults.systemKw} kW System Live Output</h4>
               </div>
-              <span className="insights-badge">{selectedCity.name.split(' ')[0]} Benchmark</span>
+              <span className="insights-badge">National Benchmark</span>
             </div>
 
             {/* 4 Mini Stat Tiles */}
             <div className="insights-stats-grid">
               <div className="insight-stat-tile">
-                <span className="stat-icon">⚡</span>
+                <span className="stat-icon"><IconZap size={16} /></span>
                 <div className="stat-info">
                   <span className="stat-label">Daily Generation</span>
-                  <strong className="stat-val">~{calculatedResults.dailyGeneratedUnits} <span className="stat-unit">Units/day</span></strong>
+                  <strong className="stat-val num-tabular">~{calculatedResults.dailyGeneratedUnits} <span className="stat-unit">Units/day</span></strong>
                 </div>
               </div>
 
               <div className="insight-stat-tile">
-                <span className="stat-icon">📈</span>
+                <span className="stat-icon"><IconTrendingUp size={16} /></span>
                 <div className="stat-info">
                   <span className="stat-label">Monthly Generation</span>
-                  <strong className="stat-val">~{calculatedResults.monthlyGeneratedUnits} <span className="stat-unit">Units/mo</span></strong>
+                  <strong className="stat-val num-tabular">~{calculatedResults.monthlyGeneratedUnits} <span className="stat-unit">Units/mo</span></strong>
                 </div>
               </div>
 
               <div className="insight-stat-tile highlight-green">
-                <span className="stat-icon">💵</span>
+                <span className="stat-icon"><IconCash size={16} /></span>
                 <div className="stat-info">
                   <span className="stat-label">Monthly Bill Offset</span>
-                  <strong className="stat-val text-mint">Rs. {calculatedResults.monthlySavings.toLocaleString()}</strong>
+                  <strong className="stat-val text-mint num-tabular">Rs. {calculatedResults.monthlySavings.toLocaleString()}</strong>
                 </div>
               </div>
 
               <div className="insight-stat-tile">
-                <span className="stat-icon">🏠</span>
+                <span className="stat-icon"><IconHome size={16} /></span>
                 <div className="stat-info">
                   <span className="stat-label">Required Roof Area</span>
-                  <strong className="stat-val">~{calculatedResults.roofAreaSqFt} <span className="stat-unit">sq. ft</span></strong>
+                  <strong className="stat-val num-tabular">~{calculatedResults.roofAreaSqFt} <span className="stat-unit">sq. ft</span></strong>
                 </div>
               </div>
             </div>
@@ -645,7 +769,7 @@ export default function SolarCalculator() {
             {/* Real-World Appliance Load Capability Preview */}
             <div className="load-capability-section">
               <div className="load-section-header">
-                <span className="load-section-title">⚡ What Can This {calculatedResults.systemKw} kW System Run?</span>
+                <span className="load-section-title"><IconZap size={15} style={{ verticalAlign: 'middle', marginRight: '6px' }} />What Can This {calculatedResults.systemKw} kW System Run?</span>
                 <span className="load-simultaneous-tag">Simultaneous Daytime Load</span>
               </div>
               <div className="load-appliances-pills">
@@ -694,15 +818,15 @@ export default function SolarCalculator() {
             {/* Quick Efficiency & Return Highlights */}
             <div className="insights-footer-strip">
               <div className="strip-metric">
-                <span className="metric-icon">⏳</span>
-                <span>Payback: <strong>~{calculatedResults.paybackYears} Yrs</strong></span>
+                <span className="metric-icon"><IconClock size={15} /></span>
+                <span>Payback: <strong className="num-tabular">~{calculatedResults.paybackYears} Yrs</strong></span>
               </div>
               <div className="strip-metric">
-                <span className="metric-icon">🌳</span>
-                <span>CO₂ Saved: <strong>~{calculatedResults.co2OffsetTonnes} T/yr</strong></span>
+                <span className="metric-icon"><IconTree size={15} /></span>
+                <span>CO₂ Saved: <strong className="num-tabular">~{calculatedResults.co2OffsetTonnes} T/yr</strong></span>
               </div>
               <div className="strip-metric">
-                <span className="metric-icon">🔌</span>
+                <span className="metric-icon"><IconCpu size={15} /></span>
                 <span>Inverter: <strong>{calculatedResults.inverterKw} kW Tier-1</strong></span>
               </div>
             </div>
@@ -720,10 +844,11 @@ export default function SolarCalculator() {
             {/* Solar Plate Brand & Wattage Selection */}
             <div className="simple-field-group">
               <label className="field-label-bold">
-                🔲 Select Solar Plates Brand & Wattage:
+                <IconLayers size={16} />
+                <span>Select Solar Plates Brand & Wattage:</span>
               </label>
               <div className="panel-choices-list">
-                {SOLAR_PANELS.map(p => (
+                {availablePanels.map(p => (
                   <div
                     key={p.id}
                     className={`panel-choice-item ${selectedPanel.id === p.id ? 'is-selected' : ''}`}
@@ -738,15 +863,15 @@ export default function SolarCalculator() {
                         {p.bifacial && <span className="bifacial-tag">Bifacial</span>}
                       </div>
                       <div className="panel-compact-meta">
-                        <span className="panel-tag-compact">{p.tag.split('•')[0].trim()}</span>
+                        <span className="panel-tag-compact">{p.tag ? p.tag.split('•')[0].trim() : (p.brand || 'Tier-1')}</span>
                         <span className="dot-sep">•</span>
-                        <span className="panel-eff-badge">{p.efficiency}</span>
+                        <span className="panel-eff-badge">{p.efficiency || '22.8%'}</span>
                         <span className="dot-sep">•</span>
-                        <span className="panel-warranty-compact">{p.warranty.split('/')[0].trim()}</span>
+                        <span className="panel-warranty-compact">{p.warranty ? p.warranty.split('/')[0].trim() : '25Y'}</span>
                       </div>
                     </div>
                     <div className="panel-rate-block">
-                      <span className="panel-price-tag">Rs. {p.price.toLocaleString()}</span>
+                      <span className="panel-price-tag">Rs. {Number(p.price).toLocaleString()}</span>
                       <span className="per-plate-sub">Rs. {p.pricePerWatt}/W</span>
                     </div>
                   </div>
@@ -754,10 +879,48 @@ export default function SolarCalculator() {
               </div>
             </div>
 
+            {/* Inverter Brand & Model Selection (Dynamic from Supplier Catalog) */}
+            {availableInverters.length > 0 && (
+              <div className="simple-field-group">
+                <label className="field-label-bold">
+                  <IconCpu size={16} />
+                  <span>Select Inverter Brand & Model:</span>
+                </label>
+                <div className="inverter-choices-grid">
+                  {availableInverters.map(inv => {
+                    const invKw = (inv.wattage || 6000) / 1000;
+                    const isSelected = selectedInverter ? selectedInverter.id === inv.id : (calculatedResults.inverterObj?.id === inv.id);
+                    return (
+                      <div
+                        key={inv.id}
+                        className={`inverter-choice-card ${isSelected ? 'is-selected' : ''}`}
+                        onClick={() => setSelectedInverter(inv)}
+                      >
+                        <div className="inv-card-top">
+                          <span className="inv-brand-badge">{inv.brand || 'Tier-1'}</span>
+                          <span className="inv-kw-pill num-tabular">{invKw} kW</span>
+                        </div>
+                        <div className="inv-card-name">{inv.name}</div>
+                        <div className="inv-card-bottom">
+                          <div className="inv-price-info">
+                            <span className="inv-price-tag num-tabular">Rs. {Number(inv.price).toLocaleString()}</span>
+                          </div>
+                          <div className={`inv-radio-indicator ${isSelected ? 'is-active' : ''}`}>
+                            <div className="inv-radio-dot" />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* System Type Selection */}
             <div className="simple-field-group">
               <label className="field-label-bold">
-                ⚡ System Type (On-Grid vs Loadshedding Backup?):
+                <IconZap size={16} />
+                <span>System Type (On-Grid vs Loadshedding Backup?):</span>
               </label>
               <div className="system-choice-cards">
                 {SYSTEM_TYPES.map(sys => (
@@ -781,10 +944,11 @@ export default function SolarCalculator() {
             {selectedSystemType === 'hybrid' && (
               <div className="simple-field-group">
                 <label className="field-label-bold">
-                  🔋 Choose Battery Storage Bank:
+                  <IconBattery size={16} />
+                  <span>Choose Battery Storage Bank:</span>
                 </label>
                 <div className="battery-options-list">
-                  {BATTERY_OPTIONS.filter(b => b.id !== 'none').map(b => (
+                  {availableBatteries.filter(b => b.id !== 'none').map(b => (
                     <div
                       key={b.id}
                       className={`battery-option-card ${selectedBattery.id === b.id ? 'is-selected' : ''}`}
@@ -806,7 +970,8 @@ export default function SolarCalculator() {
             {/* Mounting Structure Type */}
             <div className="simple-field-group">
               <label className="field-label-bold">
-                🏗️ Roof Mounting Structure:
+                <IconTool size={16} />
+                <span>Roof Mounting Structure:</span>
               </label>
               <div className="structure-options-list">
                 {STRUCTURE_TYPES.map(st => (
@@ -837,7 +1002,7 @@ export default function SolarCalculator() {
             <span className="results-step-pill">Step 3: Instant Live Estimate</span>
             <h3>Your Complete Solar System Turnkey Estimate</h3>
             <p className="results-subtitle-txt">
-              Live calculated using real-time wholesale benchmarks in <strong>{selectedCity.name}</strong>:
+              Live calculated using real-time verified equipment and installation rates:
             </p>
           </div>
           <div className="live-active-indicator">
@@ -850,9 +1015,9 @@ export default function SolarCalculator() {
         <div className="main-answers-grid">
           {/* Card 1: System Size */}
           <div className="answer-card glow-card">
-            <span className="card-top-icon">⚡</span>
+            <span className="card-top-icon-badge"><IconZap size={20} /></span>
             <span className="answer-card-label">Recommended System Size</span>
-            <div className="big-highlight-number">
+            <div className="big-highlight-number num-tabular">
               {calculatedResults.systemKw} <span className="unit-small">kW</span>
             </div>
             <p className="answer-sub-explainer">
@@ -862,9 +1027,9 @@ export default function SolarCalculator() {
 
           {/* Card 2: Number of Panels */}
           <div className="answer-card">
-            <span className="card-top-icon">🔲</span>
+            <span className="card-top-icon-badge"><IconLayers size={20} /></span>
             <span className="answer-card-label">Total Solar Plates Needed</span>
-            <div className="big-highlight-number">
+            <div className="big-highlight-number num-tabular">
               {calculatedResults.numberOfPanels} <span className="unit-small">Plates</span>
             </div>
             <p className="answer-sub-explainer">
@@ -874,9 +1039,9 @@ export default function SolarCalculator() {
 
           {/* Card 3: Total Estimated Turnkey Cost */}
           <div className="answer-card">
-            <span className="card-top-icon">💰</span>
+            <span className="card-top-icon-badge"><IconCash size={20} /></span>
             <span className="answer-card-label">Total Turnkey Cost</span>
-            <div className="big-highlight-number turnkey-cost-number">
+            <div className="big-highlight-number turnkey-cost-number num-tabular">
               PKR {(calculatedResults.totalEstimatedCostMin / 100000).toFixed(2)} - {(calculatedResults.totalEstimatedCostMax / 100000).toFixed(2)} Lakh
             </div>
             <p className="answer-sub-explainer">
@@ -886,9 +1051,9 @@ export default function SolarCalculator() {
 
           {/* Card 4: Monthly Bill Savings */}
           <div className="answer-card green-highlight-card">
-            <span className="card-top-icon">💵</span>
+            <span className="card-top-icon-badge"><IconTrendingUp size={20} /></span>
             <span className="answer-card-label">Estimated Monthly Bill Savings</span>
-            <div className="big-highlight-number text-mint">
+            <div className="big-highlight-number text-mint num-tabular">
               PKR {calculatedResults.monthlySavings.toLocaleString()} <span className="unit-small">/ mo</span>
             </div>
             <p className="answer-sub-explainer">
@@ -901,7 +1066,10 @@ export default function SolarCalculator() {
         <div className="bom-breakdown-card">
           <div className="bom-header">
             <div>
-              <h4>📋 Complete Turnkey Itemized Cost Breakdown (Estimated)</h4>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <IconFileText size={18} />
+                <span>Complete Turnkey Itemized Cost Breakdown (Estimated)</span>
+              </h4>
               <span className="bom-sub">Transparent hardware & installation costs:</span>
             </div>
             <span className="bom-swipe-hint">👈 Swipe to scroll 👉</span>
@@ -963,7 +1131,7 @@ export default function SolarCalculator() {
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>PKR {calculatedResults.installationLabor.toLocaleString()}</td>
                 </tr>
                 <tr className="bom-total-row">
-                  <td colSpan="3"><strong>Total Turnkey Project Estimate ({selectedCity.name.split(' ')[0]})</strong></td>
+                  <td colSpan="3"><strong>Total Turnkey Project Estimate</strong></td>
                   <td style={{ textAlign: 'right' }}>
                     <span className="bom-total-cost">PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</span>
                   </td>
@@ -971,12 +1139,42 @@ export default function SolarCalculator() {
               </tbody>
             </table>
           </div>
+
+          {/* Prominent Official Quote / Booking Request Banner */}
+          <div className="calc-booking-cta-banner">
+            <div className="cta-banner-text">
+              <span className="cta-disclaimer-pill">
+                <IconShield size={12} />
+                <span>Official Estimate • Final invoice verified after physical survey</span>
+              </span>
+              <h3>Book / Request This {calculatedResults.systemKw} kW System</h3>
+              <p>
+                Lock in transparent equipment and turnkey labor pricing with <strong>{effectiveSupplier?.name || 'Orbit Solar Technologies'}</strong>.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn-book-this-system"
+              onClick={() => handleOpenQuoteModal({
+                supplier: effectiveSupplier,
+                systemKw: calculatedResults.systemKw,
+                numberOfPanels: calculatedResults.numberOfPanels,
+                panel: selectedPanel,
+                inverter: calculatedResults.inverterObj || { name: calculatedResults.inverterName, price: calculatedResults.inverterCost },
+                battery: selectedSystemType === 'hybrid' ? selectedBattery : null,
+                totalCost: calculatedResults.turnkeySubtotal
+              })}
+            >
+              <IconZap size={18} />
+              <span>Book / Request This System Now</span>
+            </button>
+          </div>
         </div>
 
         {/* 3 Detail Metric Cards */}
         <div className="simple-summary-strip">
           <div className="strip-item">
-            <span className="strip-icon">⏳</span>
+            <span className="strip-icon-wrap"><IconClock size={20} /></span>
             <div>
               <strong>Payback Period (Return on Investment):</strong>
               <p>Your solar system pays for itself in approximately <strong>{calculatedResults.paybackYears} years</strong> through bill savings. Enjoy 20+ years of free electricity afterwards!</p>
@@ -984,7 +1182,7 @@ export default function SolarCalculator() {
           </div>
 
           <div className="strip-item">
-            <span className="strip-icon">🏠</span>
+            <span className="strip-icon-wrap"><IconHome size={20} /></span>
             <div>
               <strong>Roof Space Needed:</strong>
               <p>Requires approximately <strong>{calculatedResults.roofAreaSqFt} sq. ft</strong> of unshaded roof space with good sunlight access.</p>
@@ -992,27 +1190,14 @@ export default function SolarCalculator() {
           </div>
 
           <div className="strip-item">
-            <span className="strip-icon">🔌</span>
+            <span className="strip-icon-wrap"><IconSun size={20} /></span>
             <div>
               <strong>Monthly Solar Generation:</strong>
-              <p>Produces ~<strong>{calculatedResults.monthlyGeneratedUnits} Units (kWh)</strong>/month (~{calculatedResults.dailyGeneratedUnits} units/day) in {selectedCity.name.split(' ')[0]}.</p>
+              <p>Produces ~<strong>{calculatedResults.monthlyGeneratedUnits} Units (kWh)</strong>/month (~{calculatedResults.dailyGeneratedUnits} units/day).</p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* STEP 4: Area Vendors Rate List (Directly Below the Estimate!) */}
-      <AreaVendorRateList
-        selectedCity={selectedCity}
-        selectedArea={selectedArea}
-        onSelectArea={setSelectedArea}
-        selectedPanel={selectedPanel}
-        exactSystemKw={calculatedResults.systemKw}
-        numberOfPanels={calculatedResults.numberOfPanels}
-        selectedSystemType={selectedSystemType}
-        calculatedResults={calculatedResults}
-        onOpenQuoteModal={handleOpenQuoteModal}
-      />
 
       {/* Interactive Official Free Survey & Quote Modal */}
       <QuoteModal

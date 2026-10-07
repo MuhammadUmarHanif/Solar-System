@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './PriceTracker.css';
+import { IconBuilding, IconStar } from './Icons';
 
 const PriceTracker = () => {
   const [prices, setPrices] = useState([]);
@@ -185,12 +186,16 @@ const PriceTracker = () => {
                         {item.vendor} • <span className="tech-tag">{item.panelType}</span> • <strong>{item.capacity}</strong> ({item.efficiency})
                       </span>
                     </td>
-                    <td className="col-city">📍 {item.market}</td>
-                    <td className="col-per-watt">{item.perWatt}</td>
-                    <td className="col-price">{item.price}</td>
+                    <td className="col-city">
+                      <IconBuilding size={14} className="loc-svg-icon" />
+                      <span>{item.market}</span>
+                    </td>
+                    <td className="col-per-watt num-tabular">{item.perWatt}</td>
+                    <td className="col-price num-tabular">{item.price}</td>
                     <td className="col-muted">{item.warranty}</td>
                     <td className="col-rating">
-                      <span className="rating-star">★</span> {item.rating} / 5.0
+                      <span className="rating-star-wrap"><IconStar size={13} className="rating-star-svg" /></span>
+                      <span className="num-tabular">{item.rating} / 5.0</span>
                     </td>
                   </tr>
                 ))}
@@ -207,7 +212,8 @@ const PriceTracker = () => {
                       <span className="tech-tag compact-tag">{item.panelType}</span>
                     </div>
                     <div className="compact-score-pill">
-                      <span className="rating-star">★</span> {item.rating}
+                      <IconStar size={12} className="rating-star-svg" />
+                      <span className="num-tabular">{item.rating}</span>
                     </div>
                   </div>
 
@@ -216,18 +222,21 @@ const PriceTracker = () => {
                     <span className="dot-sep">•</span>
                     <span className="compact-capacity-val"><strong>{item.capacity}</strong> ({item.efficiency})</span>
                     <span className="dot-sep">•</span>
-                    <span className="compact-loc">📍 {item.market.split('/')[0]}</span>
+                    <span className="compact-loc">
+                      <IconBuilding size={12} className="loc-svg-icon" />
+                      <span>{item.market.split('/')[0]}</span>
+                    </span>
                   </div>
 
                   <div className="card-bottom-rate-bar">
                     <div className="rate-unit-badge">
                       <span className="unit-label">Rate:</span>
-                      <span className="per-watt-val">{item.perWatt}</span>
+                      <span className="per-watt-val num-tabular">{item.perWatt}</span>
                     </div>
                     <div className="compact-warranty-txt">
-                      {item.warranty.replace('Product / ', 'P / ')}
+                      {item.warranty ? item.warranty.replace('Product / ', 'P / ') : ''}
                     </div>
-                    <div className="compact-total-price">
+                    <div className="compact-total-price num-tabular">
                       {item.price}
                     </div>
                   </div>

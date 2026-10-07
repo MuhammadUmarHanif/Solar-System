@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
+import { RouterProvider, useRouter } from './context/RouterContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { SupplierProvider } from './context/SupplierContext';
+
+// Components
 import OrbitHero from './components/OrbitHero';
 import SolarCalculator from './components/SolarCalculator';
 import PriceTracker from './components/PriceTracker';
@@ -8,66 +13,82 @@ import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 
-const CURRENT_USER_KEY = 'mySolarCurrentUser';
+// Company Admin Dashboard & Auth
+import SupplierDashboardPage from './pages/SupplierDashboardPage';
+import AuthPage from './pages/AuthPage';
 
-function App() {
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CURRENT_USER_KEY);
-      const parsed = raw ? JSON.parse(raw) : null;
-      if (parsed && typeof parsed === 'object') setCurrentUser(parsed);
-    } catch {
-      setCurrentUser(null);
-    }
-  }, []);
+function AppContent() {
+  const router = useRouter();
+  const { currentUser, logout } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
 
   const openAuth = (mode = 'login') => {
-    setAuthMode(mode);
-    setIsAuthOpen(true);
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
   };
 
-  const closeAuth = () => setIsAuthOpen(false);
+  const closeAuth = () => setIsAuthModalOpen(false);
 
-  const logout = () => {
-    localStorage.removeItem(CURRENT_USER_KEY);
-    setCurrentUser(null);
-  };
+  // Dynamic Route Switcher
+  let pageContent = null;
+
+  if (router.route === 'dashboard' || router.route === 'admin') {
+    // Protected Company Admin Dashboard
+    if (currentUser) {
+      pageContent = <SupplierDashboardPage />;
+    } else {
+      pageContent = <AuthPage initialMode="login" />;
+    }
+  } else if (router.route === 'login' || router.route === 'register') {
+    // Auth login page
+    pageContent = <AuthPage initialMode="login" />;
+  } else {
+    // Single Company Main Public Website (3D Orbit Hero + Solar Calculator + Price Tracker + AI + FAQ + Footer)
+    pageContent = (
+      <>
+        <OrbitHero
+          currentUser={currentUser}
+          onOpenAuth={openAuth}
+          onLogout={logout}
+        />
+        <main className="Main">
+          <div className="Content">
+            <SolarCalculator />
+            <PriceTracker />
+            <AIChatbot />
+            <FAQ />
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <div className="App">
-      {/* 1. Orbit Hero Section (SS1 artwork + SS2 typography) */}
-      <OrbitHero
-        currentUser={currentUser}
-        onOpenAuth={openAuth}
-        onLogout={logout}
-      />
+      {/* Dynamic Route View */}
+      {pageContent}
 
-      {/* 2. Core Solar Features Section (Seamless scroll down) */}
-      <main className="Main">
-        <div className="Content">
-          <SolarCalculator />
-          <PriceTracker />
-          <AIChatbot />
-          <FAQ />
-        </div>
-      </main>
-
-      {/* 3. Clean Modern Pakistani Solar Platform Footer */}
-      <Footer />
-
-      {/* 4. Authentication Modal */}
+      {/* Auth Modal for Quick Access */}
       <AuthModal
-        isOpen={isAuthOpen}
-        initialMode={authMode}
+        isOpen={isAuthModalOpen}
+        initialMode={authModalMode}
         onClose={closeAuth}
-        onAuthSuccess={(user) => setCurrentUser(user)}
+        onAuthSuccess={() => closeAuth()}
       />
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <RouterProvider>
+      <AuthProvider>
+        <SupplierProvider>
+          <AppContent />
+        </SupplierProvider>
+      </AuthProvider>
+    </RouterProvider>
+  );
+}

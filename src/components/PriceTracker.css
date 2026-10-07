@@ -163,10 +163,18 @@
   color: rgba(255, 255, 255, 0.75);
   font-size: 12.5px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loc-svg-icon {
+  color: #00d2ff;
+  flex-shrink: 0;
 }
 
 .col-per-watt {
-  font-family: monospace;
+  font-family: var(--font-mono, monospace);
   font-size: 13.5px;
   color: #10b981;
   font-weight: 700;
@@ -176,7 +184,7 @@
 .col-price {
   font-weight: 800;
   color: #00d2ff !important;
-  font-family: monospace;
+  font-family: var(--font-mono, monospace);
   font-size: 14px;
   white-space: nowrap;
 }
@@ -192,11 +200,19 @@
   white-space: nowrap;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.85);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.rating-star {
+.rating-star-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.rating-star-svg {
   color: #fbbf24;
-  margin-right: 3px;
+  flex-shrink: 0;
 }
 
 /* Loading & Error States */

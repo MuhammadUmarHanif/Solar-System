@@ -62,9 +62,20 @@
 }
 
 @keyframes pulsePing {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  50% { transform: scale(1.35); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0.8; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
 }
 
 .location-tag {
@@ -163,7 +174,8 @@
   flex: 1;
 }
 
-.filter-label, .sort-label {
+.filter-label,
+.sort-label {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.5);
   font-weight: 500;

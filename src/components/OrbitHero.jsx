@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './OrbitHero.css';
+import { useRouter } from '../context/RouterContext';
 
 export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [animClass, setAnimClass] = useState('');
   const rootRef = useRef(null);
@@ -161,28 +163,13 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
           </nav>
 
           <div className="actions">
-            {currentUser ? (
-              <>
-                <span className="user-badge" title={currentUser.email}>
-                  👤 {currentUser.name}
-                </span>
-                <button type="button" className="btn ghost header-auth-btn" onClick={onLogout}>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="btn ghost header-auth-btn"
-                  onClick={() => onOpenAuth && onOpenAuth('login')}
-                >
-                  Login
-                </button>
-                <a className="btn solid header-cta-btn" href="#calculator">
-                  Get Estimate
-                </a>
-              </>
+            <a className="btn solid header-cta-btn" href="#calculator">
+              Get Estimate
+            </a>
+            {currentUser && (
+              <button type="button" className="btn ghost header-auth-btn" onClick={onLogout}>
+                Logout
+              </button>
             )}
 
             <button
@@ -207,7 +194,7 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
               <a href="#tracker" onClick={() => setMenuOpen(false)}>Price Tracker</a>
               <a href="#chatbot" onClick={() => setMenuOpen(false)}>AI Assistant</a>
               <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
-              {currentUser ? (
+              {currentUser && (
                 <button
                   type="button"
                   className="btn ghost"
@@ -216,24 +203,15 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
                 >
                   Logout ({currentUser.name})
                 </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="btn ghost"
-                    style={{ width: '100%', marginTop: '8px' }}
-                    onClick={() => { setMenuOpen(false); onOpenAuth && onOpenAuth('login'); }}
-                  >
-                    Login
-                  </button>
-                  <a
-                    className="btn solid"
-                    href="#calculator"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Get Estimate
-                  </a>
-                </>
+              )}
+                <a
+                  className="btn solid"
+                  href="#calculator"
+                  onClick={() => setMenuOpen(false)}
+                  style={{ width: '100%', marginTop: '12px', textAlign: 'center' }}
+                >
+                  Get Estimate
+                </a>
               )}
             </nav>
           </div>
@@ -257,9 +235,9 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
               <span className="ln"><span className="ln-i gradient-sub">setup, faster.</span></span>
             </h1>
 
-            {/* Subtitle with SS2 text */}
+            {/* Subtitle with verified turnkey messaging */}
             <p>
-              Estimate panels, inverter size, cost, and ROI from your appliances, then compare vendor pricing and ask the AI assistant for guidance.
+              Accurately calculate your required solar panels, inverter capacity, turnkey net metering costs, and ROI — backed by certified EPC engineering and smart AI assistance.
             </p>
 
             {/* CTA Buttons with SS2 text: Get Estimate & Track live prices */}

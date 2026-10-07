@@ -67,7 +67,7 @@
   color: #00d2ff;
 }
 
-/* Location Toolbar */
+/* Company Branding Toolbar (Replaces old location picker) */
 .location-toolbar {
   display: flex;
   flex-direction: column;
@@ -75,41 +75,47 @@
   gap: 8px;
 }
 
-.location-select-capsule {
+.company-branding-capsule {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  gap: 10px;
+  background: rgba(0, 210, 255, 0.06);
+  border: 1px solid rgba(0, 210, 255, 0.28);
   border-radius: 999px;
-  padding: 4px 6px 4px 12px;
+  padding: 6px 14px 6px 12px;
+  box-shadow: 0 4px 18px rgba(0, 210, 255, 0.08);
   transition: all 0.2s ease;
 }
 
-.location-select-capsule:focus-within,
-.location-select-capsule:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(0, 210, 255, 0.4);
+.company-branding-capsule:hover {
+  background: rgba(0, 210, 255, 0.1);
+  border-color: rgba(0, 210, 255, 0.5);
+  transform: translateY(-1px);
 }
 
-.loc-icon {
-  font-size: 1rem;
+.company-capsule-icon {
+  font-size: 1.05rem;
+  line-height: 1;
 }
 
-.city-select-input {
-  background: transparent;
-  border: none;
+.company-capsule-name {
   color: #ffffff;
-  font-size: 0.86rem;
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.city-select-input option {
-  background: #0f1523;
-  color: #ffffff;
+.company-capsule-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(0, 210, 255, 0.18);
+  border: 1px solid rgba(0, 210, 255, 0.45);
+  color: #00d2ff;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
 .sun-badge {
@@ -172,6 +178,19 @@
   text-align: center;
   white-space: nowrap;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.segmented-tab svg {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.segmented-tab:hover svg {
+  transform: translateY(-1px);
 }
 
 .segmented-tab:hover {
@@ -444,12 +463,15 @@
 }
 
 .calculated-unit-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   padding: 12px 14px;
   background: rgba(0, 210, 255, 0.06);
   border: 1px solid rgba(0, 210, 255, 0.18);
   border-radius: 12px;
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.45;
 }
 
@@ -761,6 +783,14 @@
   font-size: 13.5px;
   font-weight: 600;
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-label-bold svg {
+  color: #00d2ff;
+  flex-shrink: 0;
 }
 
 /* Solar Panels Choices */
@@ -956,13 +986,15 @@
 }
 
 /* Battery & Structure Options */
-.battery-options-list, .structure-options-list {
+.battery-options-list,
+.structure-options-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.battery-option-card, .structure-card {
+.battery-option-card,
+.structure-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -975,16 +1007,19 @@
   gap: 10px;
 }
 
-.battery-option-card:hover, .structure-card:hover {
+.battery-option-card:hover,
+.structure-card:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.battery-option-card.is-selected, .structure-card.is-selected {
+.battery-option-card.is-selected,
+.structure-card.is-selected {
   background: rgba(0, 210, 255, 0.08);
   border-color: rgba(0, 210, 255, 0.35);
 }
 
-.battery-desc-txt, .structure-desc-txt {
+.battery-desc-txt,
+.structure-desc-txt {
   margin: 2px 0 0;
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.5);
@@ -1095,9 +1130,33 @@
   background: rgba(16, 185, 129, 0.04);
 }
 
-.card-top-icon {
-  font-size: 22px;
-  margin-bottom: 8px;
+.card-top-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(0, 210, 255, 0.1);
+  border: 1px solid rgba(0, 210, 255, 0.25);
+  color: #00d2ff;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.answer-card:hover .card-top-icon-badge {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 210, 255, 0.25);
+}
+
+.answer-card.green-highlight-card .card-top-icon-badge {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.answer-card.green-highlight-card:hover .card-top-icon-badge {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 
 .answer-card-label {
@@ -1240,9 +1299,23 @@
   padding: 12px;
 }
 
-.strip-icon {
-  font-size: 20px;
-  line-height: 1;
+.strip-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(0, 210, 255, 0.1);
+  border: 1px solid rgba(0, 210, 255, 0.22);
+  color: #00d2ff;
+  flex-shrink: 0;
+}
+
+.hint-svg-icon {
+  color: #fbbf24;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .strip-item strong {
@@ -1273,6 +1346,7 @@
     padding: 30px 20px;
     text-align: center;
   }
+
   .calc-header-wrap {
     flex-direction: column;
     align-items: center;
@@ -1282,6 +1356,7 @@
     width: 100%;
     margin: 0 auto 20px;
   }
+
   .calc-title-group {
     min-width: 0;
     width: 100%;
@@ -1290,29 +1365,36 @@
     align-items: center;
     text-align: center;
   }
+
   .location-toolbar {
     width: 100%;
     align-items: center;
     justify-content: center;
     text-align: center;
   }
+
   .calculator-grid {
     grid-template-columns: 1fr;
   }
+
   .input-mode-tabs {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .main-answers-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .simple-summary-strip {
     grid-template-columns: 1fr;
   }
+
   .area-selection-hero-bar {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
+
   .city-hero-dropdown {
     width: 100%;
     min-width: 0;
@@ -2075,8 +2157,8 @@
     border-radius: 12px;
   }
 
-  .battery-option-card > div:first-child,
-  .structure-card > div:first-child {
+  .battery-option-card>div:first-child,
+  .structure-card>div:first-child {
     text-align: center;
     width: 100%;
   }
@@ -2398,7 +2480,7 @@
     margin-bottom: 2px;
   }
 
-  .strip-item > div {
+  .strip-item>div {
     text-align: center;
     width: 100%;
   }
@@ -2412,5 +2494,242 @@
     text-align: center;
     font-size: 0.76rem;
     line-height: 1.45;
+  }
+}
+
+/* ===================================================
+   Multi-Tenant SaaS Dynamic Additions
+   =================================================== */
+
+.calc-header-kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.supplier-active-tag {
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.35);
+  color: #38bdf8;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.supplier-active-tag strong {
+  color: #ffffff;
+}
+
+/* Dynamic Inverter Choices - Pro Space-Tech UI */
+.inverter-choices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.inverter-choice-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+}
+
+.inverter-choice-card:hover {
+  border-color: rgba(0, 210, 255, 0.35);
+  background: rgba(0, 210, 255, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.inverter-choice-card.is-selected {
+  border-color: #00d2ff;
+  background: rgba(0, 210, 255, 0.09);
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.22), inset 0 0 0 1px rgba(0, 210, 255, 0.3);
+}
+
+.inv-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-brand-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inverter-choice-card.is-selected .inv-brand-badge {
+  color: #00d2ff;
+  background: rgba(0, 210, 255, 0.15);
+  border-color: rgba(0, 210, 255, 0.3);
+}
+
+.inv-kw-pill {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #00d2ff;
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.28);
+  padding: 2px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.inv-card-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin: 2px 0;
+}
+
+.inv-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inv-price-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.inv-price-tag {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: -0.01em;
+}
+
+.inv-radio-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.inv-radio-indicator.is-active {
+  border-color: #00d2ff;
+  background: rgba(0, 210, 255, 0.2);
+}
+
+.inv-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.inv-radio-indicator.is-active .inv-radio-dot {
+  background: #00d2ff;
+  box-shadow: 0 0 8px #00d2ff;
+}
+
+/* Prominent Booking Request Banner */
+.calc-booking-cta-banner {
+  margin-top: 24px;
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.12) 0%, rgba(0, 230, 118, 0.08) 100%);
+  border: 1px solid rgba(0, 210, 255, 0.35);
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.cta-banner-text {
+  flex: 1;
+  min-width: 280px;
+}
+
+.cta-disclaimer-pill {
+  display: inline-block;
+  background: rgba(255, 179, 0, 0.18);
+  border: 1px solid rgba(255, 179, 0, 0.35);
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+
+.cta-banner-text h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.cta-banner-text p {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.btn-book-this-system {
+  background: linear-gradient(135deg, #00e676 0%, #00b0ff 100%);
+  color: #000000;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 14px 30px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 24px rgba(0, 230, 118, 0.35);
+  white-space: nowrap;
+}
+
+.btn-book-this-system:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.1);
+  box-shadow: 0 10px 32px rgba(0, 230, 118, 0.5);
+}
+
+@media (max-width: 768px) {
+  .calc-booking-cta-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .btn-book-this-system {
+    width: 100%;
   }
 }

@@ -1,5 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './AIChatbot.css';
+import {
+  IconSun,
+  IconZap,
+  IconCheck,
+  IconCopy,
+  IconSend,
+  IconFileText,
+  IconBattery,
+  IconBuilding,
+  IconLayers
+} from './Icons';
 
 // System prompt tailored for Pakistani Solar Ecosystem
 const SOLAR_PAK_SYSTEM_PROMPT = `You are "Orbit AI", the elite solar energy consultant for Pakistan.
@@ -249,35 +260,40 @@ export default function AIChatbot() {
             className="query-chip"
             onClick={() => handleTopicClick("5kW on-grid system cost in Pakistan with net metering?")}
           >
-            ⚡ 5kW System Cost
+            <IconZap size={13} />
+            <span>5kW System Cost</span>
           </button>
           <button
             type="button"
             className="query-chip"
             onClick={() => handleTopicClick("How many 585W plates needed to run a 1.5-ton AC?")}
           >
-            ❄️ Panels for 1.5-Ton AC
+            <IconLayers size={13} />
+            <span>Panels for 1.5-Ton AC</span>
           </button>
           <button
             type="button"
             className="query-chip"
             onClick={() => handleTopicClick("What is the LESCO / K-Electric green meter net metering procedure?")}
           >
-            📋 Net Metering Rules
+            <IconFileText size={13} />
+            <span>Net Metering Rules</span>
           </button>
           <button
             type="button"
             className="query-chip"
             onClick={() => handleTopicClick("LiFePO4 Lithium battery vs Phoenix Tubular battery comparison")}
           >
-            🔋 Lithium vs Tubular
+            <IconBattery size={13} />
+            <span>Lithium vs Tubular</span>
           </button>
           <button
             type="button"
             className="query-chip"
             onClick={() => handleTopicClick("10kW solar system price in Lahore with Sungrow inverter")}
           >
-            🏰 10kW Turnkey Package
+            <IconBuilding size={13} />
+            <span>10kW Turnkey Package</span>
           </button>
         </div>
       </div>
@@ -290,7 +306,14 @@ export default function AIChatbot() {
               <div className="bubble-wrapper">
                 <div className="bubble-header">
                   <span className="bubble-author">
-                    {msg.sender === 'user' ? 'You' : '☀️ Orbit AI'}
+                    {msg.sender === 'user' ? (
+                      'You'
+                    ) : (
+                      <span className="bot-author-badge">
+                        <IconSun size={13} />
+                        <span>Orbit AI</span>
+                      </span>
+                    )}
                   </span>
                   <span className="bubble-time">{msg.timestamp}</span>
                 </div>
@@ -307,7 +330,17 @@ export default function AIChatbot() {
                       onClick={() => handleCopyText(msg.id, msg.text)}
                       title="Copy response"
                     >
-                      {copiedId === msg.id ? '✓ Copied' : '📋 Copy'}
+                      {copiedId === msg.id ? (
+                        <>
+                          <IconCheck size={12} />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <IconCopy size={12} />
+                          <span>Copy</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 )}
@@ -351,13 +384,14 @@ export default function AIChatbot() {
               aria-label="Send message"
             >
               <span>Send</span>
-              <span className="send-arrow">→</span>
+              <IconSend size={14} />
             </button>
           </div>
 
           <div className="chat-bottom-info-bar">
             <span className="disclaimer-txt">
-              💡 Advice based on official NEPRA regulations & verified Pakistani market benchmarks.
+              <IconZap size={12} style={{ verticalAlign: 'middle', marginRight: '5px', color: '#00d2ff' }} />
+              Advice based on official NEPRA regulations & verified Pakistani market benchmarks.
             </span>
             <button type="button" className="btn-clear-chat" onClick={handleClearChat}>
               Clear chat

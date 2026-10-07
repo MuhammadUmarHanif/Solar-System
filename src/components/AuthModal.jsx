@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TiltContainer } from './TiltContainer';
 import './AuthModal.css';
+import { useAuth } from '../context/AuthContext';
 
 const USERS_KEY = 'mySolarUsers';
 const CURRENT_USER_KEY = 'mySolarCurrentUser';
@@ -130,13 +131,30 @@ const AuthModal = ({ isOpen, initialMode = 'login', onClose, onAuthSuccess }) =>
     };
   }, [isOpen]);
 
-  const submitLogin = (event) => {
+  const authCtx = useAuth();
+
+  const submitLogin = async (event) => {
     event.preventDefault();
     setError('');
 
     const email = loginEmail.trim().toLowerCase();
     if (!isValidEmail(email)) return setError('Enter a valid email address.');
     if (loginPassword.length < 6) return setError('Password must be at least 6 characters.');
+
+    // 1. Try company admin login first
+    if (authCtx && authCtx.login) {
+      try {
+        const res = await authCtx.login(email, loginPassword);
+        if (res && res.user) {
+          writeCurrentUser(res.user);
+          onAuthSuccess(res.user);
+          onClose();
+          return;
+        }
+      } catch (err) {
+        // Continue to check local users
+      }
+    }
 
     const users = readUsers();
     const user = users[email];
@@ -267,6 +285,10 @@ const AuthModal = ({ isOpen, initialMode = 'login', onClose, onAuthSuccess }) =>
                   Sign up
                 </button>
               </p>
+
+              <div style={{ marginTop: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                🔑 Company Admin: <strong style={{ color: '#13ffaa' }}>admin@orbit.solar</strong> / <strong style={{ color: '#13ffaa' }}>admin123</strong>
+              </div>
             </form>
           </div>
 
