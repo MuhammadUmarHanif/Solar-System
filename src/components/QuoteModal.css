@@ -1,37 +1,55 @@
-/* QuoteModal.css - Ultra Clean, 100% Mobile Responsive */
+/* QuoteModal.css - Ultra Sleek & Non-Intrusive Modal */
 
 .quote-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 13, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(3, 7, 15, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  padding: 20px;
+  padding: 16px;
+  overflow: hidden;
 }
 
 .quote-modal-content {
   position: relative;
-  background: #0f1523;
+  background: #0d1524;
   border: 1px solid rgba(0, 210, 255, 0.3);
-  border-radius: 20px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 520px;
-  padding: 30px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 255, 0.15);
+  max-width: 440px;
+  padding: 22px 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 210, 255, 0.12);
   color: #ffffff;
   animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  max-height: 92vh;
+  max-height: 85vh;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Sleek Slim Scrollbar */
+.quote-modal-content::-webkit-scrollbar {
+  width: 5px;
+}
+.quote-modal-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.quote-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 210, 255, 0.35);
+  border-radius: 4px;
+}
+.quote-modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 210, 255, 0.6);
 }
 
 @keyframes modalSlideUp {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.98);
+    transform: translateY(12px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -41,53 +59,55 @@
 
 .quote-modal-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: all 0.2s ease;
 }
 
 .quote-modal-close:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
   transform: rotate(90deg);
 }
 
 .quote-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: rgba(0, 210, 255, 0.12);
   border: 1px solid rgba(0, 210, 255, 0.35);
   color: #00d2ff;
   border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 0.75rem;
+  padding: 3px 10px;
+  font-size: 0.72rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .quote-modal-header h3 {
-  margin: 0 0 4px;
-  font-size: 1.35rem;
+  margin: 0 0 3px;
+  font-size: 1.18rem;
   font-weight: 700;
   color: #ffffff;
 }
 
 .quote-header-sub {
-  margin: 0 0 14px;
-  font-size: 0.85rem;
+  margin: 0 0 10px;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.65);
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .quote-summary-strip {
@@ -95,11 +115,11 @@
   justify-content: space-between;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 18px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .summary-item {
@@ -109,12 +129,12 @@
 }
 
 .item-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.55);
 }
 
 .item-val {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #ffffff;
 }
@@ -126,18 +146,18 @@
 .quote-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .quote-input-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .quote-input-group label {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.76rem;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
 }
 
@@ -145,22 +165,14 @@
 .quote-input-group select,
 .quote-input-group textarea {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 8px 11px;
   color: #ffffff;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   outline: none;
   transition: all 0.2s ease;
   font-family: inherit;
-}
-
-.quote-input-group input:focus,
-.quote-input-group select:focus,
-.quote-input-group textarea:focus {
-  border-color: #00d2ff;
-  background: rgba(0, 210, 255, 0.05);
-  box-shadow: 0 0 12px rgba(0, 210, 255, 0.2);
 }
 
 .quote-input-group select option {
@@ -168,89 +180,103 @@
   color: #ffffff;
 }
 
-.input-hint {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.45);
+.quote-input-group input:focus,
+.quote-input-group select:focus,
+.quote-input-group textarea:focus {
+  border-color: #00d2ff;
+  background: rgba(0, 210, 255, 0.05);
+  box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.15);
+}
+
+.quote-input-group input::placeholder,
+.quote-input-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .quote-input-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
+}
+
+.quote-actions {
+  margin-top: 6px;
 }
 
 .btn-submit-quote {
-  margin-top: 6px;
-  background: linear-gradient(135deg, #00d2ff, #0077ff);
-  color: #000000;
-  font-weight: 700;
-  font-size: 0.92rem;
-  padding: 12px 18px;
-  border-radius: 10px;
+  width: 100%;
+  background: linear-gradient(135deg, #00d2ff 0%, #00f2fe 50%, #10b981 100%);
+  color: #040d1a;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 10px 16px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   transition: all 0.18s ease;
-  box-shadow: 0 4px 18px rgba(0, 210, 255, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 210, 255, 0.3);
+  letter-spacing: -0.01em;
 }
 
 .btn-submit-quote:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(0, 210, 255, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.45);
 }
 
 /* Success View */
 .quote-success-view {
   text-align: center;
-  padding: 12px 6px;
+  padding: 8px 4px;
 }
 
 .success-icon-wrap {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   background: rgba(16, 185, 129, 0.15);
   border: 2px solid #10b981;
   color: #10b981;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 800;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 14px;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  margin: 0 auto 10px;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
 }
 
 .quote-success-view h3 {
-  margin: 0 0 6px;
-  font-size: 1.45rem;
+  margin: 0 0 4px;
+  font-size: 1.25rem;
   color: #ffffff;
 }
 
 .success-msg {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.88rem;
-  margin: 0 0 18px;
+  font-size: 0.82rem;
+  margin: 0 0 14px;
+  line-height: 1.4;
 }
 
 .ref-badge-card {
   background: rgba(0, 210, 255, 0.08);
   border: 1px solid rgba(0, 210, 255, 0.25);
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
 }
 
 .ref-label {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .ref-code {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: #00d2ff;
   letter-spacing: 0.04em;
@@ -258,10 +284,10 @@
 }
 
 .ref-sub {
-  margin: 6px 0 0;
-  font-size: 0.78rem;
+  margin: 4px 0 0;
+  font-size: 0.74rem;
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .success-actions {
@@ -273,11 +299,11 @@
 .btn-whatsapp-direct {
   background: #25D366;
   color: #0b2214;
-  padding: 12px 18px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-weight: 700;
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -288,7 +314,7 @@
 
 .btn-whatsapp-direct:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
   background: #20ba5a;
 }
 
@@ -296,10 +322,11 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  padding: 9px 18px;
-  border-radius: 10px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 0.82rem;
 }
 
 /* Mobile Breakpoints */
@@ -308,29 +335,29 @@
     padding: 10px;
   }
   .quote-modal-content {
-    padding: 20px 14px;
-    border-radius: 16px;
+    padding: 18px 14px;
+    border-radius: 14px;
   }
   .quote-modal-header h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   .quote-input-row {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
   }
   .quote-summary-strip {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
   }
   .summary-item:last-child {
     grid-column: span 2;
   }
   .ref-code {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
   }
   .btn-submit-quote {
-    font-size: 0.85rem;
-    padding: 11px 14px;
+    font-size: 0.82rem;
+    padding: 9px 12px;
   }
 }

@@ -7,7 +7,6 @@ import {
   BATTERY_OPTIONS,
   INITIAL_APPLIANCES
 } from '../data/solarData';
-import QuoteModal from './QuoteModal';
 import { useSupplier } from '../context/SupplierContext';
 import dbService from '../services/db';
 import {
@@ -129,9 +128,19 @@ export default function SolarCalculator({ supplierOverride }) {
     }
   }, [availableBatteries]);
 
-  // Interactive Quote Modal state
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [activeQuoteData, setActiveQuoteData] = useState(null);
+  // Non-intrusive Inline Booking State
+  const [isInlineBookingOpen, setIsInlineBookingOpen] = useState(false);
+  const [bookingSubmitted, setBookingSubmitted] = useState(false);
+  const [bookingRef, setBookingRef] = useState('');
+  const [bookingWaUrl, setBookingWaUrl] = useState('');
+  const [bookingForm, setBookingForm] = useState({
+    name: '',
+    phone: '',
+    whatsapp: '',
+    address: '',
+    roofType: 'Concrete Flat Roof (Standard L2/L3)',
+    notes: ''
+  });
 
   // Appliance quantity update
   const updateQuantity = (id, delta) => {
@@ -311,10 +320,85 @@ export default function SolarCalculator({ supplierOverride }) {
     };
   }, [inputMode, targetKw, monthlyBillRs, monthlyUnits, appliances, selectedSystemType, selectedPanel, selectedInverter, selectedStructure, selectedBattery, availableInverters, calcConfig, avgTariff]);
 
-  // Open modal handler
-  const handleOpenQuoteModal = (quotePayload) => {
-    setActiveQuoteData(quotePayload);
-    setIsQuoteModalOpen(true);
+  // Inline Booking Submission Handler (Direct on page, no screen overlay)
+  const handleInlineBookingSubmit = (e) => {
+    e.preventDefault();
+    if (!bookingForm.name.trim() || !bookingForm.phone.trim()) return;
+
+    const cityCode = 'PAK';
+    const ref = `PAK-${cityCode}-${Math.floor(1000 + Math.random() * 9000)}`;
+    setBookingRef(ref);
+
+    const waNum = bookingForm.whatsapp.trim() || bookingForm.phone.trim();
+
+    const leadPayload = {
+      ref,
+      supplierId: effectiveSupplier?.id || 'sup_apex_solar',
+      customerName: bookingForm.name.trim(),
+      phone: bookingForm.phone.trim(),
+      whatsappNumber: waNum,
+      city: effectiveSupplier?.cityName || 'Pakistan',
+      address: bookingForm.address.trim(),
+      roofType: bookingForm.roofType,
+      systemKw: calculatedResults.systemKw,
+      numberOfPanels: calculatedResults.numberOfPanels,
+      selectedPanel: selectedPanel ? {
+        id: selectedPanel.id,
+        name: selectedPanel.name,
+        wattage: selectedPanel.wattage,
+        price: selectedPanel.price
+      } : null,
+      selectedInverter: {
+        name: calculatedResults.inverterName,
+        price: calculatedResults.inverterCost
+      },
+      selectedBattery: calculatedResults.batteryCost > 0 ? selectedBattery : null,
+      estimatedTotalCost: calculatedResults.turnkeySubtotal,
+      notes: bookingForm.notes.trim()
+    };
+
+    try {
+      if (supplierCtx?.submitCustomerBooking) {
+        supplierCtx.submitCustomerBooking(leadPayload);
+      } else {
+        dbService.createLead(leadPayload);
+      }
+    } catch {
+      dbService.createLead(leadPayload);
+    }
+
+    // Build WhatsApp direct message link
+    const waText =
+      `Hello ${effectiveSupplier?.name || 'Orbit Solar'},\n` +
+      `I am interested in booking the solar system calculated on your portal (Ref: ${ref}).\n\n` +
+      `⚡ System Size: ${calculatedResults.systemKw} kW\n` +
+      `☀️ Panels: ${calculatedResults.numberOfPanels} × ${selectedPanel?.name || 'Tier-1 Module'}\n` +
+      `🔌 Inverter: ${calculatedResults.inverterName || 'Solar Inverter'}\n` +
+      (calculatedResults.batteryCost > 0 ? `🔋 Battery: ${selectedBattery?.name}\n` : '') +
+      `💰 Est. Turnkey: PKR ${(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh (Rs. ${Number(calculatedResults.turnkeySubtotal).toLocaleString()})\n` +
+      `👤 Name: ${bookingForm.name.trim()}\n` +
+      `📞 Phone: ${bookingForm.phone.trim()}\n` +
+      (bookingForm.address ? `🏠 Address: ${bookingForm.address.trim()}\n` : '') +
+      (bookingForm.notes ? `📝 Notes: ${bookingForm.notes.trim()}\n\n` : '\n') +
+      `Please confirm the survey schedule and equipment availability.`;
+
+    const cleanWa = (effectiveSupplier?.whatsapp || '923008452190').replace(/[^0-9]/g, '');
+    const waUrl = `https://wa.me/${cleanWa}?text=${encodeURIComponent(waText)}`;
+    setBookingWaUrl(waUrl);
+    setBookingSubmitted(true);
+  };
+
+  const handleResetInlineBooking = () => {
+    setBookingSubmitted(false);
+    setIsInlineBookingOpen(false);
+    setBookingForm({
+      name: '',
+      phone: '',
+      whatsapp: '',
+      address: '',
+      roofType: 'Concrete Flat Roof (Standard L2/L3)',
+      notes: ''
+    });
   };
 
   return (
@@ -1131,44 +1215,202 @@ export default function SolarCalculator({ supplierOverride }) {
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>PKR {calculatedResults.installationLabor.toLocaleString()}</td>
                 </tr>
                 <tr className="bom-total-row">
-                  <td colSpan="3"><strong>Total Turnkey Project Estimate</strong></td>
+                  <td colSpan="3">
+                    <div className="bom-total-label-wrap">
+                      <IconShield size={16} style={{ color: '#00d2ff', flexShrink: 0 }} />
+                      <div>
+                        <strong>Total Turnkey Project Estimate</strong>
+                        <span className="bom-total-note">Hardware, engineering, net metering & turnkey labor included</span>
+                      </div>
+                    </div>
+                  </td>
                   <td style={{ textAlign: 'right' }}>
-                    <span className="bom-total-cost">PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</span>
+                    <span className="bom-total-cost num-tabular">PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</span>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Prominent Official Quote / Booking Request Banner */}
-          <div className="calc-booking-cta-banner">
-            <div className="cta-banner-text">
-              <span className="cta-disclaimer-pill">
-                <IconShield size={12} />
-                <span>Official Estimate • Final invoice verified after physical survey</span>
-              </span>
-              <h3>Book / Request This {calculatedResults.systemKw} kW System</h3>
-              <p>
-                Lock in transparent equipment and turnkey labor pricing with <strong>{effectiveSupplier?.name || 'Orbit Solar Technologies'}</strong>.
-              </p>
+          {/* Seamless In-Page Booking / Survey Request Panel (No full-screen blocking popup) */}
+          {!isInlineBookingOpen ? (
+            <div className="calc-booking-cta-banner">
+              <div className="cta-banner-text">
+                <span className="cta-disclaimer-pill">
+                  <IconShield size={12} />
+                  <span>Official Estimate • Final invoice verified after physical survey</span>
+                </span>
+                <h3>Book / Request This {calculatedResults.systemKw} kW System</h3>
+                <p>
+                  Lock in verified turnkey equipment and installation rates with <strong>{effectiveSupplier?.name || 'Orbit Solar Technologies'}</strong>.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-book-this-system"
+                onClick={() => setIsInlineBookingOpen(true)}
+              >
+                <IconZap size={18} />
+                <span>Book / Request This System Now</span>
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn-book-this-system"
-              onClick={() => handleOpenQuoteModal({
-                supplier: effectiveSupplier,
-                systemKw: calculatedResults.systemKw,
-                numberOfPanels: calculatedResults.numberOfPanels,
-                panel: selectedPanel,
-                inverter: calculatedResults.inverterObj || { name: calculatedResults.inverterName, price: calculatedResults.inverterCost },
-                battery: selectedSystemType === 'hybrid' ? selectedBattery : null,
-                totalCost: calculatedResults.turnkeySubtotal
-              })}
-            >
-              <IconZap size={18} />
-              <span>Book / Request This System Now</span>
-            </button>
-          </div>
+          ) : (
+            <div className="calc-booking-inline-card" id="inline-booking-box">
+              {bookingSubmitted ? (
+                <div className="inline-booking-success-view">
+                  <div className="inline-success-badge-icon">
+                    <IconCheck size={26} />
+                  </div>
+                  <h3>Booking & Survey Request Confirmed!</h3>
+                  <div className="inline-ref-chip">
+                    <span>Reference ID:</span>
+                    <strong>{bookingRef}</strong>
+                    <span>•</span>
+                    <strong>{calculatedResults.systemKw} kW System</strong>
+                  </div>
+                  <p className="inline-success-text">
+                    Your request has been logged directly with <strong>{effectiveSupplier?.name || 'Orbit Solar Technologies'}</strong>. Our engineering team will review your specifications and call you at <strong>{bookingForm.phone}</strong> to confirm the roof survey appointment.
+                  </p>
+                  <div className="inline-success-buttons">
+                    {bookingWaUrl && (
+                      <a
+                        href={bookingWaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-inline-wa-chat"
+                      >
+                        <IconZap size={16} />
+                        <span>Open WhatsApp with System Specifications</span>
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      className="btn-inline-done-btn"
+                      onClick={handleResetInlineBooking}
+                    >
+                      Done / Close Form
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="inline-booking-form-wrap">
+                  <div className="inline-form-topbar">
+                    <div className="topbar-left">
+                      <span className="inline-kicker-tag">
+                        <IconZap size={12} />
+                        <span>Direct Booking & Survey Request</span>
+                      </span>
+                      <h4>Book {calculatedResults.systemKw} kW System with {effectiveSupplier?.name || 'Orbit Solar Technologies'}</h4>
+                      <p className="topbar-sub">
+                        Est. Turnkey: <strong style={{ color: '#00d2ff' }}>PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</strong> • <strong>{calculatedResults.numberOfPanels} Panels</strong> • Net Metering Included
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-inline-close"
+                      onClick={() => setIsInlineBookingOpen(false)}
+                      title="Cancel & close form"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleInlineBookingSubmit} className="inline-actual-form">
+                    <div className="inline-inputs-row">
+                      <div className="inline-field-group">
+                        <label htmlFor="in-name">Full Name *</label>
+                        <input
+                          id="in-name"
+                          type="text"
+                          required
+                          placeholder="e.g. Muhammad Ali"
+                          value={bookingForm.name}
+                          onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="inline-field-group">
+                        <label htmlFor="in-phone">Contact Phone Number *</label>
+                        <input
+                          id="in-phone"
+                          type="tel"
+                          required
+                          placeholder="e.g. 0300 1234567"
+                          value={bookingForm.phone}
+                          onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="inline-field-group">
+                        <label htmlFor="in-wa">WhatsApp (If different)</label>
+                        <input
+                          id="in-wa"
+                          type="tel"
+                          placeholder="e.g. 0300 1234567"
+                          value={bookingForm.whatsapp}
+                          onChange={(e) => setBookingForm({ ...bookingForm, whatsapp: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="inline-inputs-row">
+                      <div className="inline-field-group inline-flex-2">
+                        <label htmlFor="in-address">House / Roof Address</label>
+                        <input
+                          id="in-address"
+                          type="text"
+                          placeholder="e.g. House 42, Block B, DHA, Lahore"
+                          value={bookingForm.address}
+                          onChange={(e) => setBookingForm({ ...bookingForm, address: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="inline-field-group inline-flex-1">
+                        <label htmlFor="in-roof">Roof Structure Type</label>
+                        <select
+                          id="in-roof"
+                          value={bookingForm.roofType}
+                          onChange={(e) => setBookingForm({ ...bookingForm, roofType: e.target.value })}
+                        >
+                          <option value="Concrete Flat Roof (Standard L2/L3)">Concrete Flat Roof (Standard L2/L3)</option>
+                          <option value="Elevated Walkable Steel Structure">Elevated Walkable Steel Structure</option>
+                          <option value="Tin / Corrugated Shed">Tin / Corrugated Shed</option>
+                          <option value="Open Ground / Lawn">Open Ground / Lawn</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="inline-inputs-row">
+                      <div className="inline-field-group inline-flex-full">
+                        <label htmlFor="in-notes">Special Requirements / Notes (Optional)</label>
+                        <input
+                          id="in-notes"
+                          type="text"
+                          placeholder="e.g. Preferred inverter brand, net metering timeline..."
+                          value={bookingForm.notes}
+                          onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="inline-form-actions-bar">
+                      <button type="submit" className="btn-confirm-inline-booking">
+                        <IconZap size={16} />
+                        <span>Confirm Booking & Request Official Survey</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-cancel-inline-booking"
+                        onClick={() => setIsInlineBookingOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 3 Detail Metric Cards */}
@@ -1198,13 +1440,6 @@ export default function SolarCalculator({ supplierOverride }) {
           </div>
         </div>
       </div>
-
-      {/* Interactive Official Free Survey & Quote Modal */}
-      <QuoteModal
-        isOpen={isQuoteModalOpen}
-        onClose={() => setIsQuoteModalOpen(false)}
-        quoteData={activeQuoteData}
-      />
     </section>
   );
 }

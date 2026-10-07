@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './Footer.css';
+import { useSupplier } from '../context/SupplierContext';
 
 export default function Footer() {
+  const { activeSupplier } = useSupplier() || {};
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -21,6 +23,8 @@ export default function Footer() {
     }
   };
 
+  const companyName = activeSupplier?.name || 'ORBIT';
+
   return (
     <footer className="techexa-style-footer">
       <div className="techexa-footer-container">
@@ -33,7 +37,7 @@ export default function Footer() {
               <circle cx="13.25" cy="8.4" r="7.5" fill="#080c14" />
               <circle cx="13.25" cy="8.4" r="5" fill="#00d2ff" />
             </svg>
-            <span className="techexa-brand-name">ORBIT</span>
+            <span className="techexa-brand-name">{companyName.toUpperCase()}</span>
           </div>
         </div>
 
@@ -163,13 +167,13 @@ export default function Footer() {
 
         {/* Giant Brand Typographic Showcase (Exact Techexa Style) */}
         <div className="techexa-giant-wordmark-wrap">
-          <span className="techexa-giant-text ">ORBIT</span>
+          <span className="techexa-giant-text">{companyName.toUpperCase()}</span>
         </div>
 
         {/* Bottom Legal Bar */}
         <div className="techexa-bottom-bar">
           <div className="techexa-copyright">
-            © {new Date().getFullYear()} ORBIT Solar Technologies Pvt. Ltd. All rights reserved.
+            © {new Date().getFullYear()} {companyName} Pvt. Ltd. All rights reserved.
           </div>
           <div className="techexa-legal-links">
             <button type="button" onClick={() => scrollToSection('faq')}>Privacy Policy</button>

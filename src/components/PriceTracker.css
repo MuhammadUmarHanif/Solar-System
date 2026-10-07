@@ -123,13 +123,17 @@
   padding: 16px 20px;
   color: rgba(255, 255, 255, 0.85);
   vertical-align: middle;
+  display: table-cell;
 }
 
 .col-vendor {
+  min-width: 240px;
+}
+
+.vendor-cell-content {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 240px;
 }
 
 .brand-name-bold {
@@ -163,6 +167,9 @@
   color: rgba(255, 255, 255, 0.75);
   font-size: 12.5px;
   white-space: nowrap;
+}
+
+.city-cell-content {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -196,13 +203,18 @@
 }
 
 .col-rating {
-  font-weight: 600;
+  text-align: right;
   white-space: nowrap;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+}
+
+.rating-cell-content {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: flex-end;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .rating-star-wrap {

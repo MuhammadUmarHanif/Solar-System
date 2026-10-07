@@ -1,16 +1,40 @@
 // Multi-Tenant Database & Storage Layer for Orbit Solar SaaS
 // Encapsulates tenant isolation, seed data, and schema definitions
-import { db as firestoreDb } from './firebase';
+import { db as firestoreDb, rtdb } from './firebase';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { ref, set as rtdbSet, remove as rtdbRemove } from 'firebase/database';
 
 const DB_STORAGE_KEY = 'orbit_solar_single_company_v2';
 
-// Asynchronous Firebase Cloud Firestore Sync (Non-blocking, resilient)
-const firestoreSync = {
+// Asynchronous Firebase Cloud Sync (Realtime Database + Cloud Firestore)
+const firebaseSync = {
+  syncEntireDatabase: (data) => {
+    try {
+      if (rtdb && data) {
+        const cleanPayload = {
+          company: data.suppliers?.[0] || null,
+          products: data.products || [],
+          leads: data.leads || [],
+          suppliers: data.suppliers || [],
+          syncedAt: new Date().toISOString()
+        };
+        // Populate root orbit_system and individual collections in Realtime Database
+        rtdbSet(ref(rtdb, 'orbit_system'), cleanPayload).catch(() => {});
+        rtdbSet(ref(rtdb, 'products'), data.products || []).catch(() => {});
+        rtdbSet(ref(rtdb, 'company'), data.suppliers?.[0] || {}).catch(() => {});
+        if (data.leads && data.leads.length > 0) {
+          rtdbSet(ref(rtdb, 'leads'), data.leads).catch(() => {});
+        }
+      }
+    } catch {}
+  },
   saveLead: (lead) => {
     try {
       if (firestoreDb && lead && lead.id) {
         setDoc(doc(firestoreDb, 'leads', String(lead.id)), lead, { merge: true }).catch(() => {});
+      }
+      if (rtdb && lead && lead.id) {
+        rtdbSet(ref(rtdb, `leads/${lead.id}`), lead).catch(() => {});
       }
     } catch {}
   },
@@ -19,12 +43,19 @@ const firestoreSync = {
       if (firestoreDb && supplier && supplier.id) {
         setDoc(doc(firestoreDb, 'suppliers', String(supplier.id)), supplier, { merge: true }).catch(() => {});
       }
+      if (rtdb && supplier && supplier.id) {
+        rtdbSet(ref(rtdb, `suppliers/${supplier.id}`), supplier).catch(() => {});
+        rtdbSet(ref(rtdb, 'company'), supplier).catch(() => {});
+      }
     } catch {}
   },
   deleteSupplier: (supplierId) => {
     try {
       if (firestoreDb && supplierId) {
         deleteDoc(doc(firestoreDb, 'suppliers', String(supplierId))).catch(() => {});
+      }
+      if (rtdb && supplierId) {
+        rtdbRemove(ref(rtdb, `suppliers/${supplierId}`)).catch(() => {});
       }
     } catch {}
   },
@@ -33,6 +64,9 @@ const firestoreSync = {
       if (firestoreDb && product && product.id) {
         setDoc(doc(firestoreDb, 'products', String(product.id)), product, { merge: true }).catch(() => {});
       }
+      if (rtdb && product && product.id) {
+        rtdbSet(ref(rtdb, `products/${product.id}`), product).catch(() => {});
+      }
     } catch {}
   },
   deleteProduct: (productId) => {
@@ -40,13 +74,21 @@ const firestoreSync = {
       if (firestoreDb && productId) {
         deleteDoc(doc(firestoreDb, 'products', String(productId))).catch(() => {});
       }
+      if (rtdb && productId) {
+        rtdbRemove(ref(rtdb, `products/${productId}`)).catch(() => {});
+      }
     } catch {}
   },
   saveUser: (user) => {
     try {
-      if (firestoreDb && user && user.id) {
+      if (user && user.id) {
         const { passwordHash, ...safeUser } = user;
-        setDoc(doc(firestoreDb, 'users', String(user.id)), safeUser, { merge: true }).catch(() => {});
+        if (firestoreDb) {
+          setDoc(doc(firestoreDb, 'users', String(user.id)), safeUser, { merge: true }).catch(() => {});
+        }
+        if (rtdb) {
+          rtdbSet(ref(rtdb, `users/${user.id}`), safeUser).catch(() => {});
+        }
       }
     } catch {}
   }
@@ -198,6 +240,50 @@ const initializeSeedDatabase = () => {
         warranty: '15Y Product / 30Y Power',
         bifacial: true,
         description: '🚀 Fewer modules required per roof, maximizing space efficiency.',
+        createdAt: s.createdAt
+      },
+      {
+        id: `p_ja_${s.id}`,
+        supplierId: s.id,
+        category: 'panels',
+        name: 'JA Solar DeepBlue 4.0 Pro 580W',
+        brand: 'JA Solar',
+        model: 'JAM72D40-580/GB',
+        wattage: 580,
+        voltage: '44.0V',
+        type: 'N-Type Bycium+ Bifacial',
+        pricePerWatt: +(34.0 + rateOffset).toFixed(1),
+        price: Math.round(580 * (34.0 + rateOffset)),
+        unit: 'per piece',
+        stockQuantity: 380,
+        isAvailable: true,
+        isActive: true,
+        efficiency: '22.3%',
+        warranty: '12Y Product / 30Y Power',
+        bifacial: true,
+        description: '💎 Proven performance, lower degradation & high bifacial yield.',
+        createdAt: s.createdAt
+      },
+      {
+        id: `p_inverex_${s.id}`,
+        supplierId: s.id,
+        category: 'panels',
+        name: 'Inverex Nitrox 550W Tier-1 Mono',
+        brand: 'Inverex',
+        model: 'Nitrox Pro 550M',
+        wattage: 550,
+        voltage: '41.8V',
+        type: 'Tier-1 Mono PERC',
+        pricePerWatt: +(34.0 + rateOffset).toFixed(1),
+        price: Math.round(550 * (34.0 + rateOffset)),
+        unit: 'per piece',
+        stockQuantity: 410,
+        isAvailable: true,
+        isActive: true,
+        efficiency: '21.3%',
+        warranty: '12Y Product / 25Y Power',
+        bifacial: false,
+        description: '🇵🇰 Pakistani brand support with official nationwide service centers.',
         createdAt: s.createdAt
       }
     );
@@ -561,21 +647,44 @@ const initializeSeedDatabase = () => {
 class SolarSaaSDatabase {
   constructor() {
     this.db = this.loadDatabase();
+    // Asynchronously synchronize entire database to Firebase Realtime Database on startup
+    firebaseSync.syncEntireDatabase(this.db);
   }
 
   loadDatabase() {
+    const seed = initializeSeedDatabase();
     try {
-      const raw = localStorage.getItem(DB_STORAGE_KEY);
+      const raw = localStorage.getItem(DB_STORAGE_KEY) || localStorage.getItem('orbit_solar_single_company_v2');
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.suppliers) && Array.isArray(parsed.products)) {
+          // Merge missing seed baseline products so all products are stored in DB
+          const existingIds = new Set(parsed.products.map(p => p.id));
+          const existingNames = new Set(parsed.products.map(p => (p.name || '').toLowerCase().trim()));
+          
+          let changed = false;
+          seed.products.forEach(sp => {
+            const cleanName = (sp.name || '').toLowerCase().trim();
+            if (!existingIds.has(sp.id) && !existingNames.has(cleanName)) {
+              parsed.products.push(sp);
+              changed = true;
+            }
+          });
+
+          if (!parsed.suppliers || parsed.suppliers.length === 0) {
+            parsed.suppliers = seed.suppliers;
+            changed = true;
+          }
+
+          if (changed) {
+            this.saveDatabase(parsed);
+          }
           return parsed;
         }
       }
     } catch (e) {
       console.warn("Failed to parse database from localStorage", e);
     }
-    const seed = initializeSeedDatabase();
     this.saveDatabase(seed);
     return seed;
   }
@@ -584,6 +693,7 @@ class SolarSaaSDatabase {
     try {
       this.db = state;
       localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(state));
+      firebaseSync.syncEntireDatabase(state);
     } catch (e) {
       console.error("Database write error", e);
     }
@@ -621,7 +731,7 @@ class SolarSaaSDatabase {
     };
     this.db.users.push(newUser);
     this.saveDatabase();
-    firestoreSync.saveUser(newUser);
+    firebaseSync.saveUser(newUser);
     return newUser;
   }
 
@@ -698,7 +808,7 @@ class SolarSaaSDatabase {
     this.seedDefaultProductsForSupplier(newSupplier.id);
 
     this.saveDatabase();
-    firestoreSync.saveSupplier(newSupplier);
+    firebaseSync.saveSupplier(newSupplier);
     return newSupplier;
   }
 
@@ -826,7 +936,7 @@ class SolarSaaSDatabase {
       }
     };
     this.saveDatabase();
-    firestoreSync.saveSupplier(this.db.suppliers[idx]);
+    firebaseSync.saveSupplier(this.db.suppliers[idx]);
     return this.db.suppliers[idx];
   }
 
@@ -837,7 +947,7 @@ class SolarSaaSDatabase {
     this.db.leads = this.db.leads.filter(l => l.supplierId !== id);
     this.db.users = this.db.users.filter(u => u.supplierId !== id);
     this.saveDatabase();
-    firestoreSync.deleteSupplier(id);
+    firebaseSync.deleteSupplier(id);
     return true;
   }
 
@@ -900,11 +1010,11 @@ class SolarSaaSDatabase {
       price: Math.max(0, price),
       pricePerWatt: pricePerWatt || (watts > 0 ? +(price / watts).toFixed(2) : 0),
       unit: productData.unit || 'per piece',
-      stockQuantity: parseInt(productData.stockQuantity, 10) || 0,
+      stockQuantity: parseInt(productData.stockQuantity ?? productData.stockCount ?? 100, 10),
       isAvailable: productData.isAvailable !== false,
       isActive: productData.isActive !== false,
-      efficiency: productData.efficiency || '',
-      warranty: productData.warranty || '',
+      efficiency: productData.efficiency || (productData.category === 'inverters' ? '98.5%' : '22.5%'),
+      warranty: productData.warranty || (productData.warrantyYears ? `${productData.warrantyYears}Y Product / Linear Power` : '25Y Linear'),
       bifacial: Boolean(productData.bifacial),
       description: productData.description || '',
       imageUrl: productData.imageUrl || '',
@@ -913,7 +1023,7 @@ class SolarSaaSDatabase {
 
     this.db.products.unshift(newProduct);
     this.saveDatabase();
-    firestoreSync.saveProduct(newProduct);
+    firebaseSync.saveProduct(newProduct);
     return newProduct;
   }
 
@@ -930,17 +1040,27 @@ class SolarSaaSDatabase {
       price = Math.round(watts * pricePerWatt);
     }
 
+    const stockQty = updates.stockQuantity !== undefined 
+      ? parseInt(updates.stockQuantity, 10) 
+      : (updates.stockCount !== undefined ? parseInt(updates.stockCount, 10) : prev.stockQuantity);
+
+    const warrantyStr = updates.warranty !== undefined 
+      ? updates.warranty 
+      : (updates.warrantyYears ? `${updates.warrantyYears}Y Product / Linear Power` : prev.warranty);
+
     this.db.products[idx] = {
       ...prev,
       ...updates,
       wattage: watts,
       pricePerWatt,
       price,
+      stockQuantity: stockQty,
+      warranty: warrantyStr,
       updatedAt: new Date().toISOString()
     };
 
     this.saveDatabase();
-    firestoreSync.saveProduct(this.db.products[idx]);
+    firebaseSync.saveProduct(this.db.products[idx]);
     return this.db.products[idx];
   }
 
@@ -949,7 +1069,7 @@ class SolarSaaSDatabase {
     this.db.products = this.db.products.filter(p => !(p.id === id && p.supplierId === supplierId));
     if (this.db.products.length !== initialLen) {
       this.saveDatabase();
-      firestoreSync.deleteProduct(id);
+      firebaseSync.deleteProduct(id);
       return true;
     }
     return false;
@@ -1001,7 +1121,7 @@ class SolarSaaSDatabase {
 
     this.db.leads.unshift(newLead);
     this.saveDatabase();
-    firestoreSync.saveLead(newLead);
+    firebaseSync.saveLead(newLead);
     return newLead;
   }
 
@@ -1015,7 +1135,7 @@ class SolarSaaSDatabase {
     }
     this.db.leads[idx].updatedAt = new Date().toISOString();
     this.saveDatabase();
-    firestoreSync.saveLead(this.db.leads[idx]);
+    firebaseSync.saveLead(this.db.leads[idx]);
     return this.db.leads[idx];
   }
 

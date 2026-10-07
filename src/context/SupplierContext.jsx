@@ -113,7 +113,7 @@ export const SupplierProvider = ({ children }) => {
   const updateSupplier = (supplierId, updates) => {
     const res = dbService.updateSupplier(supplierId, updates);
     const updatedList = dbService.getSuppliers();
-    setSuppliers(updatedList);
+    setSuppliers([...updatedList]);
     setDataVersion(v => v + 1);
     return res;
   };

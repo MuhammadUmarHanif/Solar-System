@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
@@ -8,6 +9,7 @@ import { getAnalytics, isSupported } from "firebase/analytics";
 const firebaseConfig = {
   apiKey: "AIzaSyDLg85Z-hTITE-EasoIrm-gxHbXKTVAk2c",
   authDomain: "orbit-system-e42c4.firebaseapp.com",
+  databaseURL: "https://orbit-system-e42c4-default-rtdb.firebaseio.com",
   projectId: "orbit-system-e42c4",
   storageBucket: "orbit-system-e42c4.firebasestorage.app",
   messagingSenderId: "125524652388",
@@ -21,6 +23,7 @@ export const app = initializeApp(firebaseConfig);
 // Initialize Firebase Services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
 
 // Safe Analytics Initialization (Supported in browser environments)

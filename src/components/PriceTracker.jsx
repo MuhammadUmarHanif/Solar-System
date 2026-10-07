@@ -1,140 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import './PriceTracker.css';
 import { IconBuilding, IconStar } from './Icons';
+import { useSupplier } from '../context/SupplierContext';
 
 const PriceTracker = () => {
-  const [prices, setPrices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState('');
+  const { activeSupplier, activeProducts, dataVersion } = useSupplier();
   const [activeFilter, setActiveFilter] = useState('All');
 
-  useEffect(() => {
-    const fetchPrices = () => {
-      try {
-        setTimeout(() => {
-          // 100% Verified Current Pakistani Market Rates (2024-2026 Wholesale & Distributor Benchmark)
-          const pakistaniVendors = [
-            { 
-              vendor: 'Jinko Solar (Authorized)', 
-              market: 'Hall Road, Lahore',
-              panelType: 'N-Type TOPCon', 
-              brand: 'Jinko Tiger Neo 72HL4-BDV',
-              price: 'PKR 20,475', 
-              perWatt: 'PKR 35.0/W',
-              warranty: '15y Product / 30y Power',
-              rating: '4.9',
-              capacity: '585W',
-              efficiency: '22.6%'
-            },
-            { 
-              vendor: 'Longi Solar Pakistan', 
-              market: 'Regal / Saddar, Karachi',
-              panelType: 'Mono PERC HPBC', 
-              brand: 'Longi Hi-MO X6 Explorer',
-              price: 'PKR 18,700', 
-              perWatt: 'PKR 34.0/W',
-              warranty: '15y Product / 25y Power',
-              rating: '4.8',
-              capacity: '550W',
-              efficiency: '21.5%'
-            },
-            { 
-              vendor: 'Canadian Solar Distributor', 
-              market: 'I-9 Industrial, Islamabad',
-              panelType: 'N-Type Bifacial TOPHiKu', 
-              brand: 'Canadian Solar BiHiKu7',
-              price: 'PKR 22,200', 
-              perWatt: 'PKR 37.0/W',
-              warranty: '12y Product / 30y Power',
-              rating: '4.8',
-              capacity: '600W',
-              efficiency: '23.0%'
-            },
-            { 
-              vendor: 'Trina Solar Verified', 
-              market: 'Karkhano Market, Peshawar',
-              panelType: 'Ultra-High 210mm Cells', 
-              brand: 'Trina Vertex N-Type',
-              price: 'PKR 25,460', 
-              perWatt: 'PKR 38.0/W',
-              warranty: '15y Product / 30y Power',
-              rating: '4.7',
-              capacity: '670W',
-              efficiency: '23.5%'
-            },
-            { 
-              vendor: 'JA Solar Official Hub', 
-              market: 'Clock Tower Market, Faisalabad',
-              panelType: 'DeepBlue 4.0 Pro', 
-              brand: 'JA Solar Mono Bifacial',
-              price: 'PKR 19,800', 
-              perWatt: 'PKR 34.5/W',
-              warranty: '12y Product / 30y Power',
-              rating: '4.7',
-              capacity: '575W',
-              efficiency: '22.3%'
-            },
-            { 
-              vendor: 'Inverex Energy Solutions', 
-              market: 'Blue Area, Rawalpindi / Isb',
-              panelType: 'Mono Tier-1', 
-              brand: 'Inverex V-Max Bi-Facial',
-              price: 'PKR 19,250', 
-              perWatt: 'PKR 35.0/W',
-              warranty: '12y Product / 25y Power',
-              rating: '4.6',
-              capacity: '550W',
-              efficiency: '21.3%'
-            },
-            { 
-              vendor: 'Multan Solar Wholesale', 
-              market: 'Bosan Road, Multan',
-              panelType: 'N-Type TOPCon', 
-              brand: 'Jinko Tiger Neo N-Type',
-              price: 'PKR 19,775', 
-              perWatt: 'PKR 34.5/W',
-              warranty: '15y Product / 30y Power',
-              rating: '4.5',
-              capacity: '575W',
-              efficiency: '22.2%'
-            }
-          ];
-          
-          setPrices(pakistaniVendors);
-          setLoading(false);
-          setLastUpdated(new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' }));
-        }, 600);
-      } catch (err) {
-        setError('Failed to fetch price data');
-        setLoading(false);
-      }
-    };
+  const prices = useMemo(() => {
+    if (activeProducts && activeProducts.length > 0) {
+      return activeProducts.map(p => {
+        const isPanel = p.category === 'panels';
+        const isInverter = p.category === 'inverters';
+        const isBattery = p.category === 'batteries';
 
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 300000);
-    return () => clearInterval(interval);
-  }, []);
+        const perWattStr = isPanel
+          ? `PKR ${p.pricePerWatt || (p.wattage ? +(p.price / p.wattage).toFixed(1) : 34.5)}/W`
+          : isInverter
+            ? `PKR ${(p.price / Math.max(1, (p.wattage || 6000) / 1000)).toFixed(0)}/kW`
+            : 'Per Unit';
 
-  const filteredPrices = activeFilter === 'All' 
-    ? prices 
-    : prices.filter(p => p.panelType.toLowerCase().includes(activeFilter.toLowerCase()) || p.brand.toLowerCase().includes(activeFilter.toLowerCase()));
+        const capacityStr = p.wattage
+          ? p.wattage >= 1000 && !isPanel
+            ? `${(p.wattage / 1000).toFixed(1)} kW`
+            : `${p.wattage}W`
+          : '';
+
+        const marketStr = activeSupplier?.cityName
+          ? activeSupplier.cityName.split(',')[0].replace('Pakistan (', '').replace(')', '').trim()
+          : 'Hall Road, Lahore';
+
+        return {
+          id: p.id,
+          brand: p.name,
+          vendor: p.brand ? `${p.brand} Verified` : (activeSupplier?.name || 'Orbit Solar Technologies'),
+          market: marketStr,
+          category: p.category,
+          panelType: p.type || (isInverter ? 'Solar Inverter' : isBattery ? 'LiFePO4 Lithium' : 'N-Type TOPCon'),
+          price: `PKR ${Number(p.price).toLocaleString()}`,
+          perWatt: perWattStr,
+          warranty: p.warranty || (isPanel ? '15y Product / 30y Power' : '5 Years Replacement'),
+          rating: '4.9',
+          capacity: capacityStr,
+          efficiency: p.efficiency || (isInverter ? '98.6%' : isBattery ? '95.0%' : '22.6%'),
+          bifacial: Boolean(p.bifacial)
+        };
+      });
+    }
+
+    return [];
+  }, [activeProducts, activeSupplier, dataVersion]);
+
+  const filteredPrices = useMemo(() => {
+    if (activeFilter === 'All') return prices;
+    if (activeFilter === 'Panels') return prices.filter(p => p.category === 'panels');
+    if (activeFilter === 'Inverters') return prices.filter(p => p.category === 'inverters');
+    if (activeFilter === 'Batteries') return prices.filter(p => p.category === 'batteries');
+    if (activeFilter === 'Bifacial') return prices.filter(p => p.bifacial || p.panelType.toLowerCase().includes('bifacial'));
+    if (activeFilter === 'N-Type') return prices.filter(p => p.panelType.toLowerCase().includes('n-type'));
+    if (activeFilter === '600W+') return prices.filter(p => parseInt(p.capacity, 10) >= 600);
+    return prices.filter(p =>
+      p.panelType.toLowerCase().includes(activeFilter.toLowerCase()) ||
+      p.brand.toLowerCase().includes(activeFilter.toLowerCase())
+    );
+  }, [prices, activeFilter]);
+
+  const lastUpdated = useMemo(() => {
+    return new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+  }, [dataVersion]);
 
   return (
     <section id="tracker" className="tracker-section glass-panel">
       {/* Section Header */}
       <div className="section-header">
-        <span className="section-pill">Market Intelligence</span>
-        <h2>Verified Solar Module Rates (Pakistan)</h2>
+        <span className="section-pill">Live Market Intelligence</span>
+        <h2>Verified Solar Hardware Rates ({activeSupplier?.name || 'Pakistan'})</h2>
         <p className="section-subtitle">
-          Real-time wholesale and distributor market rates from Hall Road (Lahore), Regal (Karachi), and Blue Area (Islamabad).
+          Real-time equipment catalog and pricing engine rates for {activeSupplier?.cityName || 'Pakistan'}. Live inventory synchronized with official engineering database.
         </p>
       </div>
 
       {/* Filter Row & Status */}
       <div className="tracker-controls">
         <div className="filter-pill-row">
-          {['All', 'N-Type', 'Bifacial', 'Mono PERC', '600W+'].map(f => (
+          {['All', 'Panels', 'Inverters', 'Batteries', 'N-Type', 'Bifacial', '600W+'].map(f => (
             <button
               key={f}
               type="button"
@@ -149,53 +98,56 @@ const PriceTracker = () => {
         {lastUpdated && (
           <div className="live-status">
             <span className="live-pulse" />
-            <span>Market Verified: Today at {lastUpdated} (PKR per Watt Basis)</span>
+            <span>Live Catalog: Today at {lastUpdated} (Active Inventory)</span>
           </div>
         )}
       </div>
 
       {/* Full Width Table Container */}
       <div className="table-wrapper">
-        {loading ? (
+        {filteredPrices.length === 0 ? (
           <div className="loading-state">
-            <div className="clean-spinner" />
-            <p>Fetching market rates from major trade hubs...</p>
+            <p>No products match the selected filter.</p>
           </div>
-        ) : error ? (
-          <div className="error-state">{error}</div>
         ) : (
           <>
             {/* Desktop Full-Width Clean Table */}
             <table className="clean-table desktop-only-table">
               <thead>
                 <tr>
-                  <th>Solar Module & Technology</th>
-                  <th>Trade Hub / City</th>
-                  <th>Rate / Watt</th>
-                  <th>Price / Module (PKR)</th>
-                  <th>Warranty</th>
-                  <th>Distributor Score</th>
+                  <th style={{ width: '30%' }}>Solar Module & Technology</th>
+                  <th style={{ width: '15%' }}>Trade Hub / City</th>
+                  <th style={{ width: '13%' }}>Rate / Watt</th>
+                  <th style={{ width: '15%' }}>Price / Module (PKR)</th>
+                  <th style={{ width: '14%' }}>Warranty</th>
+                  <th style={{ width: '13%', textAlign: 'right' }}>Distributor Score</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPrices.map((item, index) => (
                   <tr key={index}>
                     <td className="col-vendor">
-                      <span className="brand-name-bold">{item.brand}</span>
-                      <span className="vendor-sub">
-                        {item.vendor} • <span className="tech-tag">{item.panelType}</span> • <strong>{item.capacity}</strong> ({item.efficiency})
-                      </span>
+                      <div className="vendor-cell-content">
+                        <span className="brand-name-bold">{item.brand}</span>
+                        <span className="vendor-sub">
+                          {item.vendor} • <span className="tech-tag">{item.panelType}</span> • <strong>{item.capacity}</strong> ({item.efficiency})
+                        </span>
+                      </div>
                     </td>
                     <td className="col-city">
-                      <IconBuilding size={14} className="loc-svg-icon" />
-                      <span>{item.market}</span>
+                      <div className="city-cell-content">
+                        <IconBuilding size={14} className="loc-svg-icon" />
+                        <span>{item.market}</span>
+                      </div>
                     </td>
                     <td className="col-per-watt num-tabular">{item.perWatt}</td>
                     <td className="col-price num-tabular">{item.price}</td>
                     <td className="col-muted">{item.warranty}</td>
                     <td className="col-rating">
-                      <span className="rating-star-wrap"><IconStar size={13} className="rating-star-svg" /></span>
-                      <span className="num-tabular">{item.rating} / 5.0</span>
+                      <div className="rating-cell-content">
+                        <span className="rating-star-wrap"><IconStar size={13} className="rating-star-svg" /></span>
+                        <span className="rating-val-num num-tabular">{item.rating} / 5.0</span>
+                      </div>
                     </td>
                   </tr>
                 ))}

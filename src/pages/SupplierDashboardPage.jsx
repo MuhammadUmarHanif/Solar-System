@@ -36,7 +36,7 @@ const CATEGORIES = [
 
 export default function SupplierDashboardPage() {
   const { currentUser, logout } = useAuth();
-  const { suppliers, activeSupplier, activeSupplierId, addProduct, updateProduct, deleteProduct, dataVersion } = useSupplier();
+  const { suppliers, activeSupplier, activeSupplierId, addProduct, updateProduct, deleteProduct, updateSupplier, dataVersion } = useSupplier();
   const router = useRouter();
 
   // Company ID resolution for single company management
@@ -85,6 +85,7 @@ export default function SupplierDashboardPage() {
     name: supplier?.name || '',
     tagline: supplier?.tagline || '',
     pecReg: supplier?.pecReg || '',
+    cityName: supplier?.cityName || '',
     area: supplier?.area || '',
     address: supplier?.address || '',
     phone: supplier?.phone || '',
@@ -116,6 +117,7 @@ export default function SupplierDashboardPage() {
         name: supplier.name || '',
         tagline: supplier.tagline || '',
         pecReg: supplier.pecReg || '',
+        cityName: supplier.cityName || '',
         area: supplier.area || '',
         address: supplier.address || '',
         phone: supplier.phone || '',
@@ -264,14 +266,14 @@ export default function SupplierDashboardPage() {
   // Settings Save
   const handleSaveCompanySettings = (e) => {
     e.preventDefault();
-    dbService.updateSupplier(supplier.id, companySettings);
+    updateSupplier(supplier.id, companySettings);
     showToast('Company profile & WhatsApp configuration saved!');
   };
 
   // Calculator Settings Save
   const handleSaveCalcSettings = (e) => {
     e.preventDefault();
-    dbService.updateSupplier(supplier.id, { calculatorConfig: calcSettings });
+    updateSupplier(supplier.id, { calculatorConfig: calcSettings });
     showToast('Dynamic calculator parameters updated successfully!');
   };
 
@@ -325,8 +327,7 @@ export default function SupplierDashboardPage() {
           <button 
             type="button" 
             onClick={() => { logout(); router.navigate('/'); }} 
-            className="btn-dash-action"
-            style={{ background: 'rgba(255, 69, 58, 0.15)', color: '#ff453a', border: '1px solid rgba(255, 69, 58, 0.3)' }}
+            className="btn-dash-action btn-dash-logout"
           >
             Logout
           </button>
@@ -963,6 +964,17 @@ export default function SupplierDashboardPage() {
                     value={companySettings.pecReg}
                     onChange={(e) => setCompanySettings({ ...companySettings, pecReg: e.target.value })}
                   />
+                </div>
+
+                <div className="form-group">
+                  <label>Operational City / Hub</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Pakistan (Lahore, Islamabad, Karachi)"
+                    value={companySettings.cityName}
+                    onChange={(e) => setCompanySettings({ ...companySettings, cityName: e.target.value })}
+                  />
+                  <small>Displayed in official quotes and customer headers.</small>
                 </div>
 
                 <div className="form-group">

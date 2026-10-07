@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './OrbitHero.css';
-import { useRouter } from '../context/RouterContext';
+import { useSupplier } from '../context/SupplierContext';
 
 export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
-  const router = useRouter();
+  const { activeSupplier } = useSupplier() || {};
   const [menuOpen, setMenuOpen] = useState(false);
   const [animClass, setAnimClass] = useState('');
   const rootRef = useRef(null);
@@ -151,7 +151,7 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
               <ellipse cx="13.25" cy="8.4" rx="13.2" ry="2.9" transform="rotate(-25 13.25 8.4)" stroke="#000" strokeWidth="0.9" strokeDasharray="28.2 28.2" />
               <ellipse cx="13.25" cy="8.4" rx="13.2" ry="2.9" transform="rotate(-25 13.25 8.4)" stroke="currentColor" strokeWidth="1.25" strokeDasharray="28.2 28.2" />
             </svg>
-            <span className="brand-text">Orbit</span>
+            <span className="brand-text">{activeSupplier?.name ? activeSupplier.name.split(' ')[0] : 'Orbit'}</span>
           </a>
 
           <nav className="links" aria-label="Primary">
@@ -204,15 +204,14 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
                   Logout ({currentUser.name})
                 </button>
               )}
-                <a
-                  className="btn solid"
-                  href="#calculator"
-                  onClick={() => setMenuOpen(false)}
-                  style={{ width: '100%', marginTop: '12px', textAlign: 'center' }}
-                >
-                  Get Estimate
-                </a>
-              )}
+              <a
+                className="btn solid"
+                href="#calculator"
+                onClick={() => setMenuOpen(false)}
+                style={{ width: '100%', marginTop: '12px', textAlign: 'center' }}
+              >
+                Get Estimate
+              </a>
             </nav>
           </div>
         </header>
