@@ -167,7 +167,7 @@ export default function Footer() {
 
         {/* Giant Brand Typographic Showcase (Exact Techexa Style) */}
         <div className="techexa-giant-wordmark-wrap">
-          <span className="techexa-giant-text">{companyName.toUpperCase()}</span>
+          <span className="techexa-giant-text">ORBIT</span>
         </div>
 
         {/* Bottom Legal Bar */}

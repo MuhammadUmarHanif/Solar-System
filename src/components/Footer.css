@@ -310,21 +310,22 @@ body.light-theme .techexa-social-btn:hover {
 }
 
 .techexa-giant-text {
-  font-size: clamp(3.5rem, 18vw, 10.5rem);
+  font-size: clamp(3.8rem, 19vw, 13.5rem);
   font-weight: 950;
-  letter-spacing: clamp(0.45em, 3.5vw, 0.35em);
-  text-indent: clamp(0.15em, 2.5vw, 0.25em);
+  letter-spacing: clamp(0.06em, 1.2vw, 0.1em);
+  text-indent: clamp(0.06em, 1.2vw, 0.1em);
   margin: 0 auto;
-  line-height: 0.88;
+  line-height: 0.9;
   text-transform: uppercase;
   color: #00b4b6;
   background: linear-gradient(180deg, #00d2ff 0%, #00999b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+  white-space: nowrap;
   width: auto;
   max-width: 100%;
-  transform: scaleX(1.15);
+  transform: scaleX(1.08);
   transform-origin: center;
   text-align: center;
 }
