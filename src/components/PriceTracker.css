@@ -28,17 +28,17 @@
 
 .filter-pill-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .filter-btn {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -51,25 +51,26 @@
 
 .filter-btn.is-active {
   background: #ffffff;
-  color: #000000;
+  color: #0b0f17;
   border-color: #ffffff;
   font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .live-status {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.45);
+  gap: 7px;
+  font-size: 12px;
+  color: #94a3b8;
 }
 
 .live-pulse {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #27e8a7;
-  box-shadow: 0 0 10px #27e8a7;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
@@ -82,30 +83,30 @@
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.015);
-  margin-bottom: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(11, 15, 23, 0.6);
+  margin-bottom: 24px;
 }
 
 .clean-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .clean-table thead {
-  background: rgba(255, 255, 255, 0.03);
+  background: #0f172a;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .clean-table th {
-  padding: 16px 20px;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.02em;
+  padding: 13px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -116,12 +117,12 @@
 }
 
 .clean-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .clean-table td {
-  padding: 16px 20px;
-  color: rgba(255, 255, 255, 0.85);
+  padding: 14px 18px;
+  color: #e2e8f0;
   vertical-align: middle;
   display: table-cell;
 }
@@ -133,38 +134,39 @@
 .vendor-cell-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .brand-name-bold {
-  font-size: 14.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
 .vendor-sub {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  color: #94a3b8;
   line-height: 1.4;
 }
 
 .vendor-sub strong {
-  color: #ffffff;
+  color: #f1f5f9;
 }
 
 .tech-tag {
   display: inline-block;
-  font-size: 10.5px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: rgba(0, 210, 255, 0.12);
-  color: #00d2ff;
-  border: 1px solid rgba(0, 210, 255, 0.3);
-  font-weight: 600;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  font-weight: 500;
 }
 
 .col-city {
-  color: rgba(255, 255, 255, 0.75);
+  color: #cbd5e1;
   font-size: 12.5px;
   white-space: nowrap;
 }
@@ -176,29 +178,29 @@
 }
 
 .loc-svg-icon {
-  color: #00d2ff;
+  color: #38bdf8;
   flex-shrink: 0;
 }
 
 .col-per-watt {
-  font-family: var(--font-mono, monospace);
-  font-size: 13.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-size: 13px;
   color: #10b981;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .col-price {
-  font-weight: 800;
-  color: #00d2ff !important;
-  font-family: var(--font-mono, monospace);
-  font-size: 14px;
+  font-weight: 600;
+  color: #38bdf8 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-size: 13.5px;
   white-space: nowrap;
 }
 
 .col-muted {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
+  color: #94a3b8;
   white-space: nowrap;
 }
 
@@ -560,3 +562,173 @@
     text-align: center;
   }
 }
+
+/* ==========================================================================
+   Comprehensive Light Theme Overrides for PriceTracker
+   ========================================================================== */
+body.light-theme .tracker-section,
+[data-theme="light"] .tracker-section {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+body.light-theme .filter-btn,
+[data-theme="light"] .filter-btn {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #475569;
+}
+
+body.light-theme .filter-btn:hover,
+[data-theme="light"] .filter-btn:hover {
+  background: #f8fafc;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+body.light-theme .filter-btn.is-active,
+[data-theme="light"] .filter-btn.is-active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+body.light-theme .table-wrapper,
+[data-theme="light"] .table-wrapper {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .clean-table thead,
+[data-theme="light"] .clean-table thead {
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .clean-table thead tr,
+[data-theme="light"] .clean-table thead tr {
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .clean-table th,
+[data-theme="light"] .clean-table th {
+  background: #f8fafc;
+  color: #475569;
+}
+
+body.light-theme .clean-table tbody tr,
+[data-theme="light"] .clean-table tbody tr {
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .clean-table tbody tr:hover,
+[data-theme="light"] .clean-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+body.light-theme .clean-table td,
+[data-theme="light"] .clean-table td {
+  color: #1e293b;
+}
+
+body.light-theme .tech-tag,
+[data-theme="light"] .tech-tag {
+  background: rgba(2, 132, 199, 0.08);
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.22);
+}
+
+body.light-theme .col-price,
+[data-theme="light"] .col-price {
+  color: #0284c7 !important;
+}
+
+body.light-theme .col-per-watt,
+[data-theme="light"] .col-per-watt {
+  color: #059669;
+}
+
+body.light-theme .live-status,
+[data-theme="light"] .live-status {
+  color: #64748b;
+}
+
+body.light-theme .brand-name-bold,
+[data-theme="light"] .brand-name-bold {
+  color: #0f172a;
+}
+
+body.light-theme .vendor-sub,
+[data-theme="light"] .vendor-sub {
+  color: #64748b;
+}
+
+body.light-theme .vendor-sub strong,
+[data-theme="light"] .vendor-sub strong {
+  color: #1e293b;
+}
+
+body.light-theme .col-city,
+[data-theme="light"] .col-city {
+  color: #475569;
+}
+
+body.light-theme .col-muted,
+[data-theme="light"] .col-muted {
+  color: #64748b;
+}
+
+body.light-theme .rating-cell-content,
+[data-theme="light"] .rating-cell-content {
+  color: #1e293b;
+}
+
+body.light-theme .benchmark-card,
+[data-theme="light"] .benchmark-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  color: #0f172a;
+}
+
+body.light-theme .benchmark-card:hover,
+[data-theme="light"] .benchmark-card:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.12);
+}
+
+body.light-theme .benchmark-label,
+[data-theme="light"] .benchmark-label {
+  color: #64748b;
+}
+
+body.light-theme .benchmark-val,
+[data-theme="light"] .benchmark-val {
+  color: #0f172a;
+}
+
+body.light-theme .benchmark-sub,
+[data-theme="light"] .benchmark-sub {
+  color: #64748b;
+}
+
+body.light-theme .tracker-card-item,
+[data-theme="light"] .tracker-card-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+}
+
+body.light-theme .compact-warranty-txt,
+[data-theme="light"] .compact-warranty-txt {
+  color: #64748b;
+}
+

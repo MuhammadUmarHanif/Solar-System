@@ -3,10 +3,12 @@ import './SupplierDashboardPage.css';
 import { useAuth } from '../context/AuthContext';
 import { useSupplier } from '../context/SupplierContext';
 import { useRouter } from '../context/RouterContext';
+import { useTheme } from '../context/ThemeContext';
 import dbService from '../services/db';
 import {
   IconZap,
   IconBuilding,
+  IconShield,
   IconLayers,
   IconTool,
   IconCash,
@@ -15,11 +17,15 @@ import {
   IconCheckCircle,
   IconSettings,
   IconSearch,
-  IconCopy,
   IconWhatsApp,
   IconPhone,
-  IconX
+  IconMail,
+  IconExternalLink,
+  IconLogOut,
+  IconX,
+  IconTrash
 } from '../components/Icons';
+import Lightbulb from '../components/Lightbulb';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Products' },
@@ -36,7 +42,8 @@ const CATEGORIES = [
 
 export default function SupplierDashboardPage() {
   const { currentUser, logout } = useAuth();
-  const { suppliers, activeSupplier, activeSupplierId, addProduct, updateProduct, deleteProduct, updateSupplier, dataVersion } = useSupplier();
+  const { suppliers, activeSupplier, activeSupplierId, addProduct, updateProduct, deleteProduct, deleteLead, updateSupplier, dataVersion } = useSupplier();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
   // Company ID resolution for single company management
@@ -71,7 +78,21 @@ export default function SupplierDashboardPage() {
     stockCount: 150,
     warrantyYears: 25,
     description: '',
-    image: ''
+    image: '',
+    // Category-specific fields
+    // 1. Installation Services:
+    serviceScope: 'Turnkey Rooftop (Standard L2/L3)',
+    pricingModel: 'per_kw',
+    duration: '2-3 Days',
+    teamSize: '4 Certified Technicians',
+    coverageArea: 'Lahore & Surrounding 50km',
+    // 2. Accessories:
+    accessoryType: 'Protection & SPDs',
+    specRating: '1000V DC 40kA 2-Pole',
+    // 3. Other:
+    otherClassification: 'Net Metering & DISCO Filing',
+    leadTime: '3-5 Working Days',
+    guaranteeTerms: '100% DISCO Meter Approval Guarantee'
   };
   const [productForm, setProductForm] = useState(initialProductForm);
 
@@ -178,11 +199,14 @@ export default function SupplierDashboardPage() {
   const filteredLeads = useMemo(() => {
     return supplierLeads.filter(l => {
       const matchStatus = leadStatusFilter === 'all' || l.status === leadStatusFilter;
+      const refStr = l.ref || l.id || '';
+      const phoneStr = l.customerPhone || l.phone || '';
+      const cityStr = l.customerCity || l.city || '';
       const matchQuery = !leadSearch ||
         l.customerName?.toLowerCase().includes(leadSearch.toLowerCase()) ||
-        (l.phone && String(l.phone).includes(leadSearch)) ||
-        l.city?.toLowerCase().includes(leadSearch.toLowerCase()) ||
-        l.ref?.toLowerCase().includes(leadSearch.toLowerCase());
+        String(phoneStr).includes(leadSearch) ||
+        cityStr.toLowerCase().includes(leadSearch.toLowerCase()) ||
+        refStr.toLowerCase().includes(leadSearch.toLowerCase());
       return matchStatus && matchQuery;
     });
   }, [supplierLeads, leadStatusFilter, leadSearch]);
@@ -203,7 +227,40 @@ export default function SupplierDashboardPage() {
   // Product Handlers
   const handleOpenAddProduct = () => {
     setEditingProduct(null);
-    setProductForm(initialProductForm);
+    const targetCat = (productCategoryFilter && productCategoryFilter !== 'all') ? productCategoryFilter : 'panels';
+    
+    let defaultUnit = 'Module';
+    let defaultName = '';
+    let defaultPrice = 21500;
+    let defaultDesc = '';
+
+    if (targetCat === 'installation') {
+      defaultUnit = 'kW';
+      defaultName = 'Turnkey Rooftop Solar Installation (L2/L3)';
+      defaultPrice = 3500;
+      defaultDesc = 'Complete turnkey mechanical and electrical installation, DC stringing, DB termination, grounding pit setup, and inverter commissioning.';
+    } else if (targetCat === 'accessories') {
+      defaultUnit = 'Piece';
+      defaultName = 'DC Surge Protection Device (SPD) 1000V 40kA';
+      defaultPrice = 2800;
+      defaultDesc = 'Heavy-duty solar DC surge protection device, DIN-rail mounting, visual fault indicator window, IEC 61643-31 compliant.';
+    } else if (targetCat === 'other') {
+      defaultUnit = 'Job';
+      defaultName = 'Turnkey DISCO Net Metering & Green Meter Processing';
+      defaultPrice = 45000;
+      defaultDesc = 'End-to-end DISCO / NEPRA paperwork filing, distribution transformer NOC, safety inspection escort, and bi-directional meter activation.';
+    }
+
+    setProductForm({
+      ...initialProductForm,
+      category: targetCat,
+      name: defaultName,
+      unit: defaultUnit,
+      price: defaultPrice,
+      description: defaultDesc,
+      wattage: targetCat === 'installation' || targetCat === 'other' ? 0 : 585,
+      voltage: targetCat === 'installation' || targetCat === 'other' ? 0 : 48
+    });
     setIsProductModalOpen(true);
   };
 
@@ -219,13 +276,26 @@ export default function SupplierDashboardPage() {
       type: prod.type || '',
       price: prod.price || 0,
       pricePerWatt: prod.pricePerWatt || 0,
-      unit: prod.unit || 'Unit',
+      unit: prod.unit || (prod.category === 'installation' ? 'kW' : prod.category === 'accessories' ? 'Piece' : prod.category === 'other' ? 'Job' : 'Unit'),
       isAvailable: prod.isAvailable ?? true,
       isActive: prod.isActive ?? true,
       stockCount: prod.stockCount || 0,
-      warrantyYears: prod.warrantyYears || 5,
+      warrantyYears: prod.warrantyYears !== undefined ? prod.warrantyYears : (prod.category === 'installation' ? 1 : 5),
       description: prod.description || '',
-      image: prod.image || ''
+      image: prod.image || '',
+      // Installation fields:
+      serviceScope: prod.serviceScope || 'Turnkey Rooftop (Standard L2/L3)',
+      pricingModel: prod.pricingModel || 'per_kw',
+      duration: prod.duration || '2-3 Days',
+      teamSize: prod.teamSize || '4 Certified Technicians',
+      coverageArea: prod.coverageArea || 'Lahore & Surrounding 50km',
+      // Accessories fields:
+      accessoryType: prod.accessoryType || 'Protection & SPDs',
+      specRating: prod.specRating || '',
+      // Other fields:
+      otherClassification: prod.otherClassification || 'Net Metering & DISCO Filing',
+      leadTime: prod.leadTime || prod.duration || '3-5 Working Days',
+      guaranteeTerms: prod.guaranteeTerms || ''
     });
     setIsProductModalOpen(true);
   };
@@ -237,12 +307,19 @@ export default function SupplierDashboardPage() {
       return;
     }
 
+    const cleanedProduct = { ...productForm };
+    if (cleanedProduct.category === 'installation' || cleanedProduct.category === 'other') {
+      cleanedProduct.wattage = 0;
+      cleanedProduct.voltage = 0;
+      cleanedProduct.pricePerWatt = 0;
+    }
+
     if (editingProduct) {
-      updateProduct(editingProduct.id, supplier.id, productForm);
-      showToast(`Updated "${productForm.name}" successfully!`);
+      updateProduct(editingProduct.id, supplier.id, cleanedProduct);
+      showToast(`Updated "${cleanedProduct.name}" successfully!`);
     } else {
-      addProduct(supplier.id, productForm);
-      showToast(`Added "${productForm.name}" to inventory!`);
+      addProduct(supplier.id, cleanedProduct);
+      showToast(`Added "${cleanedProduct.name}" to inventory!`);
     }
     setIsProductModalOpen(false);
   };
@@ -265,6 +342,17 @@ export default function SupplierDashboardPage() {
     showToast(`Lead status updated to ${newStatus.toUpperCase()}`);
   };
 
+  // Lead Delete Handler
+  const handleDeleteLead = (leadId, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this customer inquiry? This cannot be undone.')) return;
+    deleteLead(leadId, supplier.id);
+    if (selectedLeadForDetail && selectedLeadForDetail.id === leadId) {
+      setSelectedLeadForDetail(null);
+    }
+    showToast('Customer inquiry deleted successfully');
+  };
+
   // Settings Save
   const handleSaveCompanySettings = (e) => {
     e.preventDefault();
@@ -277,13 +365,6 @@ export default function SupplierDashboardPage() {
     e.preventDefault();
     updateSupplier(supplier.id, { calculatorConfig: calcSettings });
     showToast('Dynamic calculator parameters updated successfully!');
-  };
-
-  // Copy Public Link
-  const publicUrl = `${window.location.origin}/supplier/${supplier?.slug || ''}`;
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(publicUrl);
-    showToast('Public Calculator link copied to clipboard!');
   };
 
   if (!supplier) {
@@ -299,39 +380,70 @@ export default function SupplierDashboardPage() {
       {/* Dashboard Top Header */}
       <header className="dash-header">
         <div className="dash-brand-info">
-          <div className="dash-avatar">{supplier.name.charAt(0)}</div>
-          <div>
+          <div className="dash-avatar" aria-label={supplier.name}>
+            <span>{supplier.name.charAt(0)}</span>
+          </div>
+          <div className="dash-brand-details">
             <div className="dash-title-row">
               <h1 className="dash-company-name">{supplier.name}</h1>
-              <span className="dash-plan-badge plan-pro">
-                COMPANY PORTAL
+              <span className="dash-plan-badge">
+                Company Portal
               </span>
               <span className={`dash-status-dot status-${supplier.status}`}>
-                {supplier.status === 'active' ? '● System Live' : '● Maintenance'}
+                <span className="live-ping-dot" />
+                <span>{supplier.status === 'active' ? 'System Live' : 'Maintenance'}</span>
               </span>
             </div>
-            <p className="dash-company-meta">
-              <IconBuilding size={14} style={{ verticalAlign: 'middle', marginRight: '4px', color: '#00d2ff' }} />
-              <span>{supplier.cityName} • {supplier.pecReg} • WhatsApp: +{supplier.whatsapp} • {supplier.email}</span>
-            </p>
+            <div className="dash-company-meta">
+              <span className="meta-item">
+                <IconBuilding size={13} className="meta-icon" />
+                <span>{supplier.cityName}</span>
+              </span>
+              {supplier.pecReg && (
+                <span className="meta-item">
+                  <IconShield size={13} className="meta-icon" />
+                  <span>{supplier.pecReg}</span>
+                </span>
+              )}
+              <span className="meta-item">
+                <IconWhatsApp size={13} className="meta-icon" />
+                <span>+{supplier.whatsapp}</span>
+              </span>
+              <span className="meta-item meta-email">
+                <IconMail size={13} className="meta-icon" />
+                <span>{supplier.email}</span>
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="dash-header-actions">
+          <Lightbulb
+            onClick={toggleTheme}
+            className="btn-dash-action btn-dash-theme-toggle"
+            toggled={theme === 'dark'}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+            aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+          >
+            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+          </Lightbulb>
           <button 
             type="button" 
             onClick={() => router.navigate('/')} 
             className="btn-dash-action btn-view-public"
             title="View your public solar website and calculator"
           >
-            ← Back to Live Website
+            <span>Live Website</span>
+            <IconExternalLink size={14} />
           </button>
           <button 
             type="button" 
             onClick={() => { logout(); router.navigate('/'); }} 
             className="btn-dash-action btn-dash-logout"
+            title="Logout of admin portal"
           >
-            Logout
+            <IconLogOut size={14} />
+            <span>Logout</span>
           </button>
         </div>
       </header>
@@ -351,7 +463,7 @@ export default function SupplierDashboardPage() {
           className={`dash-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          <IconTrendingUp size={16} />
+          <IconTrendingUp size={15} />
           <span>Overview & Metrics</span>
         </button>
         <button
@@ -359,33 +471,35 @@ export default function SupplierDashboardPage() {
           className={`dash-tab-btn ${activeTab === 'products' ? 'active' : ''}`}
           onClick={() => setActiveTab('products')}
         >
-          <IconLayers size={16} />
-          <span>Product Catalog ({supplierProducts.length})</span>
+          <IconLayers size={15} />
+          <span>Product Catalog</span>
+          <span className="tab-count-pill">{supplierProducts.length}</span>
         </button>
         <button
           type="button"
           className={`dash-tab-btn ${activeTab === 'leads' ? 'active' : ''}`}
           onClick={() => setActiveTab('leads')}
         >
-          <IconZap size={16} />
-          <span>Leads & Bookings ({supplierLeads.length})</span>
-          {metrics.newLeads > 0 && <span className="tab-pill-alert">{metrics.newLeads}</span>}
+          <IconZap size={15} />
+          <span>Leads & CRM</span>
+          <span className="tab-count-pill">{supplierLeads.length}</span>
+          {metrics.newLeads > 0 && <span className="tab-pill-alert">+{metrics.newLeads} new</span>}
         </button>
         <button
           type="button"
           className={`dash-tab-btn ${activeTab === 'calculator' ? 'active' : ''}`}
           onClick={() => setActiveTab('calculator')}
         >
-          <IconSettings size={16} />
-          <span>Calculator Pricing Engine</span>
+          <IconSettings size={15} />
+          <span>Calculator Engine</span>
         </button>
         <button
           type="button"
           className={`dash-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
-          <IconBuilding size={16} />
-          <span>Company & WhatsApp Profile</span>
+          <IconBuilding size={15} />
+          <span>Company Profile</span>
         </button>
       </nav>
 
@@ -397,71 +511,64 @@ export default function SupplierDashboardPage() {
             {/* KPI Cards */}
             <div className="kpi-grid">
               <div className="kpi-card">
-                <div className="kpi-icon-wrap" style={{ background: 'rgba(0, 210, 255, 0.15)', color: '#00d2ff' }}>
-                  <IconZap size={22} />
+                <div className="kpi-card-header">
+                  <span className="kpi-label">Total Inquiries</span>
+                  <div className="kpi-icon-wrap icon-cyan">
+                    <IconZap size={18} />
+                  </div>
                 </div>
-                <div className="kpi-info">
-                  <span className="kpi-label">Total Inquiries / Leads</span>
+                <div className="kpi-card-body">
                   <strong className="kpi-value num-tabular">{metrics.totalLeads}</strong>
-                  <span className="kpi-sub highlight-green">+{metrics.newLeads} new awaiting response</span>
+                  <div className="kpi-tag tag-emerald">
+                    <span className="tag-pulse" />
+                    <span>+{metrics.newLeads} new awaiting response</span>
+                  </div>
                 </div>
               </div>
 
               <div className="kpi-card">
-                <div className="kpi-icon-wrap" style={{ background: 'rgba(0, 230, 118, 0.15)', color: '#00e676' }}>
-                  <IconCheckCircle size={22} />
-                </div>
-                <div className="kpi-info">
+                <div className="kpi-card-header">
                   <span className="kpi-label">Confirmed Bookings</span>
+                  <div className="kpi-icon-wrap icon-emerald">
+                    <IconCheckCircle size={18} />
+                  </div>
+                </div>
+                <div className="kpi-card-body">
                   <strong className="kpi-value num-tabular">{metrics.confirmedBookings}</strong>
-                  <span className="kpi-sub">
-                    {metrics.totalLeads > 0 ? Math.round((metrics.confirmedBookings / metrics.totalLeads) * 100) : 0}% Conversion Rate
-                  </span>
+                  <div className="kpi-tag tag-cyan">
+                    <span>{metrics.totalLeads > 0 ? Math.round((metrics.confirmedBookings / metrics.totalLeads) * 100) : 0}% Conversion Rate</span>
+                  </div>
                 </div>
               </div>
 
               <div className="kpi-card">
-                <div className="kpi-icon-wrap" style={{ background: 'rgba(255, 179, 0, 0.15)', color: '#ffb300' }}>
-                  <IconCash size={22} />
-                </div>
-                <div className="kpi-info">
+                <div className="kpi-card-header">
                   <span className="kpi-label">Pipeline Project Value</span>
+                  <div className="kpi-icon-wrap icon-amber">
+                    <IconCash size={18} />
+                  </div>
+                </div>
+                <div className="kpi-card-body">
                   <strong className="kpi-value num-tabular">PKR {(metrics.totalGmv / 100000).toFixed(1)} Lakh</strong>
-                  <span className="kpi-sub">Turnkey solar pipeline</span>
+                  <div className="kpi-tag tag-amber">
+                    <span>Turnkey solar pipeline</span>
+                  </div>
                 </div>
               </div>
 
               <div className="kpi-card">
-                <div className="kpi-icon-wrap" style={{ background: 'rgba(156, 39, 176, 0.15)', color: '#ba68c8' }}>
-                  <IconLayers size={22} />
+                <div className="kpi-card-header">
+                  <span className="kpi-label">Active Hardware Items</span>
+                  <div className="kpi-icon-wrap icon-purple">
+                    <IconLayers size={18} />
+                  </div>
                 </div>
-                <div className="kpi-info">
-                  <span className="kpi-label">Active Catalog Items</span>
+                <div className="kpi-card-body">
                   <strong className="kpi-value num-tabular">{metrics.activeProductsCount} Items</strong>
-                  <span className="kpi-sub">Panels, Inverters, Batteries</span>
+                  <div className="kpi-tag tag-muted">
+                    <span>Panels, Inverters, Batteries</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Quick Share Link Box */}
-            <div className="share-link-banner">
-              <div className="share-link-left">
-                <span className="share-badge">
-                  <IconZap size={12} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                  <span>Your Direct Customer Calculator URL</span>
-                </span>
-                <h3>Share this link on Facebook, WhatsApp ads, and your website</h3>
-                <p>Customers will calculate their system using exclusively your panels, inverters, and rates.</p>
-                <code className="public-url-code">{publicUrl}</code>
-              </div>
-              <div className="share-link-right">
-                <button type="button" onClick={handleCopyLink} className="btn-copy-cta">
-                  <IconCopy size={14} style={{ verticalAlign: 'middle', marginRight: '5px' }} />
-                  <span>Copy Share Link</span>
-                </button>
-                <button type="button" onClick={() => router.navigate('supplier', { slug: supplier.slug })} className="btn-test-cta">
-                  Test Experience →
-                </button>
               </div>
             </div>
 
@@ -469,17 +576,21 @@ export default function SupplierDashboardPage() {
             <div className="section-card">
               <div className="section-card-header">
                 <div>
-                  <h3>Recent Customer Inquiries</h3>
+                  <div className="section-title-row">
+                    <h3>Recent Customer Inquiries</h3>
+                    <span className="section-pill-badge">Live CRM</span>
+                  </div>
                   <p>Latest estimates generated through your public solar calculator.</p>
                 </div>
                 <button type="button" onClick={() => setActiveTab('leads')} className="btn-view-all">
-                  View All Leads ({supplierLeads.length}) →
+                  <span>View All Leads ({supplierLeads.length})</span>
+                  <IconExternalLink size={13} />
                 </button>
               </div>
 
               {supplierLeads.length === 0 ? (
                 <div className="empty-state">
-                  <p>No customer inquiries yet. Share your calculator link to start receiving leads!</p>
+                  <p>No customer inquiries yet. Leads will automatically appear here once customers calculate estimates.</p>
                 </div>
               ) : (
                 <div className="table-responsive">
@@ -491,41 +602,54 @@ export default function SupplierDashboardPage() {
                         <th>System Size</th>
                         <th>Est. Price</th>
                         <th>Status</th>
-                        <th>WhatsApp Action</th>
+                        <th>Direct Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {supplierLeads.slice(0, 5).map(lead => (
-                        <tr key={lead.id}>
-                          <td><span className="ref-tag">{lead.ref}</span></td>
-                          <td>
-                            <strong>{lead.customerName}</strong>
-                            <div className="cell-sub">{lead.phone} • {lead.city}</div>
-                          </td>
-                          <td>
-                            <span className="kw-badge">{lead.systemKw} kW</span>
-                            <div className="cell-sub">{lead.selectedPanel?.name || 'Tier-1 Panel'}</div>
-                          </td>
-                          <td>
-                            <strong className="price-tag">PKR {(lead.estimatedTotalCost / 100000).toFixed(2)} Lakh</strong>
-                          </td>
-                          <td>
-                            <span className={`status-pill pill-${lead.status}`}>
-                              {lead.status.toUpperCase()}
-                            </span>
-                          </td>
-                          <td>
-                            <a
-                              href={`https://wa.me/${(lead.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Assalam o Alaikum ${lead.customerName || 'Customer'}! This is ${supplier.name}. We received your solar inquiry for ${lead.systemKw} kW system (Ref: ${lead.ref}). When can we schedule your roof survey?`)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn-wa-table"
-                            >
-                              💬 Chat on WhatsApp
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
+                      {supplierLeads.slice(0, 5).map(lead => {
+                        const refLabel = lead.ref || lead.id || 'LEAD';
+                        const phone = lead.customerPhone || lead.phone || '';
+                        const city = lead.customerCity || lead.city || '';
+                        const waNumber = (lead.customerWhatsApp || lead.customerPhone || lead.phone || '').replace(/[^0-9]/g, '');
+                        const panelName = lead.selectedProducts?.find(p => p.category === 'panels')?.name || lead.selectedPanel?.name || 'Tier-1 Solar Panels';
+
+                        return (
+                          <tr key={lead.id}>
+                            <td><span className="ref-tag">{refLabel}</span></td>
+                            <td>
+                              <strong className="customer-name">{lead.customerName}</strong>
+                              <div className="cell-sub">
+                                {phone && <span>{phone}</span>}
+                                {phone && city && <span> • </span>}
+                                {city && <span>{city}</span>}
+                              </div>
+                            </td>
+                            <td>
+                              <span className="kw-badge">{lead.systemKw} kW</span>
+                              <div className="cell-sub">{panelName}</div>
+                            </td>
+                            <td>
+                              <strong className="price-tag num-tabular">PKR {(lead.estimatedTotalCost / 100000).toFixed(2)} Lakh</strong>
+                            </td>
+                            <td>
+                              <span className={`status-pill pill-${lead.status}`}>
+                                {lead.status.toUpperCase()}
+                              </span>
+                            </td>
+                            <td>
+                              <a
+                                href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Assalam o Alaikum ${lead.customerName || 'Customer'}! This is ${supplier.name}. We received your solar inquiry for ${lead.systemKw} kW system (Ref: ${refLabel}). When can we schedule your roof survey?`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-wa-table"
+                              >
+                                <IconWhatsApp size={13} />
+                                <span>WhatsApp</span>
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -602,26 +726,68 @@ export default function SupplierDashboardPage() {
                         <tr key={prod.id}>
                           <td>
                             <strong>{prod.name}</strong>
-                            <div className="cell-sub">{prod.brand} {prod.model && `• ${prod.model}`}</div>
+                            <div className="cell-sub">
+                              {prod.category === 'installation' ? (
+                                `${prod.serviceScope || 'Turnkey Installation'}${prod.coverageArea ? ` • ${prod.coverageArea}` : ''}`
+                              ) : prod.category === 'accessories' ? (
+                                `${prod.brand ? `${prod.brand} • ` : ''}${prod.model || prod.accessoryType || 'Accessory'}`
+                              ) : prod.category === 'other' ? (
+                                `${prod.otherClassification || prod.brand || 'Custom Service'}${prod.leadTime ? ` • ${prod.leadTime}` : ''}`
+                              ) : (
+                                `${prod.brand || ''} ${prod.model ? `• ${prod.model}` : ''}`
+                              )}
+                            </div>
                           </td>
                           <td>
                             <span className="cat-badge">{prod.category}</span>
                           </td>
                           <td>
-                            <div>
-                              {prod.wattage > 0 && <span>{prod.wattage}W </span>}
-                              {prod.voltage > 0 && <span>• {prod.voltage}V </span>}
-                              {prod.pricePerWatt > 0 && <span className="ppw-text">(@ Rs.{prod.pricePerWatt}/W)</span>}
-                            </div>
-                            <div className="cell-sub">{prod.type || `${prod.warrantyYears}Y Warranty`}</div>
+                            {prod.category === 'installation' ? (
+                              <div>
+                                <div><strong>{prod.serviceScope || 'Turnkey Installation'}</strong></div>
+                                <div className="cell-sub">
+                                  {prod.duration && `⏱ ${prod.duration}`}
+                                  {prod.warrantyYears ? ` • ${prod.warrantyYears}Y Workmanship` : ' • Workmanship Guaranteed'}
+                                  {prod.teamSize ? ` • ${prod.teamSize}` : ''}
+                                </div>
+                              </div>
+                            ) : prod.category === 'accessories' ? (
+                              <div>
+                                <div><strong>{prod.specRating || prod.accessoryType || 'Standard Spec'}</strong></div>
+                                <div className="cell-sub">
+                                  {prod.accessoryType || 'BOS Hardware'}
+                                  {prod.warrantyYears ? ` • ${prod.warrantyYears}Y Warranty` : ''}
+                                </div>
+                              </div>
+                            ) : prod.category === 'other' ? (
+                              <div>
+                                <div><strong>{prod.otherClassification || 'Custom Solution'}</strong></div>
+                                <div className="cell-sub">
+                                  {prod.leadTime || prod.duration || 'Standard'}
+                                  {prod.guaranteeTerms ? ` • ${prod.guaranteeTerms}` : ''}
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <div>
+                                  {prod.wattage > 0 && <span>{prod.wattage}W </span>}
+                                  {prod.voltage > 0 && <span>• {prod.voltage}V </span>}
+                                  {prod.pricePerWatt > 0 && <span className="ppw-text">(@ Rs.{prod.pricePerWatt}/W)</span>}
+                                </div>
+                                <div className="cell-sub">{prod.type || `${prod.warrantyYears}Y Warranty`}</div>
+                              </div>
+                            )}
                           </td>
                           <td>
                             <strong className="price-tag">PKR {Number(prod.price).toLocaleString()}</strong>
-                            <div className="cell-sub">per {prod.unit || 'unit'}</div>
+                            <div className="cell-sub">per {prod.unit || (prod.category === 'installation' ? 'kW' : prod.category === 'accessories' ? 'piece' : prod.category === 'other' ? 'job' : 'unit')}</div>
                           </td>
                           <td>
                             <span className={`stock-badge ${prod.isAvailable ? 'in-stock' : 'out-of-stock'}`}>
-                              {prod.isAvailable ? `In Stock (${prod.stockCount || 'Avail'})` : 'Out of Stock'}
+                              {prod.category === 'installation' || prod.category === 'other'
+                                ? (prod.isAvailable ? 'Available' : 'Unavailable')
+                                : (prod.isAvailable ? `In Stock (${prod.stockCount ?? 'Avail'})` : 'Out of Stock')
+                              }
                             </span>
                           </td>
                           <td>
@@ -718,81 +884,105 @@ export default function SupplierDashboardPage() {
                         </td>
                       </tr>
                     ) : (
-                      filteredLeads.map(lead => (
-                        <tr key={lead.id}>
-                          <td>
-                            <span className="ref-tag">{lead.ref}</span>
-                            <div className="cell-sub">{new Date(lead.createdAt).toLocaleDateString()}</div>
-                          </td>
-                          <td>
-                            <strong>{lead.customerName}</strong>
-                            <div className="cell-sub">
-                              <IconPhone size={11} style={{ verticalAlign: 'middle', marginRight: '4px', color: '#00d2ff' }} />
-                              <span className="num-tabular">{lead.phone}</span>
-                            </div>
-                            <div className="cell-sub">
-                              <IconBuilding size={11} style={{ verticalAlign: 'middle', marginRight: '4px', color: '#00d2ff' }} />
-                              <span>{lead.city} {lead.address ? `• ${lead.address}` : ''}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <span className="kw-badge num-tabular">{lead.systemKw} kW System</span>
-                            <div className="cell-sub">
-                              {lead.selectedPanel?.name || 'Selected Module'}
-                              {lead.selectedInverter && ` • ${lead.selectedInverter.name}`}
-                              {lead.selectedBattery && ` • ${lead.selectedBattery.name}`}
-                            </div>
-                          </td>
-                          <td>
-                            <strong className="price-tag num-tabular">PKR {(lead.estimatedTotalCost / 100000).toFixed(2)} Lakh</strong>
-                            <div className="cell-sub num-tabular">Rs. {Number(lead.estimatedTotalCost).toLocaleString()}</div>
-                          </td>
-                          <td>
-                            <select
-                              value={lead.status}
-                              onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value)}
-                              className={`status-dropdown status-select-${lead.status}`}
-                            >
-                              <option value="new">New</option>
-                              <option value="contacted">Contacted</option>
-                              <option value="quoted">Quoted</option>
-                              <option value="confirmed">Confirmed</option>
-                              <option value="completed">Completed</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
-                          </td>
-                          <td>
-                            <div className="row-actions">
-                              <a
-                                href={`https://wa.me/${(lead.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                                  `Assalam o Alaikum ${lead.customerName || 'Customer'}!\n` +
-                                  `This is ${supplier.name} regarding your solar calculation on our website (Ref: ${lead.ref}).\n\n` +
-                                  `System Size: ${lead.systemKw} kW\n` +
-                                  `Estimated Cost: PKR ${(lead.estimatedTotalCost / 100000).toFixed(2)} Lakh\n` +
-                                  `Location: ${lead.city || ''}\n\n` +
-                                  `Would you like us to schedule a free technical site survey of your roof?`
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-wa-table"
-                                title="Send WhatsApp Message"
+                      filteredLeads.map(lead => {
+                        const refLabel = lead.ref || lead.id || 'LEAD';
+                        const phone = lead.customerPhone || lead.phone || '';
+                        const city = lead.customerCity || lead.city || '';
+                        const address = lead.customerAddress || lead.address || '';
+                        const waNumber = (lead.customerWhatsApp || lead.customerPhone || lead.phone || '').replace(/[^0-9]/g, '');
+                        const panelName = lead.selectedProducts?.find(p => p.category === 'panels')?.name || lead.selectedPanel?.name || 'Tier-1 Solar Panels';
+                        const inverterName = lead.selectedProducts?.find(p => p.category === 'inverters')?.name || lead.selectedInverter?.name;
+                        const batteryName = lead.selectedProducts?.find(p => p.category === 'batteries')?.name || lead.selectedBattery?.name;
+
+                        return (
+                          <tr key={lead.id}>
+                            <td>
+                              <span className="ref-tag">{refLabel}</span>
+                              <div className="cell-sub">{new Date(lead.createdAt).toLocaleDateString()}</div>
+                            </td>
+                            <td>
+                              <strong className="customer-name">{lead.customerName}</strong>
+                              {phone && (
+                                <div className="cell-sub">
+                                  <IconPhone size={11} style={{ verticalAlign: 'middle', marginRight: '4px', color: '#38bdf8' }} />
+                                  <span className="num-tabular">{phone}</span>
+                                </div>
+                              )}
+                              {city && (
+                                <div className="cell-sub">
+                                  <IconBuilding size={11} style={{ verticalAlign: 'middle', marginRight: '4px', color: '#38bdf8' }} />
+                                  <span>{city}{address ? ` • ${address}` : ''}</span>
+                                </div>
+                              )}
+                            </td>
+                            <td>
+                              <span className="kw-badge num-tabular">{lead.systemKw} kW System</span>
+                              <div className="cell-sub">
+                                {panelName}
+                                {inverterName && ` • ${inverterName}`}
+                                {batteryName && ` • ${batteryName}`}
+                              </div>
+                            </td>
+                            <td>
+                              <strong className="price-tag num-tabular">PKR {(lead.estimatedTotalCost / 100000).toFixed(2)} Lakh</strong>
+                              <div className="cell-sub num-tabular">Rs. {Number(lead.estimatedTotalCost).toLocaleString()}</div>
+                            </td>
+                            <td>
+                              <select
+                                value={lead.status}
+                                onChange={(e) => handleUpdateLeadStatus(lead.id, e.target.value)}
+                                className={`status-dropdown status-select-${lead.status}`}
                               >
-                                <IconWhatsApp size={13} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                                <span>WhatsApp</span>
-                              </a>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedLeadForDetail(lead)}
-                                className="btn-view-details"
-                                title="View Lead Details"
-                              >
-                                <IconSearch size={13} style={{ verticalAlign: 'middle', marginRight: '3px' }} />
-                                <span>Details</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
+                                <option value="new">New</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="quoted">Quoted</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                            </td>
+                            <td>
+                              <div className="row-actions">
+                                <a
+                                  href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
+                                    `Assalam o Alaikum ${lead.customerName || 'Customer'}!\n` +
+                                    `This is ${supplier.name} regarding your solar calculation on our website (Ref: ${refLabel}).\n\n` +
+                                    `System Size: ${lead.systemKw} kW\n` +
+                                    `Estimated Cost: PKR ${(lead.estimatedTotalCost / 100000).toFixed(2)} Lakh\n` +
+                                    `Location: ${city}\n\n` +
+                                    `Would you like us to schedule a free technical site survey of your roof?`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="btn-wa-table"
+                                  title="Send WhatsApp Message"
+                                >
+                                  <IconWhatsApp size={13} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                                  <span>WhatsApp</span>
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedLeadForDetail(lead)}
+                                  className="btn-view-details"
+                                  title="View Lead Details"
+                                >
+                                  <IconSearch size={13} style={{ verticalAlign: 'middle', marginRight: '3px' }} />
+                                  <span>Details</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDeleteLead(lead.id, e)}
+                                  className="btn-delete-lead-table"
+                                  title="Delete Customer Inquiry"
+                                >
+                                  <IconTrash size={13} style={{ verticalAlign: 'middle', marginRight: '3px' }} />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -920,7 +1110,8 @@ export default function SupplierDashboardPage() {
 
                 <div className="form-actions-full">
                   <button type="submit" className="btn-primary-save">
-                    💾 Save Calculator Engine Settings
+                    <IconCheck size={16} />
+                    <span>Save Calculation Parameters</span>
                   </button>
                 </div>
               </form>
@@ -1070,27 +1261,76 @@ export default function SupplierDashboardPage() {
             </button>
 
             <div className="modal-header">
-              <h2>{editingProduct ? 'Edit Product' : 'Add New Solar Product'}</h2>
-              <p>Items added here will immediately appear in your public solar calculator.</p>
+              <h2>
+                {editingProduct
+                  ? `Edit ${productForm.category === 'installation' ? 'Installation Service' : productForm.category === 'accessories' ? 'Accessory' : productForm.category === 'other' ? 'Custom Service' : 'Product'}`
+                  : productForm.category === 'installation'
+                    ? 'Add Installation Service'
+                    : productForm.category === 'accessories'
+                      ? 'Add Solar Accessory'
+                      : productForm.category === 'other'
+                        ? 'Add Custom Service / Other Item'
+                        : 'Add New Solar Product'
+                }
+              </h2>
+              <p>
+                {productForm.category === 'installation'
+                  ? 'Define turnkey solar installation rates, project timelines, crew capacity, and workmanship warranties.'
+                  : productForm.category === 'accessories'
+                    ? 'Configure SPDs, circuit breakers, MC4 connectors, earthing rods, conduits, and monitoring meters.'
+                    : productForm.category === 'other'
+                      ? 'Add Net Metering filing, drone shading surveys, custom fabrication, and specialized EPC services.'
+                      : 'Items added here will appear in your public catalog and instant solar calculator.'}
+              </p>
             </div>
 
             <form onSubmit={handleSaveProduct} className="modal-form-grid">
-              <div className="form-group">
-                <label>Product Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Tiger Neo N-Type 585W TOPCon"
-                  value={productForm.name}
-                  onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Category *</label>
+              {/* Category Selector */}
+              <div className="form-group form-group-full">
+                <label>Product Category *</label>
                 <select
                   value={productForm.category}
-                  onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                  onChange={(e) => {
+                    const nextCat = e.target.value;
+                    let nextUnit = productForm.unit;
+                    let nextName = productForm.name;
+                    let nextPrice = productForm.price;
+                    let nextDesc = productForm.description;
+
+                    if (nextCat === 'installation') {
+                      if (!productForm.unit || productForm.unit === 'Module' || productForm.unit === 'Piece') nextUnit = 'kW';
+                      if (!editingProduct) {
+                        nextName = 'Turnkey Rooftop Solar Installation (L2/L3)';
+                        nextPrice = 3500;
+                        nextDesc = 'Complete turnkey mechanical and electrical installation, DC stringing, DB termination, grounding pit setup, and inverter commissioning.';
+                      }
+                    } else if (nextCat === 'accessories') {
+                      if (!productForm.unit || productForm.unit === 'Module' || productForm.unit === 'kW' || productForm.unit === 'Job') nextUnit = 'Piece';
+                      if (!editingProduct) {
+                        nextName = 'DC Surge Protection Device (SPD) 1000V 40kA';
+                        nextPrice = 2800;
+                        nextDesc = 'Heavy-duty solar DC surge protection device, DIN-rail mounting, visual fault indicator window, IEC 61643-31 compliant.';
+                      }
+                    } else if (nextCat === 'other') {
+                      if (!productForm.unit || productForm.unit === 'Module' || productForm.unit === 'kW' || productForm.unit === 'Piece') nextUnit = 'Job';
+                      if (!editingProduct) {
+                        nextName = 'Turnkey DISCO Net Metering & Green Meter Processing';
+                        nextPrice = 45000;
+                        nextDesc = 'End-to-end DISCO / NEPRA paperwork filing, distribution transformer NOC, safety inspection escort, and bi-directional meter activation.';
+                      }
+                    } else if (nextCat === 'panels') {
+                      if (productForm.unit === 'kW' || productForm.unit === 'Job') nextUnit = 'Module';
+                    }
+
+                    setProductForm(prev => ({
+                      ...prev,
+                      category: nextCat,
+                      unit: nextUnit,
+                      name: nextName,
+                      price: nextPrice,
+                      description: nextDesc
+                    }));
+                  }}
                 >
                   <option value="panels">Solar Panels</option>
                   <option value="inverters">Inverters</option>
@@ -1098,147 +1338,626 @@ export default function SupplierDashboardPage() {
                   <option value="mounting">Mounting & Structure</option>
                   <option value="cables">Cables & Wiring</option>
                   <option value="protection">Protection & SPDs</option>
-                  <option value="installation">Installation</option>
+                  <option value="installation">Installation Services</option>
                   <option value="accessories">Accessories</option>
                   <option value="other">Other</option>
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Brand Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Jinko, Longi, Inverex, Narada"
-                  value={productForm.brand}
-                  onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Model Number</label>
-                <input
-                  type="text"
-                  placeholder="e.g. JKM-585N-72HL4-BDV"
-                  value={productForm.model}
-                  onChange={(e) => setProductForm({ ...productForm, model: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Wattage / Power (W)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 585 for panel, 10000 for 10kW inverter"
-                  value={productForm.wattage}
-                  onChange={(e) => {
-                    const w = parseFloat(e.target.value) || 0;
-                    setProductForm({ 
-                      ...productForm, 
-                      wattage: w,
-                      pricePerWatt: w > 0 && productForm.price > 0 ? +(productForm.price / w).toFixed(2) : productForm.pricePerWatt
-                    });
-                  }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Voltage (V)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 48 for battery, 220 or 400 for inverter"
-                  value={productForm.voltage}
-                  onChange={(e) => setProductForm({ ...productForm, voltage: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Total Price (PKR) *</label>
-                <input
-                  type="number"
-                  required
-                  placeholder="e.g. 21500"
-                  value={productForm.price}
-                  onChange={(e) => {
-                    const p = parseFloat(e.target.value) || 0;
-                    setProductForm({ 
-                      ...productForm, 
-                      price: p,
-                      pricePerWatt: productForm.wattage > 0 && p > 0 ? +(p / productForm.wattage).toFixed(2) : 0
-                    });
-                  }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Unit</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Module, Unit, kWh, System"
-                  value={productForm.unit}
-                  onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Technology Type / Chemistry</label>
-                <input
-                  type="text"
-                  placeholder="e.g. N-Type TOPCon, LiFePO4, On-Grid IP65"
-                  value={productForm.type}
-                  onChange={(e) => setProductForm({ ...productForm, type: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Warranty (Years)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 25 for panels, 5 for inverter"
-                  value={productForm.warrantyYears}
-                  onChange={(e) => setProductForm({ ...productForm, warrantyYears: parseInt(e.target.value, 10) || 0 })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Stock Quantity Available</label>
-                <input
-                  type="number"
-                  value={productForm.stockCount}
-                  onChange={(e) => setProductForm({ ...productForm, stockCount: parseInt(e.target.value, 10) || 0 })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Availability & Status</label>
-                <div className="checkbox-row">
-                  <label className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={productForm.isAvailable}
-                      onChange={(e) => setProductForm({ ...productForm, isAvailable: e.target.checked })}
-                    />
-                    <span>Available In Stock</span>
-                  </label>
-                  <label className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={productForm.isActive}
-                      onChange={(e) => setProductForm({ ...productForm, isActive: e.target.checked })}
-                    />
-                    <span>Active in Calculator</span>
-                  </label>
+              {/* Dynamic Category Notice Banner */}
+              {productForm.category === 'installation' && (
+                <div className="form-cat-notice installation">
+                  <div className="form-cat-notice-content">
+                    <span className="form-cat-notice-title">Installation Services Mode</span>
+                    <span className="form-cat-notice-desc">Form adapted for turnkey site labor, structural fabrication, earthing pits, and commissioning timelines.</span>
+                  </div>
+                  <span className="form-cat-pill-badge installation">Services</span>
                 </div>
-              </div>
+              )}
 
-              <div className="form-group form-group-full">
-                <label>Product Description & Notes</label>
-                <textarea
-                  rows="3"
-                  placeholder="Describe warranties, specifications, certifications..."
-                  value={productForm.description}
-                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                />
-              </div>
+              {productForm.category === 'accessories' && (
+                <div className="form-cat-notice accessories">
+                  <div className="form-cat-notice-content">
+                    <span className="form-cat-notice-title">Solar Accessories & BOS Mode</span>
+                    <span className="form-cat-notice-desc">Form adapted for SPDs, breakers, MC4 connectors, earthing materials, conduits, and monitoring meters.</span>
+                  </div>
+                  <span className="form-cat-pill-badge accessories">Accessories</span>
+                </div>
+              )}
+
+              {productForm.category === 'other' && (
+                <div className="form-cat-notice other">
+                  <div className="form-cat-notice-content">
+                    <span className="form-cat-notice-title">Custom Solutions & Other Services Mode</span>
+                    <span className="form-cat-notice-desc">Form adapted for DISCO net metering filings, drone shading surveys, audits, and custom metal fabrication.</span>
+                  </div>
+                  <span className="form-cat-pill-badge other">Custom</span>
+                </div>
+              )}
+
+              {!['installation', 'accessories', 'other'].includes(productForm.category) && (
+                <div className="form-cat-notice hardware">
+                  <div className="form-cat-notice-content">
+                    <span className="form-cat-notice-title">Solar Hardware Specification Mode</span>
+                    <span className="form-cat-notice-desc">Form adapted for technical electrical ratings, wattage, DC voltage, and per-watt pricing calculations.</span>
+                  </div>
+                  <span className="form-cat-pill-badge hardware">Hardware</span>
+                </div>
+              )}
+
+              {/* ================= CATEGORY 1: INSTALLATION SERVICES ================= */}
+              {productForm.category === 'installation' && (
+                <>
+                  <div className="form-group form-group-full">
+                    <label>Service / Package Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Turnkey Rooftop Solar Installation (L2/L3 Standard)"
+                      value={productForm.name}
+                      onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Installation Scope / Structure Type *</label>
+                    <select
+                      value={productForm.serviceScope}
+                      onChange={(e) => setProductForm({ ...productForm, serviceScope: e.target.value })}
+                    >
+                      <option value="Turnkey Rooftop (Standard L2/L3)">Turnkey Rooftop (Standard L2/L3)</option>
+                      <option value="Elevated Walkable Shed Structure (10-12ft)">Elevated Walkable Shed Structure (10-12ft)</option>
+                      <option value="Heavy Ground Mount / Foundation">Heavy Ground Mount / Foundation</option>
+                      <option value="Commercial & Industrial (C&I) Turnkey">Commercial & Industrial (C&I) Turnkey</option>
+                      <option value="Earthing Pit Boring & Lightning Arrestor">Earthing Pit Boring & Lightning Arrestor</option>
+                      <option value="Net Metering DISCO Approvals & Commissioning">Net Metering DISCO Approvals & Commissioning</option>
+                      <option value="Operations & Maintenance (O&M) / Panel Wash">Operations & Maintenance (O&M) / Panel Wash</option>
+                      <option value="Electrical & Inverter Wiring Only">Electrical & Inverter Wiring Only</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Billing Model / Pricing Basis *</label>
+                    <select
+                      value={productForm.pricingModel}
+                      onChange={(e) => {
+                        const pm = e.target.value;
+                        let newUnit = productForm.unit;
+                        if (pm === 'per_kw') newUnit = 'kW';
+                        else if (pm === 'per_watt') newUnit = 'Watt';
+                        else if (pm === 'fixed_job') newUnit = 'Job';
+                        else if (pm === 'per_day') newUnit = 'Day';
+                        setProductForm({ ...productForm, pricingModel: pm, unit: newUnit });
+                      }}
+                    >
+                      <option value="per_kw">Per kW Capacity (e.g. Rs. 3,500 / kW)</option>
+                      <option value="per_watt">Per Watt (e.g. Rs. 3.5 / Watt)</option>
+                      <option value="fixed_job">Fixed Project / Site Lump Sum</option>
+                      <option value="per_day">Per Day / Site Visit</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Service Rate (PKR) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 3500 for per kW, 45000 for turnkey job"
+                      value={productForm.price}
+                      onChange={(e) => setProductForm({ ...productForm, price: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Billing Unit Label</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. kW, Watt, Job, Day"
+                      value={productForm.unit}
+                      onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Estimated Project Timeline</label>
+                    <select
+                      value={productForm.duration}
+                      onChange={(e) => setProductForm({ ...productForm, duration: e.target.value })}
+                    >
+                      <option value="1-2 Days">1 - 2 Days</option>
+                      <option value="3-5 Days">3 - 5 Days</option>
+                      <option value="1 Week">1 Week</option>
+                      <option value="2-3 Weeks">2 - 3 Weeks</option>
+                      <option value="Site Dependent">Site Dependent / Fast Track</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Crew / Team Size & Personnel</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 4 Certified Solar Electricians + Structure Fabricator"
+                      value={productForm.teamSize}
+                      onChange={(e) => setProductForm({ ...productForm, teamSize: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Workmanship Warranty (Years)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 1 Year Workmanship Guarantee"
+                      value={productForm.warrantyYears}
+                      onChange={(e) => setProductForm({ ...productForm, warrantyYears: parseInt(e.target.value, 10) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Service Coverage Hub / Region</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Lahore & 50km Radius, All Punjab, Nationwide"
+                      value={productForm.coverageArea}
+                      onChange={(e) => setProductForm({ ...productForm, coverageArea: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Booking Status & Visibility</label>
+                    <div className="checkbox-row">
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isAvailable}
+                          onChange={(e) => setProductForm({ ...productForm, isAvailable: e.target.checked })}
+                        />
+                        <span>Available for Booking</span>
+                      </label>
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isActive}
+                          onChange={(e) => setProductForm({ ...productForm, isActive: e.target.checked })}
+                        />
+                        <span>Active in Calculator</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group form-group-full">
+                    <label>Service Deliverables & Inclusions</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Detail what is included: e.g. DC string cabling & PVC conduits, AC/DC DB termination, inverter testing, earthing pit resistance measurement (< 5 ohms), mobile WiFi monitoring setup, DISCO readiness check..."
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ================= CATEGORY 2: ACCESSORIES ================= */}
+              {productForm.category === 'accessories' && (
+                <>
+                  <div className="form-group form-group-full">
+                    <label>Accessory Item Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. DC Surge Protection Device (SPD) 1000V 40kA 2P"
+                      value={productForm.name}
+                      onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Accessory Sub-Category *</label>
+                    <select
+                      value={productForm.accessoryType}
+                      onChange={(e) => setProductForm({ ...productForm, accessoryType: e.target.value })}
+                    >
+                      <option value="Protection & SPDs">Protection & SPDs (Surge, Breakers, Fuses)</option>
+                      <option value="Connectors & Clamps">Connectors & Clamps (MC4s, Mid/End Clamps)</option>
+                      <option value="Earthing & Lightning">Earthing & Lightning (Rods, Chemical Bore, Arrestor)</option>
+                      <option value="Conduits & Cable Management">Conduits, Trays & Cable Management</option>
+                      <option value="Distribution Boxes">Distribution Boxes & IP65 Weatherproof DBs</option>
+                      <option value="Monitoring & Smart Meters">Monitoring, IoT & Smart Energy Meters</option>
+                      <option value="Panel Cleaning Tools">Panel Cleaning Tools & Water Kits</option>
+                      <option value="General Fasteners & Hardware">General Fasteners, Bolts & Hardware</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Brand / Manufacturer</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Suntree, Schneider, Chint, TOMZN, Phoenix Contact"
+                      value={productForm.brand}
+                      onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Model / Part Number</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. SUP2H-PV 1000V, MC4-4SQ"
+                      value={productForm.model}
+                      onChange={(e) => setProductForm({ ...productForm, model: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Technical Specifications / Rating</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 1000V DC, 20-40kA, 2-Pole, DIN-Rail or 4-6mm² IP68"
+                      value={productForm.specRating}
+                      onChange={(e) => setProductForm({ ...productForm, specRating: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Packaging / Sales Unit</label>
+                    <select
+                      value={productForm.unit}
+                      onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })}
+                    >
+                      <option value="Piece">Piece</option>
+                      <option value="Pair / Set">Pair / Set</option>
+                      <option value="Meter">Meter</option>
+                      <option value="Roll (100m)">Roll (100m)</option>
+                      <option value="Pack of 10">Pack of 10</option>
+                      <option value="Box / Kit">Box / Kit</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Price (PKR) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 2800"
+                      value={productForm.price}
+                      onChange={(e) => setProductForm({ ...productForm, price: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Available Stock Quantity</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 150"
+                      value={productForm.stockCount}
+                      onChange={(e) => setProductForm({ ...productForm, stockCount: parseInt(e.target.value, 10) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Product Warranty (Years)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 1 or 2 Years"
+                      value={productForm.warrantyYears}
+                      onChange={(e) => setProductForm({ ...productForm, warrantyYears: parseInt(e.target.value, 10) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Availability & Stock Status</label>
+                    <div className="checkbox-row">
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isAvailable}
+                          onChange={(e) => setProductForm({ ...productForm, isAvailable: e.target.checked })}
+                        />
+                        <span>In Stock</span>
+                      </label>
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isActive}
+                          onChange={(e) => setProductForm({ ...productForm, isActive: e.target.checked })}
+                        />
+                        <span>Active in Calculator</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group form-group-full">
+                    <label>Technical Description & Compatibility</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Describe specs: e.g. Flame-retardant PBT housing, visual status indicator window, IEC 61643-31 compliant, DIN-rail mounting..."
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ================= CATEGORY 3: OTHER / CUSTOM SERVICES ================= */}
+              {productForm.category === 'other' && (
+                <>
+                  <div className="form-group form-group-full">
+                    <label>Item / Service Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Turnkey DISCO Net Metering & Green Meter Processing"
+                      value={productForm.name}
+                      onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Service Classification *</label>
+                    <select
+                      value={productForm.otherClassification}
+                      onChange={(e) => setProductForm({ ...productForm, otherClassification: e.target.value })}
+                    >
+                      <option value="Net Metering & DISCO Filing">Net Metering & DISCO Regulatory Filing</option>
+                      <option value="Site Survey & 3D Drone Shading">Site Survey, 3D Drone & Shading Study</option>
+                      <option value="Custom Steel Walkway Fabrication">Custom Steel / GI Walkway Fabrication</option>
+                      <option value="Third-Party Solar Audit">Third-Party Solar Audit & Thermal Camera Inspection</option>
+                      <option value="Annual Maintenance Contract (AMC)">Annual Maintenance Contract (AMC)</option>
+                      <option value="Solar Cleaning High-Pressure Kit">Solar Automated Cleaning & High-Pressure Kit</option>
+                      <option value="Specialized Spares & Miscellaneous">Specialized Spares & Miscellaneous Services</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Provider / Engineering Team</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. In-House Certified Engineers, DISCO Consultant"
+                      value={productForm.brand}
+                      onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Pricing Basis & Unit</label>
+                    <select
+                      value={productForm.unit}
+                      onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })}
+                    >
+                      <option value="Job">Per Project / Job</option>
+                      <option value="Survey">Per Site Visit / Survey</option>
+                      <option value="kW">Per System kW</option>
+                      <option value="Year">Per Year (Annual AMC)</option>
+                      <option value="Month">Per Month</option>
+                      <option value="Unit">Per Unit / Piece</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Total Price (PKR) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 45000"
+                      value={productForm.price}
+                      onChange={(e) => setProductForm({ ...productForm, price: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Turnaround Time / Lead Days</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 3-5 Working Days, 2-4 Weeks for DISCO approval"
+                      value={productForm.leadTime}
+                      onChange={(e) => setProductForm({ ...productForm, leadTime: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Guarantee / Validity Terms</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 100% DISCO Meter Approval Guarantee, Valid for 6 Months"
+                      value={productForm.guaranteeTerms}
+                      onChange={(e) => setProductForm({ ...productForm, guaranteeTerms: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Warranty (Years)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 1 Year Guarantee"
+                      value={productForm.warrantyYears}
+                      onChange={(e) => setProductForm({ ...productForm, warrantyYears: parseInt(e.target.value, 10) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Availability & Service Status</label>
+                    <div className="checkbox-row">
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isAvailable}
+                          onChange={(e) => setProductForm({ ...productForm, isAvailable: e.target.checked })}
+                        />
+                        <span>Available for Booking</span>
+                      </label>
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isActive}
+                          onChange={(e) => setProductForm({ ...productForm, isActive: e.target.checked })}
+                        />
+                        <span>Active in Calculator</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group form-group-full">
+                    <label>Deliverables & Detailed Scope of Work</label>
+                    <textarea
+                      rows="3"
+                      placeholder="e.g. Complete DISCO application preparation, load extension sanctioning, distribution transformer NOC, safety inspection representation, and green bi-directional meter activation..."
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ================= CATEGORY 4: STANDARD SOLAR HARDWARE ================= */}
+              {!['installation', 'accessories', 'other'].includes(productForm.category) && (
+                <>
+                  <div className="form-group">
+                    <label>Product Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Tiger Neo N-Type 585W TOPCon"
+                      value={productForm.name}
+                      onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Brand Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Jinko, Longi, Inverex, Narada"
+                      value={productForm.brand}
+                      onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Model Number</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. JKM-585N-72HL4-BDV"
+                      value={productForm.model}
+                      onChange={(e) => setProductForm({ ...productForm, model: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Wattage / Power (W)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 585 for panel, 10000 for 10kW inverter"
+                      value={productForm.wattage}
+                      onChange={(e) => {
+                        const w = parseFloat(e.target.value) || 0;
+                        setProductForm({ 
+                          ...productForm, 
+                          wattage: w,
+                          pricePerWatt: w > 0 && productForm.price > 0 ? +(productForm.price / w).toFixed(2) : productForm.pricePerWatt
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Voltage (V)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 48 for battery, 220 or 400 for inverter"
+                      value={productForm.voltage}
+                      onChange={(e) => setProductForm({ ...productForm, voltage: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Total Price (PKR) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 21500"
+                      value={productForm.price}
+                      onChange={(e) => {
+                        const p = parseFloat(e.target.value) || 0;
+                        setProductForm({ 
+                          ...productForm, 
+                          price: p,
+                          pricePerWatt: productForm.wattage > 0 && p > 0 ? +(p / productForm.wattage).toFixed(2) : 0
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Unit</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Module, Unit, kWh, System"
+                      value={productForm.unit}
+                      onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Technology Type / Chemistry</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. N-Type TOPCon, LiFePO4, On-Grid IP65"
+                      value={productForm.type}
+                      onChange={(e) => setProductForm({ ...productForm, type: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Warranty (Years)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 25 for panels, 5 for inverter"
+                      value={productForm.warrantyYears}
+                      onChange={(e) => setProductForm({ ...productForm, warrantyYears: parseInt(e.target.value, 10) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Stock Quantity Available</label>
+                    <input
+                      type="number"
+                      value={productForm.stockCount}
+                      onChange={(e) => setProductForm({ ...productForm, stockCount: parseInt(e.target.value, 10) || 0 })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Availability & Status</label>
+                    <div className="checkbox-row">
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isAvailable}
+                          onChange={(e) => setProductForm({ ...productForm, isAvailable: e.target.checked })}
+                        />
+                        <span>Available In Stock</span>
+                      </label>
+                      <label className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={productForm.isActive}
+                          onChange={(e) => setProductForm({ ...productForm, isActive: e.target.checked })}
+                        />
+                        <span>Active in Calculator</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group form-group-full">
+                    <label>Product Description & Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Describe warranties, specifications, certifications..."
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="modal-actions-full">
                 <button
@@ -1249,7 +1968,7 @@ export default function SupplierDashboardPage() {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary-save">
-                  {editingProduct ? 'Save Product Changes' : 'Create & Publish Product'}
+                  {editingProduct ? 'Save Changes' : 'Create & Publish'}
                 </button>
               </div>
             </form>
@@ -1270,7 +1989,7 @@ export default function SupplierDashboardPage() {
             </button>
 
             <div className="modal-header">
-              <span className="ref-tag num-tabular">{selectedLeadForDetail.ref}</span>
+              <span className="ref-tag num-tabular">{selectedLeadForDetail.ref || selectedLeadForDetail.id || 'LEAD'}</span>
               <h2>Inquiry Details: {selectedLeadForDetail.customerName}</h2>
               <p>Submitted on {new Date(selectedLeadForDetail.createdAt).toLocaleString()}</p>
             </div>
@@ -1278,26 +1997,103 @@ export default function SupplierDashboardPage() {
             <div className="lead-detail-body">
               <div className="detail-section">
                 <h4>Customer Contact</h4>
-                <p><strong>Phone:</strong> <span className="num-tabular">{selectedLeadForDetail.phone}</span></p>
-                <p><strong>City:</strong> {selectedLeadForDetail.city}</p>
-                <p><strong>Address:</strong> {selectedLeadForDetail.address || 'Not specified'}</p>
-                <p><strong>Roof Type:</strong> {selectedLeadForDetail.roofType || 'Standard'}</p>
-                {selectedLeadForDetail.notes && (
-                  <p><strong>Notes:</strong> {selectedLeadForDetail.notes}</p>
+                <p><strong>Phone:</strong> <span className="num-tabular">{selectedLeadForDetail.customerPhone || selectedLeadForDetail.phone || selectedLeadForDetail.whatsappNumber || selectedLeadForDetail.customerWhatsApp || 'Not provided'}</span></p>
+                {(selectedLeadForDetail.customerWhatsApp || selectedLeadForDetail.whatsappNumber) && (
+                  <p><strong>WhatsApp:</strong> <span className="num-tabular">{selectedLeadForDetail.customerWhatsApp || selectedLeadForDetail.whatsappNumber}</span></p>
+                )}
+                <p><strong>City:</strong> {selectedLeadForDetail.customerCity || selectedLeadForDetail.city || 'Pakistan'}</p>
+                <p><strong>Roof / Site Address:</strong> {selectedLeadForDetail.customerAddress || selectedLeadForDetail.address || selectedLeadForDetail.roofAddress || 'Not specified'}</p>
+                <p><strong>Roof Structure Type:</strong> {selectedLeadForDetail.roofType || selectedLeadForDetail.roofStructure || 'Standard Rooftop'}</p>
+                {(selectedLeadForDetail.customerNotes || selectedLeadForDetail.notes) && (
+                  <p><strong>Customer Notes:</strong> {selectedLeadForDetail.customerNotes || selectedLeadForDetail.notes}</p>
                 )}
               </div>
 
               <div className="detail-section">
-                <h4>Selected System Sizing</h4>
-                <p><strong>System Size:</strong> <span className="num-tabular">{selectedLeadForDetail.systemKw} kW</span></p>
-                <p><strong>Estimated Total:</strong> <span className="num-tabular">PKR {(selectedLeadForDetail.estimatedTotalCost / 100000).toFixed(2)} Lakh (Rs. {Number(selectedLeadForDetail.estimatedTotalCost).toLocaleString()})</span></p>
-                <p><strong>Panel:</strong> {selectedLeadForDetail.selectedPanel?.name || 'Selected Module'}</p>
-                {selectedLeadForDetail.selectedInverter && (
-                  <p><strong>Inverter:</strong> {selectedLeadForDetail.selectedInverter.name}</p>
+                <h4>Selected System Sizing & Equipment Specs</h4>
+                <p><strong>System Size:</strong> <span className="num-tabular">{selectedLeadForDetail.systemKw} kW ({selectedLeadForDetail.systemType ? selectedLeadForDetail.systemType.toUpperCase() : 'System'})</span></p>
+                <p><strong>Estimated Total:</strong> <span className="num-tabular">PKR {(selectedLeadForDetail.estimatedTotalCost / 100000).toFixed(2)} Lakh (Rs. {Number(selectedLeadForDetail.estimatedTotalCost || 0).toLocaleString()})</span></p>
+                <p>
+                  <strong>Plates Quantity:</strong>{' '}
+                  <span className="num-tabular">
+                    {selectedLeadForDetail.numberOfPanels || Math.ceil(((selectedLeadForDetail.systemKw || 5) * 1000) / 585)} Plates
+                  </span>
+                </p>
+                <p>
+                  <strong>Solar Panel Model:</strong>{' '}
+                  {selectedLeadForDetail.selectedPanel?.name ||
+                   selectedLeadForDetail.selectedProducts?.find(p => p.category === 'panels')?.name ||
+                   'Tier-1 Mono TOPCon 585W Modules'}{' '}
+                  {selectedLeadForDetail.selectedPanel?.brand ? `(${selectedLeadForDetail.selectedPanel.brand})` : ''}
+                </p>
+                <p>
+                  <strong>Solar Inverter:</strong>{' '}
+                  {selectedLeadForDetail.selectedInverter?.name ||
+                   selectedLeadForDetail.selectedProducts?.find(p => p.category === 'inverters')?.name ||
+                   `${selectedLeadForDetail.systemKw || 5} kW Dual MPPT Tier-1 Inverter`}
+                </p>
+                {selectedLeadForDetail.systemType === 'hybrid' ? (
+                  <p>
+                    <strong>Battery Storage:</strong>{' '}
+                    {selectedLeadForDetail.selectedBattery?.name ||
+                     selectedLeadForDetail.selectedProducts?.find(p => p.category === 'batteries')?.name ||
+                     'Lithium LiFePO4 Backup Battery Bank'}
+                  </p>
+                ) : (
+                  <p><strong>Battery:</strong> None (On-Grid Net Metered Direct DISCO Export)</p>
                 )}
-                {selectedLeadForDetail.selectedBattery && (
-                  <p><strong>Battery:</strong> {selectedLeadForDetail.selectedBattery.name}</p>
-                )}
+                <p>
+                  <strong>Mounting Structure:</strong>{' '}
+                  {selectedLeadForDetail.selectedStructure?.name ||
+                   (typeof selectedLeadForDetail.selectedStructure === 'string' ? selectedLeadForDetail.selectedStructure : null) ||
+                   selectedLeadForDetail.roofType ||
+                   'Standard Galvanized Steel Rooftop Structure'}
+                </p>
+
+                {/* Complete Itemized Cost Breakdown */}
+                <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px dashed rgba(255,255,255,0.12)' }}>
+                  <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.04em', marginBottom: '8px', textTransform: 'uppercase' }}>
+                    Quotation & Cost Breakdown (A-to-Z):
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '12.5px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '7px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ color: '#94a3b8' }}>Panels Cost: </span>
+                      <strong className="num-tabular" style={{ color: '#f1f5f9' }}>
+                        PKR {Number(selectedLeadForDetail.panelsCost || Math.round((selectedLeadForDetail.estimatedTotalCost || 600000) * 0.44)).toLocaleString()}
+                      </strong>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '7px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ color: '#94a3b8' }}>Inverter Cost: </span>
+                      <strong className="num-tabular" style={{ color: '#f1f5f9' }}>
+                        PKR {Number(selectedLeadForDetail.inverterCost || Math.round((selectedLeadForDetail.estimatedTotalCost || 600000) * 0.25)).toLocaleString()}
+                      </strong>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '7px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ color: '#94a3b8' }}>Structure: </span>
+                      <strong className="num-tabular" style={{ color: '#f1f5f9' }}>
+                        PKR {Number(selectedLeadForDetail.structureCost || Math.round((selectedLeadForDetail.estimatedTotalCost || 600000) * 0.10)).toLocaleString()}
+                      </strong>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '7px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ color: '#94a3b8' }}>Cables & BOS: </span>
+                      <strong className="num-tabular" style={{ color: '#f1f5f9' }}>
+                        PKR {Number(selectedLeadForDetail.cablesAndProtections || Math.round((selectedLeadForDetail.estimatedTotalCost || 600000) * 0.08)).toLocaleString()}
+                      </strong>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '7px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ color: '#94a3b8' }}>Net Metering: </span>
+                      <strong className="num-tabular" style={{ color: '#f1f5f9' }}>
+                        PKR {Number(selectedLeadForDetail.netMeteringCost || 85000).toLocaleString()}
+                      </strong>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '7px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ color: '#94a3b8' }}>Labor & Installation: </span>
+                      <strong className="num-tabular" style={{ color: '#f1f5f9' }}>
+                        PKR {Number(selectedLeadForDetail.installationLabor || Math.round((selectedLeadForDetail.estimatedTotalCost || 600000) * 0.06)).toLocaleString()}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="detail-section">
@@ -1321,8 +2117,8 @@ export default function SupplierDashboardPage() {
 
               <div className="modal-actions-full">
                 <a
-                  href={`https://wa.me/${(selectedLeadForDetail.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Assalam o Alaikum ${selectedLeadForDetail.customerName || 'Customer'}! This is ${supplier?.name || 'Solar Partner'}. Regarding your ${selectedLeadForDetail.systemKw} kW solar estimate (Ref: ${selectedLeadForDetail.ref}), we are ready to schedule your site survey.`
+                  href={`https://wa.me/${(selectedLeadForDetail.customerWhatsApp || selectedLeadForDetail.customerPhone || selectedLeadForDetail.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                    `Assalam o Alaikum ${selectedLeadForDetail.customerName || 'Customer'}! This is ${supplier?.name || 'Solar Partner'}. Regarding your ${selectedLeadForDetail.systemKw} kW solar estimate (Ref: ${selectedLeadForDetail.ref || selectedLeadForDetail.id}), we are ready to schedule your site survey.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -1331,6 +2127,15 @@ export default function SupplierDashboardPage() {
                   <IconWhatsApp size={16} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
                   <span>Open in WhatsApp</span>
                 </a>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteLead(selectedLeadForDetail.id)}
+                  className="btn-delete-modal-cta"
+                  title="Delete this customer inquiry permanently"
+                >
+                  <IconTrash size={15} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                  <span>Delete Inquiry</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setSelectedLeadForDetail(null)}

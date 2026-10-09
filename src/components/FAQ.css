@@ -131,3 +131,54 @@
     padding: 0 16px 16px 16px;
   }
 }
+
+/* ==========================================================================
+   Comprehensive Light Theme Overrides for FAQ
+   ========================================================================== */
+body.light-theme .faq-section,
+[data-theme="light"] .faq-section {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+body.light-theme .faq-card,
+[data-theme="light"] .faq-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .faq-card:hover,
+[data-theme="light"] .faq-card:hover {
+  background: #f8fafc;
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+body.light-theme .faq-card.is-open,
+[data-theme="light"] .faq-card.is-open {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .faq-trigger,
+[data-theme="light"] .faq-trigger {
+  color: #0f172a;
+}
+
+body.light-theme .faq-icon,
+[data-theme="light"] .faq-icon {
+  color: #64748b;
+}
+
+body.light-theme .faq-card.is-open .faq-icon,
+[data-theme="light"] .faq-card.is-open .faq-icon {
+  color: #0284c7;
+}
+
+body.light-theme .faq-a-text,
+[data-theme="light"] .faq-a-text {
+  color: #475569;
+}
+

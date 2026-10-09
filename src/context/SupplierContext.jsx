@@ -111,6 +111,12 @@ export const SupplierProvider = ({ children }) => {
     return lead;
   };
 
+  const deleteLead = (leadId, supplierId) => {
+    const res = dbService.deleteLead(leadId, supplierId);
+    setDataVersion(v => v + 1);
+    return res;
+  };
+
   const updateSupplier = (supplierId, updates) => {
     const res = dbService.updateSupplier(supplierId, updates);
     const updatedList = dbService.getSuppliers();
@@ -146,6 +152,7 @@ export const SupplierProvider = ({ children }) => {
     updateProduct,
     deleteProduct,
     submitCustomerBooking,
+    deleteLead,
     updateLeadStatus,
     selectSupplierBySlug,
     dataVersion

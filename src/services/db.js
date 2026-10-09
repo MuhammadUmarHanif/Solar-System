@@ -4,7 +4,7 @@ import { db as firestoreDb, rtdb } from './firebase';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { ref, set as rtdbSet, remove as rtdbRemove } from 'firebase/database';
 
-const DB_STORAGE_KEY = 'orbit_solar_single_company_v2';
+const DB_STORAGE_KEY = 'orbit_solar_single_company_v4';
 
 // Asynchronous Firebase Cloud Sync (Realtime Database + Cloud Firestore)
 const firebaseSync = {
@@ -35,6 +35,16 @@ const firebaseSync = {
       }
       if (rtdb && lead && lead.id) {
         rtdbSet(ref(rtdb, `leads/${lead.id}`), lead).catch(() => {});
+      }
+    } catch {}
+  },
+  deleteLead: (leadId) => {
+    try {
+      if (firestoreDb && leadId) {
+        deleteDoc(doc(firestoreDb, 'leads', String(leadId))).catch(() => {});
+      }
+      if (rtdb && leadId) {
+        rtdbRemove(ref(rtdb, `leads/${leadId}`)).catch(() => {});
       }
     } catch {}
   },
@@ -290,6 +300,42 @@ const initializeSeedDatabase = () => {
 
     // 2. Inverters
     products.push(
+      {
+        id: `inv_1_2_${s.id}`,
+        supplierId: s.id,
+        category: 'inverters',
+        name: 'Fronus / Inverex 1.2 kW Solar Hybrid Inverter',
+        brand: 'Fronus / Inverex',
+        model: 'Solar 1.2K-12V',
+        wattage: 1200,
+        type: 'Hybrid Solar / Pure Sine Wave',
+        price: 75000 + (idx * 2000),
+        unit: 'per unit',
+        stockQuantity: 50,
+        isAvailable: true,
+        isActive: true,
+        warranty: '2 Years Local Warranty',
+        description: 'Ideal for 1-2 Marla homes, running fans, lights, TV & UPS replacement.',
+        createdAt: s.createdAt
+      },
+      {
+        id: `inv_2_5_${s.id}`,
+        supplierId: s.id,
+        category: 'inverters',
+        name: 'Inverex / Knox 2.5 kW Solar Hybrid Inverter',
+        brand: 'Inverex / Knox',
+        model: 'Aero 2.5K-24V',
+        wattage: 2500,
+        type: 'Hybrid Solar / MPPT Charge Controller',
+        price: 105000 + (idx * 2500),
+        unit: 'per unit',
+        stockQuantity: 40,
+        isAvailable: true,
+        isActive: true,
+        warranty: '5 Years Warranty',
+        description: 'Ideal for 2-3 Marla homes, running fridge, water pump & essential household load.',
+        createdAt: s.createdAt
+      },
       {
         id: `inv_3_6_${s.id}`,
         supplierId: s.id,
@@ -1096,26 +1142,55 @@ class SolarSaaSDatabase {
     const supplier = this.getSupplierById(leadData.supplierId);
     if (!supplier) throw new Error("Target supplier does not exist.");
 
-    const id = `LEAD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const id = leadData.id || `LEAD-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const customerName = (leadData.customerName || leadData.name || '').trim();
+    const customerPhone = (leadData.customerPhone || leadData.phone || '').trim();
+    const customerWhatsApp = (leadData.customerWhatsApp || leadData.whatsappNumber || leadData.whatsapp || customerPhone).replace(/[^0-9]/g, '');
+    const customerCity = leadData.customerCity || leadData.city || supplier.cityName || 'Pakistan';
+    const customerAddress = (leadData.customerAddress || leadData.address || '').trim();
+    const customerNotes = (leadData.customerNotes || leadData.notes || '').trim();
 
     const newLead = {
+      // Retain all rich equipment & cost breakdown properties
+      ...leadData,
       id,
       supplierId: leadData.supplierId,
-      customerName: (leadData.customerName || '').trim(),
-      customerPhone: (leadData.customerPhone || '').trim(),
-      customerWhatsApp: (leadData.customerWhatsApp || leadData.customerPhone || '').replace(/[^0-9]/g, ''),
-      customerCity: leadData.customerCity || supplier.cityName || 'Pakistan',
-      customerAddress: leadData.customerAddress || '',
+      customerName,
+      name: customerName,
+      customerPhone,
+      phone: customerPhone,
+      customerWhatsApp,
+      whatsapp: customerWhatsApp,
+      whatsappNumber: customerWhatsApp,
+      customerCity,
+      city: customerCity,
+      customerAddress,
+      address: customerAddress,
+      roofType: leadData.roofType || 'Standard Rooftop',
       systemKw: parseFloat(leadData.systemKw) || 5.0,
       systemType: leadData.systemType || 'ongrid',
       monthlyBillRs: parseInt(leadData.monthlyBillRs, 10) || 0,
       monthlyUnits: parseInt(leadData.monthlyUnits, 10) || 0,
+      numberOfPanels: leadData.numberOfPanels || null,
+      selectedPanel: leadData.selectedPanel || null,
+      selectedInverter: leadData.selectedInverter || null,
+      selectedBattery: leadData.selectedBattery || null,
+      selectedStructure: leadData.selectedStructure || null,
+      panelsCost: leadData.panelsCost || null,
+      inverterCost: leadData.inverterCost || null,
+      structureCost: leadData.structureCost || null,
+      cablesAndProtections: leadData.cablesAndProtections || null,
+      netMeteringCost: leadData.netMeteringCost || null,
+      installationLabor: leadData.installationLabor || null,
+      batteryCost: leadData.batteryCost || null,
       selectedProducts: Array.isArray(leadData.selectedProducts) ? leadData.selectedProducts : [],
       estimatedTotalCost: Math.round(parseFloat(leadData.estimatedTotalCost) || 0),
-      status: 'new',
-      customerNotes: leadData.customerNotes || '',
-      supplierNotes: '',
-      createdAt: new Date().toISOString(),
+      status: leadData.status || 'new',
+      customerNotes,
+      notes: customerNotes,
+      supplierNotes: leadData.supplierNotes || '',
+      createdAt: leadData.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
@@ -1123,6 +1198,16 @@ class SolarSaaSDatabase {
     this.saveDatabase();
     firebaseSync.saveLead(newLead);
     return newLead;
+  }
+
+  deleteLead(leadId, supplierId = null) {
+    const idx = this.db.leads.findIndex(l => l.id === leadId && (supplierId === null || l.supplierId === supplierId));
+    if (idx === -1) return false;
+
+    this.db.leads.splice(idx, 1);
+    this.saveDatabase();
+    firebaseSync.deleteLead(leadId);
+    return true;
   }
 
   updateLeadStatus(leadId, supplierId, status, notes = null) {

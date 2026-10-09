@@ -10,6 +10,7 @@
   --glass-bg: rgba(255, 255, 255, .12);
   --glass-line: rgba(255, 255, 255, .15);
   --r-btn: calc(10 * var(--u));
+  --brand-cut: #000000;
 }
 
 @supports (height: 100dvh) {
@@ -48,8 +49,8 @@
   background: #000;
 }
 
-/* Background video */
-.orbit-hero-frame video.sky {
+/* Background artwork */
+.orbit-hero-frame .sky {
   position: absolute;
   top: calc(-1.5 * var(--u));
   left: 50%;
@@ -62,6 +63,14 @@
   z-index: 0;
   pointer-events: none;
   user-select: none;
+}
+
+.orbit-hero-frame .sky-video {
+  display: block;
+}
+
+.orbit-hero-frame .sky-light {
+  display: none;
 }
 
 /* Dark veil with smooth bottom gradient fade */
@@ -902,51 +911,162 @@
   letter-spacing: 0.02em;
 }
 
-/* Light Theme Overrides for Orbit Hero */
-body.light-theme .orbit-hero-frame div.veil {
-  background: linear-gradient(to bottom, rgba(248, 250, 252, 0.15) 0%, rgba(248, 250, 252, 0.45) 50%, rgba(248, 250, 252, 0.88) 85%, #f8fafc 100%);
+/* Header Theme Toggle Button */
+.btn-theme-toggle-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
 }
 
-body.light-theme .orbit-hero-frame nav.sheet {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+.btn-theme-toggle-header:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #00d2ff;
+  color: #00d2ff;
+  transform: scale(1.06);
 }
 
-body.light-theme .orbit-hero-frame nav.sheet a {
-  color: #0f172a;
+/* ==========================================================================
+   Orbit Hero: ALWAYS DARK COSMIC EXPERIENCE
+   (Keeps deep space artwork, video, stars & glowing accents in all themes)
+   ========================================================================== */
+.orbit-hero-wrapper,
+.orbit-hero-frame {
+  background: #000 !important;
+  color: #fff !important;
 }
 
-body.light-theme .orbit-hero-frame nav.sheet a:hover {
-  background: rgba(2, 132, 199, 0.08);
-  color: #0284c7;
+.orbit-hero-frame video.sky {
+  display: block !important;
+  opacity: 1 !important;
 }
 
-body.light-theme .orbit-hero-frame .ghost {
-  background: rgba(255, 255, 255, 0.85);
-  color: #0f172a;
-  border-color: rgba(0, 0, 0, 0.15);
+/* Ensure hero typography always stays crisp white / cosmic */
+.orbit-hero-frame a.brand {
+  color: rgba(255, 255, 255, 0.98) !important;
 }
 
-body.light-theme .orbit-hero-frame .ghost:hover {
-  background: #ffffff;
-  border-color: #0284c7;
+.orbit-hero-frame nav.links a {
+  color: rgba(255, 255, 255, 0.78) !important;
 }
 
-body.light-theme .orbit-hero-frame .theme-toggle-btn {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(0, 0, 0, 0.15);
-  color: #0f172a;
+.orbit-hero-frame nav.links a:hover {
+  color: #00d2ff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
-body.light-theme .orbit-hero-frame .theme-toggle-btn:hover {
-  background: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 2px 12px rgba(2, 132, 199, 0.2);
+.orbit-hero-frame main.hero h1 {
+  color: #ffffff !important;
 }
 
-body.light-theme .orbit-hero-frame button.menu {
-  color: #0f172a;
-  border-color: rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.7);
+.orbit-hero-frame .ln-i:not(.gradient-sub) {
+  color: #ffffff !important;
+}
+
+.orbit-hero-frame .gradient-sub {
+  background: linear-gradient(180deg, #ffffff 10%, #9cb8ff 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.orbit-hero-frame main.hero p {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+/* Hero Pill: Cosmic glowing style */
+.orbit-hero-frame a.pill {
+  background: rgba(3, 7, 18, 0.65) !important;
+  border-color: rgba(0, 210, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.15) !important;
+}
+
+.orbit-hero-frame a.pill:hover {
+  background: rgba(3, 7, 18, 0.85) !important;
+  border-color: rgba(39, 232, 167, 0.6) !important;
+  box-shadow: 0 0 25px rgba(39, 232, 167, 0.3) !important;
+}
+
+.orbit-hero-frame span.chip {
+  color: #00d2ff !important;
+  background: transparent !important;
+}
+
+.orbit-hero-frame span.pill-label {
+  color: #ffffff !important;
+}
+
+.orbit-hero-frame .pill-arrow {
+  color: rgba(0, 210, 255, 0.9) !important;
+}
+
+/* CTA Buttons */
+.orbit-hero-frame .cta .cta-estimate {
+  background: linear-gradient(135deg, #00d2ff, #27e8a7) !important;
+  color: #030712 !important;
+  box-shadow: 0 4px 20px rgba(0, 210, 255, 0.35) !important;
+}
+
+.orbit-hero-frame .cta .cta-estimate:hover {
+  background: linear-gradient(135deg, #27e8a7, #00d2ff) !important;
+  box-shadow: 0 6px 25px rgba(39, 232, 167, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+.orbit-hero-frame .cta .cta-tracker {
+  background: rgba(13, 20, 38, 0.65) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.orbit-hero-frame .cta .cta-tracker:hover {
+  background: rgba(20, 30, 55, 0.85) !important;
+  border-color: rgba(0, 210, 255, 0.5) !important;
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.2) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Header theme toggle */
+.btn-theme-toggle-header {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+.btn-theme-toggle-header:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: #00d2ff !important;
+  color: #00d2ff !important;
+}
+
+/* Hero Veil: Pure Dark Space (NO milky white fog over the planet/clouds) */
+.orbit-hero-frame div.veil,
+body.light-theme .orbit-hero-frame div.veil,
+[data-theme="light"] .orbit-hero-frame div.veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.08) 60%, rgba(2, 4, 8, 0.65) 85%, #020408 100%) !important;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.orbit-scroll-hint,
+body.light-theme .orbit-scroll-hint,
+[data-theme="light"] .orbit-scroll-hint {
+  color: rgba(255, 255, 255, 0.75) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.orbit-scroll-hint:hover {
+  color: #00d2ff !important;
 }

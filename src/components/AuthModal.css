@@ -350,3 +350,88 @@
   outline: 2px solid #13ffaa;
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   Comprehensive Light Theme Overrides for AuthModal
+   ========================================================================== */
+body.light-theme .auth-modal,
+[data-theme="light"] .auth-modal {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.16);
+}
+
+body.light-theme .auth-modal__title,
+[data-theme="light"] .auth-modal__title {
+  color: #0f172a;
+}
+
+body.light-theme .auth-modal__subtitle,
+[data-theme="light"] .auth-modal__subtitle {
+  color: #64748b;
+}
+
+body.light-theme .auth-modal__tabs,
+[data-theme="light"] .auth-modal__tabs {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .auth-modal__tab,
+[data-theme="light"] .auth-modal__tab {
+  color: #475569;
+}
+
+body.light-theme .auth-modal__tab.is-active,
+[data-theme="light"] .auth-modal__tab.is-active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .auth-field__label,
+[data-theme="light"] .auth-field__label {
+  color: #334155;
+}
+
+body.light-theme .auth-field__input,
+[data-theme="light"] .auth-field__input {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.14);
+  color: #0f172a;
+}
+
+body.light-theme .auth-field__input::placeholder,
+[data-theme="light"] .auth-field__input::placeholder {
+  color: #94a3b8;
+}
+
+body.light-theme .auth-field__input:focus,
+[data-theme="light"] .auth-field__input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+body.light-theme .auth-modal__hint,
+[data-theme="light"] .auth-modal__hint {
+  color: #64748b;
+}
+
+body.light-theme .auth-modal__link,
+[data-theme="light"] .auth-modal__link {
+  color: #0284c7;
+}
+
+body.light-theme .auth-modal__close,
+[data-theme="light"] .auth-modal__close {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .auth-modal__close:hover,
+[data-theme="light"] .auth-modal__close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}

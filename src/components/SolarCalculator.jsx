@@ -24,7 +24,8 @@ import {
   IconHome,
   IconFileText,
   IconCheck,
-  IconTree
+  IconTree,
+  IconX
 } from './Icons';
 
 export default function SolarCalculator({ supplierOverride }) {
@@ -154,32 +155,63 @@ export default function SolarCalculator({ supplierOverride }) {
     ));
   };
 
+  // Accurate Pakistan NEPRA Slab Tariff Calculation (Residential 2024-2026 with FPA, FC, GST & Duty)
+  const calculateBillFromUnits = (units) => {
+    const u = Math.max(0, units);
+    if (u <= 100) return Math.round(u * 22);
+    if (u <= 200) return Math.round(100 * 22 + (u - 100) * 32);
+    if (u <= 300) return Math.round(100 * 22 + 100 * 32 + (u - 200) * 44);
+    if (u <= 400) return Math.round(100 * 22 + 100 * 32 + 100 * 44 + (u - 300) * 52);
+    if (u <= 700) return Math.round(100 * 22 + 100 * 32 + 100 * 44 + 100 * 52 + (u - 400) * 58);
+    return Math.round(100 * 22 + 100 * 32 + 100 * 44 + 100 * 52 + 300 * 58 + (u - 700) * 65);
+  };
+
+  const calculateUnitsFromBill = (billRs) => {
+    const b = Math.max(0, billRs);
+    const b100 = 100 * 22; // 2,200
+    if (b <= b100) return Math.round(b / 22);
+    const b200 = b100 + 100 * 32; // 2,200 + 3,200 = 5,400
+    if (b <= b200) return Math.round(100 + (b - b100) / 32);
+    const b300 = b200 + 100 * 44; // 5,400 + 4,400 = 9,800
+    if (b <= b300) return Math.round(200 + (b - b200) / 44);
+    const b400 = b300 + 100 * 52; // 9,800 + 5,200 = 15,000
+    if (b <= b400) return Math.round(300 + (b - b300) / 52);
+    const b700 = b400 + 300 * 58; // 15,000 + 17,400 = 32,400
+    if (b <= b700) return Math.round(400 + (b - b400) / 58);
+    return Math.round(700 + (b - b700) / 65);
+  };
+
   // Sync bill Rs and Units
   const handleBillRsChange = (val) => {
     const num = Math.max(0, parseInt(val, 10) || 0);
     setMonthlyBillRs(num);
-    setMonthlyUnits(Math.round(num / avgTariff));
+    setMonthlyUnits(calculateUnitsFromBill(num));
   };
 
   const handleUnitsChange = (val) => {
     const num = Math.max(0, parseInt(val, 10) || 0);
     setMonthlyUnits(num);
-    setMonthlyBillRs(num * avgTariff);
+    setMonthlyBillRs(calculateBillFromUnits(num));
   };
 
-  // Quick Preset Handlers
+  // Quick Preset Handlers for Pakistani Homes (1 Marla to 2 Kanal)
   const applyHousePreset = (preset) => {
-    if (preset === '5marla') {
-      setInputMode('direct_kw');
+    setInputMode('direct_kw');
+    if (preset === '1marla') {
+      setTargetKw(1.2);
+    } else if (preset === '2marla') {
+      setTargetKw(1.8);
+    } else if (preset === '3marla') {
+      setTargetKw(2.5);
+    } else if (preset === '5marla') {
       setTargetKw(3.5);
+    } else if (preset === '7marla') {
+      setTargetKw(5.5);
     } else if (preset === '10marla') {
-      setInputMode('direct_kw');
       setTargetKw(7);
     } else if (preset === '1kanal') {
-      setInputMode('direct_kw');
       setTargetKw(10);
     } else if (preset === '2kanal') {
-      setInputMode('direct_kw');
       setTargetKw(15);
     }
   };
@@ -193,7 +225,7 @@ export default function SolarCalculator({ supplierOverride }) {
     if (inputMode === 'direct_kw') {
       requiredDcKw = targetKw;
     } else if (inputMode === 'bill_rs') {
-      const units = monthlyBillRs / avgTariff;
+      const units = calculateUnitsFromBill(monthlyBillRs);
       const dailyKwhNeeded = units / 30;
       requiredDcKw = (dailyKwhNeeded / sunHours) / derateFactor;
     } else if (inputMode === 'bill_units') {
@@ -208,17 +240,17 @@ export default function SolarCalculator({ supplierOverride }) {
       requiredDcKw = (dailyKwhNeeded / sunHours) / derateFactor;
     }
 
-    if (requiredDcKw <= 0) requiredDcKw = 3.5;
+    if (requiredDcKw <= 0) requiredDcKw = 1.0;
 
-    // Number of Panels required
+    // Number of Panels required (starts from 2 panels for ~1 kW systems)
     const panelWatts = selectedPanel?.watts || 585;
-    const numberOfPanels = Math.max(4, Math.ceil((requiredDcKw * 1000) / panelWatts));
+    const numberOfPanels = Math.max(2, Math.ceil((requiredDcKw * 1000) / panelWatts));
     const exactSystemKw = (numberOfPanels * panelWatts) / 1000;
 
     // Matching Inverter (from supplier catalog if available)
-    let inverterKw = 3.6;
-    let inverterName = "3.6 kW Single-Phase Inverter";
-    let inverterCost = 145000;
+    let inverterKw = 1.2;
+    let inverterName = "1.2 kW Solar Hybrid Inverter (Fronus / Inverex / Homage)";
+    let inverterCost = 75000;
     let inverterObj = null;
 
     if (selectedInverter) {
@@ -227,8 +259,9 @@ export default function SolarCalculator({ supplierOverride }) {
       inverterKw = (selectedInverter.wattage || 6000) / 1000;
       inverterObj = selectedInverter;
     } else if (availableInverters.length > 0) {
-      // Auto-match closest inverter capacity >= exactSystemKw
-      const autoMatch = availableInverters.find(i => ((i.wattage || 6000) / 1000) >= exactSystemKw) || availableInverters[availableInverters.length - 1];
+      // Auto-match closest inverter capacity >= exactSystemKw (sorted by wattage)
+      const sortedInverters = [...availableInverters].sort((a, b) => (a.wattage || 0) - (b.wattage || 0));
+      const autoMatch = sortedInverters.find(i => ((i.wattage || 6000) / 1000) >= (exactSystemKw * 0.95)) || sortedInverters[sortedInverters.length - 1];
       if (autoMatch) {
         inverterCost = autoMatch.price;
         inverterName = autoMatch.name;
@@ -260,6 +293,18 @@ export default function SolarCalculator({ supplierOverride }) {
         inverterKw = 6;
         inverterName = "6 kW Dual-MPPT Inverter (Inverex Nitrox / Solis)";
         inverterCost = 175000;
+      } else if (exactSystemKw > 2.8) {
+        inverterKw = 3.6;
+        inverterName = "3.6 kW Single-Phase Inverter (Inverex Nitrox / Solis / Knox)";
+        inverterCost = 145000;
+      } else if (exactSystemKw > 1.6) {
+        inverterKw = 2.5;
+        inverterName = "2.5 kW Solar Hybrid Inverter (Inverex / Crown / Knox)";
+        inverterCost = 105000;
+      } else {
+        inverterKw = 1.2;
+        inverterName = "1.2 kW Solar Hybrid Inverter (Fronus / Inverex / Homage)";
+        inverterCost = 75000;
       }
     }
 
@@ -269,16 +314,26 @@ export default function SolarCalculator({ supplierOverride }) {
       ? (calcConfig.elevatedStructureCostPerWatt || 15.0)
       : (calcConfig.standardStructureCostPerWatt || 5.5);
     const structureCost = Math.round(exactSystemKw * 1000 * structureCostPerWatt);
-    const cablesAndProtections = Math.round(
-      (calcConfig.cableProtectionBase || 38000) + (exactSystemKw * (calcConfig.cableProtectionPerKw || 5800))
-    );
-    const netMeteringCost = selectedSystemType === 'ongrid'
-      ? (calcConfig.netMeteringOngrid || 115000)
-      : (calcConfig.netMeteringHybrid || 85000);
+
+    // Realistic scaling for small vs large installations in Pakistan
+    const isSmallSystem = exactSystemKw < 3.8;
+    const cablesAndProtections = isSmallSystem
+      ? Math.round(18000 + (exactSystemKw * 3500))
+      : Math.round((calcConfig.cableProtectionBase || 38000) + (exactSystemKw * (calcConfig.cableProtectionPerKw || 5800)));
+
+    // In Pakistan, DISCO net-metering is only applicable for 3-phase connections (systems >= 3.8 kW).
+    // Single-phase 1-3 kW systems operate direct self-consumption / UPS backup without net-metering fees.
+    const isNetMeteringApplicable = exactSystemKw >= 3.8;
+    const netMeteringCost = isNetMeteringApplicable
+      ? (selectedSystemType === 'ongrid'
+        ? (calcConfig.netMeteringOngrid || 115000)
+        : (calcConfig.netMeteringHybrid || 85000))
+      : 0;
+
     const batteryCost = selectedSystemType === 'hybrid' ? (selectedBattery?.price || 0) : 0;
-    const installationLabor = Math.round(
-      (calcConfig.installationLaborBase || 26000) + (exactSystemKw * (calcConfig.installationLaborPerKw || 2800))
-    );
+    const installationLabor = isSmallSystem
+      ? Math.round(15000 + (exactSystemKw * 2200))
+      : Math.round((calcConfig.installationLaborBase || 26000) + (exactSystemKw * (calcConfig.installationLaborPerKw || 2800)));
 
     const turnkeySubtotal = panelsCost + inverterCost + structureCost + cablesAndProtections + netMeteringCost + batteryCost + installationLabor;
     const totalEstimatedCostMin = Math.round(turnkeySubtotal * 0.96);
@@ -287,7 +342,8 @@ export default function SolarCalculator({ supplierOverride }) {
     // Generation Stats
     const dailyGeneratedUnits = (exactSystemKw * sunHours * derateFactor).toFixed(1);
     const monthlyGeneratedUnits = Math.round(exactSystemKw * sunHours * 30 * derateFactor);
-    const monthlySavings = Math.round(monthlyGeneratedUnits * avgTariff);
+    // Real Pakistan bill savings using slab tariff
+    const monthlySavings = calculateBillFromUnits(monthlyGeneratedUnits);
     const yearlySavings = monthlySavings * 12;
     const lifetime25YrSavings = yearlySavings * 25;
 
@@ -308,6 +364,7 @@ export default function SolarCalculator({ supplierOverride }) {
       panelsCost,
       structureCost,
       cablesAndProtections,
+      isNetMeteringApplicable,
       netMeteringCost,
       batteryCost,
       installationLabor,
@@ -323,7 +380,7 @@ export default function SolarCalculator({ supplierOverride }) {
       roofAreaSqFt,
       co2OffsetTonnes
     };
-  }, [inputMode, targetKw, monthlyBillRs, monthlyUnits, appliances, selectedSystemType, selectedPanel, selectedInverter, selectedStructure, selectedBattery, availableInverters, calcConfig, avgTariff]);
+  }, [inputMode, targetKw, monthlyBillRs, monthlyUnits, appliances, selectedSystemType, selectedPanel, selectedInverter, selectedStructure, selectedBattery, availableInverters, calcConfig]);
 
   // Inline Booking Submission Handler (Direct on page, no screen overlay)
   const handleInlineBookingSubmit = (e) => {
@@ -334,32 +391,77 @@ export default function SolarCalculator({ supplierOverride }) {
     const ref = `PAK-${cityCode}-${Math.floor(1000 + Math.random() * 9000)}`;
     setBookingRef(ref);
 
-    const waNum = bookingForm.whatsapp.trim() || bookingForm.phone.trim();
+    const customerPhone = bookingForm.phone.trim();
+    const customerWhatsApp = (bookingForm.whatsapp.trim() || bookingForm.phone.trim()).replace(/[^0-9]/g, '');
+    const customerAddress = bookingForm.address.trim();
+    const customerCity = effectiveSupplier?.cityName || 'Pakistan';
+    const customerNotes = bookingForm.notes.trim();
+
+    const panelInfo = selectedPanel ? {
+      id: selectedPanel.id,
+      name: selectedPanel.name,
+      brand: selectedPanel.brand || 'Tier-1 Mono TOPCon',
+      wattage: selectedPanel.wattage || selectedPanel.watts || 585,
+      price: selectedPanel.price || 21500
+    } : {
+      id: 'p-tier1-default',
+      name: `Tier-1 585W Mono TOPCon (${calculatedResults.numberOfPanels} Plates)`,
+      brand: 'Tier-1 Mono TOPCon',
+      wattage: 585,
+      price: 21500
+    };
+
+    const inverterInfo = {
+      name: calculatedResults.inverterName || `${calculatedResults.inverterKw} kW Solar Inverter`,
+      kw: calculatedResults.inverterKw,
+      price: calculatedResults.inverterCost
+    };
+
+    const structureInfo = selectedStructure ? {
+      id: selectedStructure.id,
+      name: selectedStructure.name,
+      description: selectedStructure.description
+    } : {
+      name: bookingForm.roofType || 'Standard Galvanized Rooftop Structure'
+    };
 
     const leadPayload = {
       ref,
+      id: ref,
       supplierId: effectiveSupplier?.id || 'sup_apex_solar',
       customerName: bookingForm.name.trim(),
-      phone: bookingForm.phone.trim(),
-      whatsappNumber: waNum,
-      city: effectiveSupplier?.cityName || 'Pakistan',
-      address: bookingForm.address.trim(),
+      name: bookingForm.name.trim(),
+      customerPhone,
+      phone: customerPhone,
+      customerWhatsApp,
+      whatsapp: customerWhatsApp,
+      whatsappNumber: customerWhatsApp,
+      customerCity,
+      city: customerCity,
+      customerAddress,
+      address: customerAddress,
       roofType: bookingForm.roofType,
       systemKw: calculatedResults.systemKw,
+      systemType: selectedSystemType,
       numberOfPanels: calculatedResults.numberOfPanels,
-      selectedPanel: selectedPanel ? {
-        id: selectedPanel.id,
-        name: selectedPanel.name,
-        wattage: selectedPanel.wattage,
-        price: selectedPanel.price
-      } : null,
-      selectedInverter: {
-        name: calculatedResults.inverterName,
-        price: calculatedResults.inverterCost
-      },
+      selectedPanel: panelInfo,
+      selectedInverter: inverterInfo,
       selectedBattery: calculatedResults.batteryCost > 0 ? selectedBattery : null,
+      selectedStructure: structureInfo,
+      panelsCost: calculatedResults.panelsCost,
+      inverterCost: calculatedResults.inverterCost,
+      structureCost: calculatedResults.structureCost,
+      cablesAndProtections: calculatedResults.cablesAndProtections,
+      netMeteringCost: calculatedResults.netMeteringCost,
+      installationLabor: calculatedResults.installationLabor,
+      batteryCost: calculatedResults.batteryCost,
       estimatedTotalCost: calculatedResults.turnkeySubtotal,
-      notes: bookingForm.notes.trim()
+      customerNotes,
+      notes: customerNotes,
+      selectedProducts: [
+        { category: 'panels', name: panelInfo.name, brand: panelInfo.brand, price: panelInfo.price },
+        { category: 'inverters', name: inverterInfo.name, price: inverterInfo.price }
+      ]
     };
 
     try {
@@ -372,19 +474,28 @@ export default function SolarCalculator({ supplierOverride }) {
       dbService.createLead(leadPayload);
     }
 
-    // Build WhatsApp direct message link
+    // Build Comprehensive A-to-Z WhatsApp direct message link
     const waText =
-      `Hello ${effectiveSupplier?.name || 'Orbit Solar'},\n` +
-      `I am interested in booking the solar system calculated on your portal (Ref: ${ref}).\n\n` +
-      `⚡ System Size: ${calculatedResults.systemKw} kW\n` +
-      `☀️ Panels: ${calculatedResults.numberOfPanels} × ${selectedPanel?.name || 'Tier-1 Module'}\n` +
-      `🔌 Inverter: ${calculatedResults.inverterName || 'Solar Inverter'}\n` +
-      (calculatedResults.batteryCost > 0 ? `🔋 Battery: ${selectedBattery?.name}\n` : '') +
-      `💰 Est. Turnkey: PKR ${(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh (Rs. ${Number(calculatedResults.turnkeySubtotal).toLocaleString()})\n` +
+      `*SOLAR SYSTEM BOOKING INQUIRY (Ref: ${ref})*\n` +
+      `Company: ${effectiveSupplier?.name || 'Orbit Solar Technologies'}\n\n` +
+      `*COMPLETE A-TO-Z SYSTEM SPECIFICATIONS:*\n` +
+      `⚡ System Capacity: ${calculatedResults.systemKw} kW (${selectedSystemType === 'hybrid' ? 'Hybrid with Battery' : 'On-Grid Net Metered'})\n` +
+      `☀️ Solar Plates: ${calculatedResults.numberOfPanels} Plates × ${selectedPanel?.brand ? `${selectedPanel.brand} ` : ''}${selectedPanel?.name || 'Tier-1 Module'} (Cost: PKR ${Number(calculatedResults.panelsCost).toLocaleString()})\n` +
+      `🔌 Inverter: ${calculatedResults.inverterName} (Cost: PKR ${Number(calculatedResults.inverterCost).toLocaleString()})\n` +
+      (calculatedResults.batteryCost > 0 ? `🔋 Battery Bank: ${selectedBattery?.name || 'Lithium Battery'} (Cost: PKR ${Number(calculatedResults.batteryCost).toLocaleString()})\n` : `🔋 Battery: None (On-Grid Net Metered)\n`) +
+      `🏗️ Structure: ${selectedStructure?.name || bookingForm.roofType} (Cost: PKR ${Number(calculatedResults.structureCost).toLocaleString()})\n` +
+      `🔌 DC/AC Cabling & SPDs: Pure Copper + DB + Protections (Cost: PKR ${Number(calculatedResults.cablesAndProtections).toLocaleString()})\n` +
+      `📋 Net Metering DISCO: Green Meter & Approvals (Cost: PKR ${Number(calculatedResults.netMeteringCost).toLocaleString()})\n` +
+      `🛠️ Installation Labor: Turnkey Mechanical & Electrical (Cost: PKR ${Number(calculatedResults.installationLabor).toLocaleString()})\n\n` +
+      `💰 *ESTIMATED GRAND TOTAL: PKR ${(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh (Rs. ${Number(calculatedResults.turnkeySubtotal).toLocaleString()})*\n` +
+      `⚡ Est. Generation: ~${calculatedResults.dailyGeneratedUnits} Units/Day (Monthly Savings: Rs. ${Number(calculatedResults.monthlySavings).toLocaleString()})\n\n` +
+      `*CUSTOMER & SURVEY DETAILS:*\n` +
       `👤 Name: ${bookingForm.name.trim()}\n` +
       `📞 Phone: ${bookingForm.phone.trim()}\n` +
+      (bookingForm.whatsapp ? `💬 WhatsApp: ${bookingForm.whatsapp.trim()}\n` : '') +
       (bookingForm.address ? `🏠 Address: ${bookingForm.address.trim()}\n` : '') +
-      (bookingForm.notes ? `📝 Notes: ${bookingForm.notes.trim()}\n\n` : '\n') +
+      `🏗️ Roof Type: ${bookingForm.roofType}\n` +
+      (bookingForm.notes ? `📝 Special Notes: ${bookingForm.notes.trim()}\n\n` : '\n') +
       `Please confirm the survey schedule and equipment availability.`;
 
     const cleanWa = (effectiveSupplier?.whatsapp || '923008452190').replace(/[^0-9]/g, '');
@@ -489,11 +600,23 @@ export default function SolarCalculator({ supplierOverride }) {
           </button>
         </div>
 
-        {/* Clean House Size Chips */}
+        {/* Clean House Size Chips (Pakistani Standards 1 Marla to 2 Kanal) */}
         <div className="presets-chips-row">
           <span className="preset-chip-title">Quick Presets:</span>
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('1marla')}>
+            1 Marla (~1.2 kW)
+          </button>
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('2marla')}>
+            2 Marla (~1.8 kW)
+          </button>
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('3marla')}>
+            3 Marla (~2.5 kW)
+          </button>
           <button type="button" className="preset-chip" onClick={() => applyHousePreset('5marla')}>
             5 Marla (~3.5 kW)
+          </button>
+          <button type="button" className="preset-chip" onClick={() => applyHousePreset('7marla')}>
+            7 Marla (~5.5 kW)
           </button>
           <button type="button" className="preset-chip" onClick={() => applyHousePreset('10marla')}>
             10 Marla (~7 kW)
@@ -526,7 +649,7 @@ export default function SolarCalculator({ supplierOverride }) {
                 <button
                   type="button"
                   className="kw-adjust-btn"
-                  onClick={() => setTargetKw(prev => Math.max(1, +(prev - 1).toFixed(1)))}
+                  onClick={() => setTargetKw(prev => Math.max(1, +(prev - 0.5).toFixed(1)))}
                   aria-label="Decrease kW"
                 >
                   −
@@ -546,7 +669,7 @@ export default function SolarCalculator({ supplierOverride }) {
                 <button
                   type="button"
                   className="kw-adjust-btn"
-                  onClick={() => setTargetKw(prev => +(prev + 1).toFixed(1))}
+                  onClick={() => setTargetKw(prev => +(prev + 0.5).toFixed(1))}
                   aria-label="Increase kW"
                 >
                   +
@@ -556,25 +679,25 @@ export default function SolarCalculator({ supplierOverride }) {
               {/* KW Slider */}
               <input
                 type="range"
-                min="3"
+                min="1"
                 max="30"
-                step="1"
+                step="0.5"
                 className="clean-slider"
                 value={targetKw}
                 onChange={(e) => setTargetKw(parseFloat(e.target.value))}
               />
 
               <div className="slider-hints-row">
-                <span>3 kW</span>
+                <span>1 kW (Basic)</span>
                 <span>5 kW</span>
                 <span>10 kW (Standard)</span>
-                <span>15 kW</span>
+                <span>20 kW</span>
                 <span>30 kW</span>
               </div>
 
               {/* Quick Select Buttons */}
               <div className="quick-amount-pills">
-                {[3, 5, 7, 10, 12, 15, 20, 25].map(kw => (
+                {[1, 2, 3, 5, 7, 10, 12, 15, 20, 25].map(kw => (
                   <button
                     key={kw}
                     type="button"
@@ -601,14 +724,14 @@ export default function SolarCalculator({ supplierOverride }) {
                 <span className="helper-badge">WAPDA / K-Electric Bill</span>
               </div>
               <p className="simple-guide-text">
-                Enter your average summer bill to size a system that makes your bill zero:
+                Enter your average monthly electricity bill to calculate the solar capacity needed to make your bill zero:
               </p>
 
               <div className="big-value-display-box">
                 <button
                   type="button"
                   className="kw-adjust-btn"
-                  onClick={() => handleBillRsChange(Math.max(5000, (parseInt(monthlyBillRs, 10) || 20000) - 5000))}
+                  onClick={() => handleBillRsChange(Math.max(2500, (parseInt(monthlyBillRs, 10) || 5000) - 2500))}
                   aria-label="Decrease bill"
                 >
                   −
@@ -617,8 +740,8 @@ export default function SolarCalculator({ supplierOverride }) {
                   <span className="currency-label">PKR</span>
                   <input
                     type="number"
-                    step="1000"
-                    min="5000"
+                    step="500"
+                    min="2500"
                     max="500000"
                     className="big-number-input bill-number-input"
                     value={monthlyBillRs}
@@ -629,7 +752,7 @@ export default function SolarCalculator({ supplierOverride }) {
                 <button
                   type="button"
                   className="kw-adjust-btn"
-                  onClick={() => handleBillRsChange((parseInt(monthlyBillRs, 10) || 20000) + 5000)}
+                  onClick={() => handleBillRsChange((parseInt(monthlyBillRs, 10) || 5000) + 2500)}
                   aria-label="Increase bill"
                 >
                   +
@@ -638,37 +761,38 @@ export default function SolarCalculator({ supplierOverride }) {
 
               <input
                 type="range"
-                min="10000"
+                min="2500"
                 max="150000"
-                step="2000"
+                step="1000"
                 className="clean-slider"
                 value={monthlyBillRs}
                 onChange={(e) => handleBillRsChange(e.target.value)}
               />
 
               <div className="slider-hints-row">
-                <span>10k (~3kW)</span>
+                <span>2.5k (100U)</span>
+                <span>15k (~3kW)</span>
                 <span>40k (~6kW)</span>
                 <span>80k (~10kW)</span>
                 <span>150k+</span>
               </div>
 
               <div className="quick-amount-pills">
-                {[20000, 35000, 50000, 75000, 100000, 150000].map(amt => (
+                {[3000, 8000, 15000, 30000, 50000, 75000, 100000, 150000].map(amt => (
                   <button
                     key={amt}
                     type="button"
                     className={`amt-pill ${monthlyBillRs === amt ? 'is-selected' : ''}`}
                     onClick={() => handleBillRsChange(amt)}
                   >
-                    Rs. {(amt / 1000).toFixed(0)}k
+                    Rs. {(amt / 1000).toFixed(amt >= 10000 ? 0 : 1)}k
                   </button>
                 ))}
               </div>
 
               <div className="calculated-unit-hint">
                 <IconSun size={15} className="hint-svg-icon" />
-                <span>This bill equals approximately <strong>{monthlyUnits} Units (kWh)</strong> per month at current NEPRA tariffs.</span>
+                <span>This bill equals approximately <strong>{monthlyUnits} Units (kWh)</strong> per month at current NEPRA slab rates.</span>
               </div>
             </div>
           )}
@@ -688,7 +812,7 @@ export default function SolarCalculator({ supplierOverride }) {
                 <button
                   type="button"
                   className="kw-adjust-btn"
-                  onClick={() => handleUnitsChange(Math.max(50, (parseInt(monthlyUnits, 10) || 300) - 50))}
+                  onClick={() => handleUnitsChange(Math.max(100, (parseInt(monthlyUnits, 10) || 100) - 25))}
                   aria-label="Decrease units"
                 >
                   −
@@ -697,7 +821,7 @@ export default function SolarCalculator({ supplierOverride }) {
                   <input
                     type="number"
                     step="25"
-                    min="50"
+                    min="100"
                     max="5000"
                     className="big-number-input units-number-input"
                     value={monthlyUnits}
@@ -710,7 +834,7 @@ export default function SolarCalculator({ supplierOverride }) {
                 <button
                   type="button"
                   className="kw-adjust-btn"
-                  onClick={() => handleUnitsChange((parseInt(monthlyUnits, 10) || 300) + 50)}
+                  onClick={() => handleUnitsChange((parseInt(monthlyUnits, 10) || 100) + 25)}
                   aria-label="Increase units"
                 >
                   +
@@ -719,7 +843,7 @@ export default function SolarCalculator({ supplierOverride }) {
 
               <input
                 type="range"
-                min="150"
+                min="100"
                 max="3000"
                 step="25"
                 className="clean-slider"
@@ -728,14 +852,15 @@ export default function SolarCalculator({ supplierOverride }) {
               />
 
               <div className="slider-hints-row">
-                <span>200 U</span>
-                <span>600 U (~5kW)</span>
+                <span>100 U (~1kW)</span>
+                <span>350 U (~3kW)</span>
+                <span>650 U (~5kW)</span>
                 <span>1200 U (~10kW)</span>
                 <span>3000+ U</span>
               </div>
 
               <div className="quick-amount-pills">
-                {[300, 500, 700, 1000, 1500, 2000].map(u => (
+                {[100, 200, 350, 500, 750, 1000, 1500, 2000].map(u => (
                   <button
                     key={u}
                     type="button"
@@ -893,12 +1018,27 @@ export default function SolarCalculator({ supplierOverride }) {
                     <span className="load-pill">💧 1x 1 HP Water Pump (Daytime)</span>
                     <span className="load-pill">💡 6 Fans, LEDs & LED TV</span>
                   </>
-                ) : (
+                ) : parseFloat(calculatedResults.systemKw) >= 3 ? (
                   <>
-                    <span className="load-pill">❄️ 1x 1-Ton Inverter AC or Room Cooler</span>
+                    <span className="load-pill">❄️ 1x 1-Ton Inverter AC or Lahori Cooler</span>
                     <span className="load-pill">🧊 1x Inverter Refrigerator</span>
                     <span className="load-pill">💡 4-5 Ceiling Fans & All LEDs</span>
                     <span className="load-pill">📱 TV, Laptops & Mobile Charging</span>
+                  </>
+                ) : parseFloat(calculatedResults.systemKw) >= 2 ? (
+                  <>
+                    <span className="load-pill">🧊 1x Inverter Refrigerator</span>
+                    <span className="load-pill">💨 3-4 BLDC Inverter Fans</span>
+                    <span className="load-pill">💡 8-10 LED Lights</span>
+                    <span className="load-pill">📺 LED TV & WiFi Router</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="load-pill">💨 2-3 Inverter / BLDC Fans</span>
+                    <span className="load-pill">💡 5-6 LED Bulbs</span>
+                    <span className="load-pill">📺 1x LED Smart TV</span>
+                    <span className="load-pill">📱 WiFi Router & Mobile Charging</span>
+                    <span className="load-pill highlight-load">⚡ Complete UPS Replacement</span>
                   </>
                 )}
               </div>
@@ -1201,9 +1341,17 @@ export default function SolarCalculator({ supplierOverride }) {
                 </tr>
                 <tr>
                   <td><strong>Net Metering & DISCO Filing</strong></td>
-                  <td>Green Meter, Earthing Bores, Testing & LESCO/IESCO Approval</td>
-                  <td>Turnkey Processing</td>
-                  <td style={{ textAlign: 'right', fontWeight: 600 }}>PKR {calculatedResults.netMeteringCost.toLocaleString()}</td>
+                  <td>
+                    {calculatedResults.isNetMeteringApplicable
+                      ? 'Green Meter, Earthing Bores, Testing & LESCO/IESCO Approval'
+                      : 'Not Required for Single-Phase (<4 kW direct self-consumption / zero export)'}
+                  </td>
+                  <td>{calculatedResults.isNetMeteringApplicable ? 'Turnkey Processing' : 'Not Applicable (Free)'}</td>
+                  <td style={{ textAlign: 'right', fontWeight: 600 }}>
+                    {calculatedResults.isNetMeteringApplicable
+                      ? `PKR ${calculatedResults.netMeteringCost.toLocaleString()}`
+                      : 'PKR 0 (N/A)'}
+                  </td>
                 </tr>
                 {selectedSystemType === 'hybrid' && (
                   <tr>
@@ -1307,7 +1455,7 @@ export default function SolarCalculator({ supplierOverride }) {
                       </span>
                       <h4>Book {calculatedResults.systemKw} kW System with {effectiveSupplier?.name || 'Orbit Solar Technologies'}</h4>
                       <p className="topbar-sub">
-                        Est. Turnkey: <strong style={{ color: '#00d2ff' }}>PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</strong> • <strong>{calculatedResults.numberOfPanels} Panels</strong> • Net Metering Included
+                        Est. Turnkey: <strong className="topbar-price-highlight">PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</strong> • <strong>{calculatedResults.numberOfPanels} Panels</strong> • Net Metering Included
                       </p>
                     </div>
                     <button
@@ -1316,8 +1464,247 @@ export default function SolarCalculator({ supplierOverride }) {
                       onClick={() => setIsInlineBookingOpen(false)}
                       title="Cancel & close form"
                     >
-                      ✕
+                      <IconX size={15} />
                     </button>
+                  </div>
+
+                  {/* Automated Live System Estimate & Equipment Breakdown */}
+                  <div className="inline-estimate-specs-card">
+                    <div className="estimate-specs-header">
+                      <div className="estimate-specs-title">
+                        <IconFileText size={16} />
+                        <span>Automated Turnkey Quotation & Equipment Breakdown</span>
+                      </div>
+                      <span className="estimate-live-badge">Live System Estimate</span>
+                    </div>
+
+                    {/* Quick Specs Pills */}
+                    <div className="estimate-key-pills-row">
+                      <div className="estimate-key-pill">
+                        <span className="pill-lbl">Capacity:</span>
+                        <strong>{calculatedResults.systemKw} kW System</strong>
+                      </div>
+                      <div className="estimate-key-pill">
+                        <span className="pill-lbl">Plates / Panels:</span>
+                        <strong>{calculatedResults.numberOfPanels} Plates ({selectedPanel?.watts || 585}W)</strong>
+                      </div>
+                      <div className="estimate-key-pill">
+                        <span className="pill-lbl">Inverter:</span>
+                        <strong>{calculatedResults.inverterKw} kW</strong>
+                      </div>
+                      <div className="estimate-key-pill">
+                        <span className="pill-lbl">System Type:</span>
+                        <strong>{selectedSystemType === 'ongrid' ? 'On-Grid Net Metered' : selectedSystemType === 'hybrid' ? 'Hybrid with Battery' : 'Off-Grid'}</strong>
+                      </div>
+                      <div className="estimate-key-pill">
+                        <span className="pill-lbl">Est. Turnkey Total:</span>
+                        <strong className="text-emerald">PKR {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh</strong>
+                      </div>
+                    </div>
+
+                    {/* Itemized Specification Table */}
+                    <div className="estimate-breakdown-table-wrap">
+                      <table className="estimate-breakdown-table">
+                        <thead>
+                          <tr>
+                            <th>Component</th>
+                            <th>Brand / Company & Specification</th>
+                            <th>Quantity / Unit</th>
+                            <th style={{ textAlign: 'right' }}>Est. Cost (PKR)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              <div className="comp-name">
+                                <span className="comp-icon">☀️</span>
+                                <strong>Solar Panels (Plates)</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="comp-spec-title">{selectedPanel?.name || 'Tier-1 Solar PV Module'}</div>
+                              <div className="comp-sub">{selectedPanel?.brand ? `Company: ${selectedPanel.brand} • ` : ''}{selectedPanel?.watts || 585}W N-Type TOPCon / Monocrystalline</div>
+                            </td>
+                            <td>
+                              <span className="comp-qty-badge">{calculatedResults.numberOfPanels} Plates</span>
+                              <div className="comp-sub">@ Rs. {selectedPanel?.price ? Number(selectedPanel.price).toLocaleString() : '21,500'}/plate</div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <span className="comp-cost num-tabular">PKR {Number(calculatedResults.panelsCost).toLocaleString()}</span>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td>
+                              <div className="comp-name">
+                                <span className="comp-icon">⚡</span>
+                                <strong>Solar Inverter</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="comp-spec-title">{calculatedResults.inverterName}</div>
+                              <div className="comp-sub">{calculatedResults.inverterKw} kW Pure Sine Wave • Dual MPPT • Tier-1</div>
+                            </td>
+                            <td>
+                              <span className="comp-qty-badge">1 Unit</span>
+                              <div className="comp-sub">Warranty: 5 Years</div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <span className="comp-cost num-tabular">PKR {Number(calculatedResults.inverterCost).toLocaleString()}</span>
+                            </td>
+                          </tr>
+
+                          {selectedSystemType === 'hybrid' ? (
+                            <tr>
+                              <td>
+                                <div className="comp-name">
+                                  <span className="comp-icon">🔋</span>
+                                  <strong>Battery Storage Bank</strong>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="comp-spec-title">{selectedBattery?.name || 'Lithium Backup Battery'}</div>
+                                <div className="comp-sub">{selectedBattery?.chemistry || 'LiFePO4 Lithium'} Backup Storage Bank</div>
+                              </td>
+                              <td>
+                                <span className="comp-qty-badge">1 Bank</span>
+                                <div className="comp-sub">{selectedBattery?.capacity || 'Backup'}</div>
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <span className="comp-cost num-tabular">PKR {Number(calculatedResults.batteryCost).toLocaleString()}</span>
+                              </td>
+                            </tr>
+                          ) : (
+                            <tr>
+                              <td>
+                                <div className="comp-name">
+                                  <span className="comp-icon">🔋</span>
+                                  <strong>Battery Storage</strong>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="comp-spec-title">Not Included (On-Grid System)</div>
+                                <div className="comp-sub">Surplus units directly exported to DISCO via Net Metering</div>
+                              </td>
+                              <td>
+                                <span className="comp-sub">Direct Grid-Tie</span>
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <span className="comp-sub">Rs. 0 (N/A)</span>
+                              </td>
+                            </tr>
+                          )}
+
+                          <tr>
+                            <td>
+                              <div className="comp-name">
+                                <span className="comp-icon">🏗️</span>
+                                <strong>Mounting Structure</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="comp-spec-title">{selectedStructure?.name || 'Galvanized Mounting Structure'}</div>
+                              <div className="comp-sub">{selectedStructure?.description || 'Custom Heavy-Duty Galvanized Steel Framing'}</div>
+                            </td>
+                            <td>
+                              <span className="comp-qty-badge">For {calculatedResults.numberOfPanels} Panels</span>
+                              <div className="comp-sub">{selectedStructure?.id === 'elevated' ? 'Elevated Walkable' : 'Standard Rooftop'}</div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <span className="comp-cost num-tabular">PKR {Number(calculatedResults.structureCost).toLocaleString()}</span>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td>
+                              <div className="comp-name">
+                                <span className="comp-icon">🔌</span>
+                                <strong>Wiring & Protection (BOS)</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="comp-spec-title">Pure Copper Cables + AC/DC DB with SPDs</div>
+                              <div className="comp-sub">Pakistan / Fast Cables pure copper + DC/AC SPDs & Circuit Breakers</div>
+                            </td>
+                            <td>
+                              <span className="comp-qty-badge">Complete Lot</span>
+                              <div className="comp-sub">Weatherproof Conduits</div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <span className="comp-cost num-tabular">PKR {Number(calculatedResults.cablesAndProtections).toLocaleString()}</span>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td>
+                              <div className="comp-name">
+                                <span className="comp-icon">📋</span>
+                                <strong>Net Metering & DISCO Filing</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="comp-spec-title">Turnkey DISCO Green Meter Processing</div>
+                              <div className="comp-sub">Earthing pit boring (&lt;5Ω), DISCO application, NEPRA inspection & green bidirectional meter activation</div>
+                            </td>
+                            <td>
+                              <span className="comp-qty-badge">1 Connection</span>
+                              <div className="comp-sub">Turnkey Processing</div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <span className="comp-cost num-tabular">PKR {Number(calculatedResults.netMeteringCost).toLocaleString()}</span>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td>
+                              <div className="comp-name">
+                                <span className="comp-icon">🛠️</span>
+                                <strong>Installation & Commissioning Labor</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="comp-spec-title">Mechanical Fabrication & Electrical Commissioning</div>
+                              <div className="comp-sub">Certified solar electricians, structure fabrication, earthing pit test & mobile WiFi monitoring app setup</div>
+                            </td>
+                            <td>
+                              <span className="comp-qty-badge">Full Turnkey</span>
+                              <div className="comp-sub">Workmanship Guarantee</div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <span className="comp-cost num-tabular">PKR {Number(calculatedResults.installationLabor).toLocaleString()}</span>
+                            </td>
+                          </tr>
+
+                          {/* Grand Total Row */}
+                          <tr className="estimate-total-row">
+                            <td colSpan="3">
+                              <div className="estimate-total-left">
+                                <strong>Total Turnkey Project Estimate (Complete A-to-Z)</strong>
+                                <div className="comp-sub">Includes all {calculatedResults.numberOfPanels} plates, inverter, structure, cables, net metering & labor</div>
+                              </div>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div className="estimate-total-price num-tabular">
+                                PKR {Number(calculatedResults.turnkeySubtotal).toLocaleString()}
+                              </div>
+                              <div className="estimate-total-lakh">
+                                approx. {(calculatedResults.turnkeySubtotal / 100000).toFixed(2)} Lakh
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="inline-booking-form-header">
+                    <div className="form-header-title">
+                      <IconZap size={15} />
+                      <span>Enter Contact Details to Schedule Roof Survey & Lock-In These Rates</span>
+                    </div>
+                    <p className="form-header-desc">
+                      Your request will be logged directly with {effectiveSupplier?.name || 'Orbit Solar Technologies'}. Our engineering team will review your specifications and confirm your physical site survey appointment.
+                    </p>
                   </div>
 
                   <form onSubmit={handleInlineBookingSubmit} className="inline-actual-form">

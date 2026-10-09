@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Lightbulb Theme Toggle Component Styles
+   Supports smooth stroke-dashoffset & opacity animations
+   ========================================================================== */
+
+.theme-toggle-lightbulb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  color: currentColor;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.25s ease,
+              background-color 0.25s ease,
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+  line-height: 1;
+}
+
+.theme-toggle-lightbulb:hover {
+  transform: scale(1.08);
+}
+
+.theme-toggle-lightbulb:active {
+  transform: scale(0.95);
+}
+
+.theme-toggle-lightbulb svg {
+  display: block;
+  width: 1.35em;
+  height: 1.35em;
+  overflow: visible;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle-lightbulb:hover svg {
+  transform: rotate(8deg);
+}
+
+/* Base ray & filament path animations */
+.theme-toggle-lightbulb .toggles-lightbulb-filament,
+.theme-toggle-lightbulb .toggles-lightbulb-ray {
+  stroke-dasharray: 1.1;
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition: stroke-dashoffset var(--toggles-lightbulb--duration, 500ms) cubic-bezier(0.4, 0, 0.2, 1),
+              opacity var(--toggles-lightbulb--duration, 500ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Theme State (toggled === true or button has .dark class) */
+/* The filament and light rays retract and disappear, bulb is turned off */
+.theme-toggle-lightbulb.dark .toggles-lightbulb-filament,
+.theme-toggle-lightbulb.dark .toggles-lightbulb-ray,
+.theme-toggle-lightbulb[aria-pressed="true"] .toggles-lightbulb-filament,
+.theme-toggle-lightbulb[aria-pressed="true"] .toggles-lightbulb-ray {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+/* Light Theme State (toggled === false or button has .light class) */
+/* Bulb glows bright amber / golden with rays active */
+.theme-toggle-lightbulb.light .toggles-lightbulb-filament,
+.theme-toggle-lightbulb.light .toggles-lightbulb-ray,
+.theme-toggle-lightbulb[aria-pressed="false"] .toggles-lightbulb-filament,
+.theme-toggle-lightbulb[aria-pressed="false"] .toggles-lightbulb-ray {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+/* Floating Theme Toggle specific styling integration */
+.floating-theme-toggle.theme-toggle-lightbulb {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark Mode Floating Lightbulb */
+.floating-theme-toggle.theme-toggle-lightbulb.dark,
+body:not(.light-theme) .floating-theme-toggle.theme-toggle-lightbulb {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #94a3b8;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.floating-theme-toggle.theme-toggle-lightbulb.dark:hover,
+body:not(.light-theme) .floating-theme-toggle.theme-toggle-lightbulb:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #00d2ff;
+  color: #00d2ff;
+  box-shadow: 0 0 25px rgba(0, 210, 255, 0.45);
+}
+
+/* Light Mode Floating Lightbulb (Lit bulb effect!) */
+.floating-theme-toggle.theme-toggle-lightbulb.light,
+body.light-theme .floating-theme-toggle.theme-toggle-lightbulb,
+[data-theme="light"] .floating-theme-toggle.theme-toggle-lightbulb {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #d97706; /* Warm golden amber glowing bulb */
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.25), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.floating-theme-toggle.theme-toggle-lightbulb.light:hover,
+body.light-theme .floating-theme-toggle.theme-toggle-lightbulb:hover,
+[data-theme="light"] .floating-theme-toggle.theme-toggle-lightbulb:hover {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #b45309;
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+}
+
+.floating-theme-toggle.theme-toggle-lightbulb svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Hero Header Bar Lightbulb Toggle */
+.btn-theme-toggle-header.theme-toggle-lightbulb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.btn-theme-toggle-header.theme-toggle-lightbulb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #00d2ff;
+  color: #00d2ff;
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.35);
+}
+
+.btn-theme-toggle-header.theme-toggle-lightbulb.light {
+  color: #fbbf24;
+}
+
+.btn-theme-toggle-header.theme-toggle-lightbulb svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Admin Dashboard Header Theme Toggle Button */
+.btn-dash-theme-toggle.theme-toggle-lightbulb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.btn-dash-theme-toggle.theme-toggle-lightbulb svg {
+  width: 16px;
+  height: 16px;
+}

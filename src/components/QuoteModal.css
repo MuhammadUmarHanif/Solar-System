@@ -361,3 +361,90 @@
     padding: 9px 12px;
   }
 }
+
+/* ==========================================================================
+   Comprehensive Light Theme Overrides for QuoteModal
+   ========================================================================== */
+body.light-theme .quote-modal-content,
+[data-theme="light"] .quote-modal-content {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .quote-modal-header h3,
+[data-theme="light"] .quote-modal-header h3 {
+  color: #0f172a;
+}
+
+body.light-theme .quote-modal-header p,
+[data-theme="light"] .quote-modal-header p {
+  color: #64748b;
+}
+
+body.light-theme .quote-summary-strip,
+[data-theme="light"] .quote-summary-strip {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .summary-label,
+[data-theme="light"] .summary-label {
+  color: #64748b;
+}
+
+body.light-theme .summary-val,
+[data-theme="light"] .summary-val {
+  color: #0f172a;
+}
+
+body.light-theme .quote-field label,
+[data-theme="light"] .quote-field label {
+  color: #334155;
+}
+
+body.light-theme .quote-field input,
+body.light-theme .quote-field select,
+body.light-theme .quote-field textarea,
+[data-theme="light"] .quote-field input,
+[data-theme="light"] .quote-field select,
+[data-theme="light"] .quote-field textarea {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: #0f172a;
+}
+
+body.light-theme .quote-field input::placeholder,
+body.light-theme .quote-field textarea::placeholder,
+[data-theme="light"] .quote-field input::placeholder,
+[data-theme="light"] .quote-field textarea::placeholder {
+  color: #94a3b8;
+}
+
+body.light-theme .btn-cancel,
+[data-theme="light"] .btn-cancel {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #475569;
+}
+
+body.light-theme .btn-cancel:hover,
+[data-theme="light"] .btn-cancel:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+body.light-theme .quote-modal-close,
+[data-theme="light"] .quote-modal-close {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .quote-modal-close:hover,
+[data-theme="light"] .quote-modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+

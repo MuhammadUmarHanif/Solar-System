@@ -3,6 +3,8 @@ import './App.css';
 import { RouterProvider, useRouter } from './context/RouterContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SupplierProvider } from './context/SupplierContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import Lightbulb from './components/Lightbulb';
 
 // Components
 import OrbitHero from './components/OrbitHero';
@@ -20,6 +22,7 @@ import AuthPage from './pages/AuthPage';
 function AppContent() {
   const router = useRouter();
   const { currentUser, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
 
@@ -70,6 +73,15 @@ function AppContent() {
       {/* Dynamic Route View */}
       {pageContent}
 
+      {/* Floating Lightbulb Theme Switcher */}
+      <Lightbulb
+        className="floating-theme-toggle"
+        toggled={theme === 'dark'}
+        onClick={toggleTheme}
+        title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+        aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+      />
+
       {/* Auth Modal for Quick Access */}
       <AuthModal
         isOpen={isAuthModalOpen}
@@ -83,12 +95,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <RouterProvider>
-      <AuthProvider>
-        <SupplierProvider>
-          <AppContent />
-        </SupplierProvider>
-      </AuthProvider>
-    </RouterProvider>
+    <ThemeProvider>
+      <RouterProvider>
+        <AuthProvider>
+          <SupplierProvider>
+            <AppContent />
+          </SupplierProvider>
+        </AuthProvider>
+      </RouterProvider>
+    </ThemeProvider>
   );
 }

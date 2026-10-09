@@ -185,3 +185,36 @@ body.light-theme .floating-theme-toggle {
   margin-bottom: 8px;
 }
 
+/* Light Theme Overrides for Core App Elements */
+body.light-theme .section-header h2,
+[data-theme="light"] .section-header h2 {
+  color: #0f172a;
+}
+
+body.light-theme .section-subtitle,
+[data-theme="light"] .section-subtitle {
+  color: #475569;
+}
+
+body.light-theme .section-pill,
+[data-theme="light"] .section-pill {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: #0284c7;
+}
+
+body.light-theme .btn--secondary,
+[data-theme="light"] .btn--secondary {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .btn--secondary:hover,
+[data-theme="light"] .btn--secondary:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+

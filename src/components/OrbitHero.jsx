@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './OrbitHero.css';
 import { useSupplier } from '../context/SupplierContext';
+import { useTheme } from '../context/ThemeContext';
+import Lightbulb from './Lightbulb';
 
 export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
   const { activeSupplier } = useSupplier() || {};
+  const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [animClass, setAnimClass] = useState('');
   const rootRef = useRef(null);
@@ -194,6 +197,15 @@ export const OrbitHero = ({ onOpenAuth, currentUser, onLogout }) => {
               <a href="#tracker" onClick={() => setMenuOpen(false)}>Price Tracker</a>
               <a href="#chatbot" onClick={() => setMenuOpen(false)}>AI Assistant</a>
               <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
+              <button
+                type="button"
+                className="btn ghost menu-theme-btn"
+                onClick={toggleTheme}
+                style={{ width: '100%', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <Lightbulb toggled={theme === 'dark'} style={{ pointerEvents: 'none' }} />
+                <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
               {currentUser && (
                 <button
                   type="button"
